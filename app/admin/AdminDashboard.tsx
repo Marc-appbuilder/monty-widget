@@ -53,23 +53,20 @@ const LEAD_STATUS: Record<string, { bg: string; text: string }> = {
 };
 
 const NEXT_ACTIONS: { value: string; label: string; color: string }[] = [
-  { value: 'awaiting_callback',    label: 'Awaiting callback',      color: '#60a5fa' },
-  { value: 'book_valuation',       label: 'Book valuation',         color: '#f59e0b' },
-  { value: 'send_brochure',        label: 'Send brochure',          color: '#a78bfa' },
-  { value: 'mortgage_advice',      label: 'Needs mortgage advice',  color: '#fb923c' },
-  { value: 'followup_3_days',      label: 'Follow-up in 3 days',    color: '#34d399' },
-  { value: 'schedule_viewing',     label: 'Schedule viewing',       color: '#f472b6' },
+  { value: 'schedule_viewing',  label: 'Schedule viewing',  color: '#f472b6' },
+  { value: 'call_back',         label: 'Call back',         color: '#60a5fa' },
+  { value: 'await_docs',        label: 'Await docs',        color: '#a78bfa' },
+  { value: 'book_valuation',    label: 'Book valuation',    color: '#f59e0b' },
+  { value: 'follow_up',         label: 'Follow up',         color: '#34d399' },
 ];
 
 function leadScore(lead: Lead): number {
   let score = 0;
-  if (lead.email)         score += 20;
-  if (lead.phone)         score += 20;
-  if (lead.enquiry_type)  score += 20;
-  if (lead.notes)         score += 20;
-  const days = (Date.now() - new Date(lead.created_at).getTime()) / 86400000;
-  if (days <= 7)       score += 20;
-  else if (days <= 30) score += 10;
+  if (lead.email)          score += 20;
+  if (lead.phone)          score += 20;
+  if (lead.enquiry_type)   score += 20;
+  if (lead.notes)          score += 20;
+  if (lead.property_value) score += 20;
   return score;
 }
 
@@ -970,7 +967,7 @@ export default function AdminDashboard() {
                                         </span>
                                       </div>
                                       {i < PIPELINE_STAGES.length - 1 && (
-                                        <div style={{ height: '2px', flex: 1, background: i < stageIdx ? '#b8882e' : 'rgba(255,255,255,0.08)', marginBottom: '16px', minWidth: '8px' }} />
+                                        <div style={{ height: '2px', flex: 1, background: i === stageIdx - 1 ? '#b8882e' : 'rgba(255,255,255,0.08)', marginBottom: '16px', minWidth: '8px' }} />
                                       )}
                                     </div>
                                   );
@@ -983,15 +980,15 @@ export default function AdminDashboard() {
                           <div style={{ background: '#0d0f14', borderRadius: '10px', padding: '10px 12px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                               <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Lead score</div>
-                              <div style={{ fontSize: '18px', fontWeight: 800, color: scoreColour(score) }}>{score}<span style={{ fontSize: '11px', fontWeight: 400, color: 'rgba(255,255,255,0.3)' }}>/100</span></div>
+                              <div style={{ fontSize: '28px', fontWeight: 800, color: scoreColour(score), lineHeight: 1 }}>{score}<span style={{ fontSize: '12px', fontWeight: 400, color: 'rgba(255,255,255,0.3)' }}>/100</span></div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               {[
-                                { label: 'Email captured',    done: !!lead.email },
-                                { label: 'Phone captured',    done: !!lead.phone },
-                                { label: 'Enquiry type',      done: !!lead.enquiry_type },
-                                { label: 'Summary recorded',  done: !!lead.notes },
-                                { label: 'Recent (≤7 days)',  done: (Date.now() - new Date(lead.created_at).getTime()) / 86400000 <= 7 },
+                                { label: 'Email captured',        done: !!lead.email },
+                                { label: 'Phone captured',        done: !!lead.phone },
+                                { label: 'Intent confirmed',      done: !!lead.enquiry_type },
+                                { label: 'Summary recorded',      done: !!lead.notes },
+                                { label: 'Budget/value captured', done: !!lead.property_value },
                               ].map(item => (
                                 <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                                   <span style={{ color: item.done ? '#34d399' : 'rgba(255,255,255,0.2)' }}>{item.done ? '✓' : '○'}</span>
@@ -1005,18 +1002,23 @@ export default function AdminDashboard() {
                           {/* Property value & fee */}
                           <div>
                             <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Property value</div>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <div style={{ position: 'relative' }}>
                               <input
                                 type="number"
                                 placeholder="e.g. 350000"
                                 value={pvDraft}
                                 onChange={e => setPropValDrafts(p => ({ ...p, [lead.id]: e.target.value }))}
-                                style={{ ...input, flex: 1, fontSize: '12px', padding: '8px 10px' }}
+                                style={{ ...input, width: '100%', fontSize: '12px', padding: '8px 56px 8px 10px', boxSizing: 'border-box' }}
                               />
                               <button
                                 onClick={() => savePropertyValue(lead.id)}
                                 disabled={propValSaving[lead.id]}
-                                style={{ ...ghostBtn, padding: '8px 14px', flexShrink: 0, color: propValSaved[lead.id] ? '#34d399' : 'rgba(255,255,255,0.6)' }}
+                                style={{
+                                  position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)',
+                                  background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '6px',
+                                  padding: '4px 10px', cursor: 'pointer', fontSize: '11px', fontWeight: 600,
+                                  color: propValSaved[lead.id] ? '#34d399' : 'rgba(255,255,255,0.6)',
+                                }}
                               >
                                 {propValSaved[lead.id] ? '✓' : 'Save'}
                               </button>
