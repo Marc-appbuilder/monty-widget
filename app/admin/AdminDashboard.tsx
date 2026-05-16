@@ -60,7 +60,7 @@ const NEXT_ACTIONS: { value: string; label: string; color: string }[] = [
   { value: 'schedule_viewing',     label: 'Schedule viewing',       color: '#f472b6' },
 ];
 
-const PIPELINE_STAGES = ['New', 'Contacted', 'Qualified', 'Valuation', 'Won'];
+const PIPELINE_STAGES = ['New', 'Contacted', 'Qualified'];
 const STAGE_STATUS_MAP: Record<string, number> = {
   new: 0, contacted: 1, qualified: 2, dead: -1,
 };
