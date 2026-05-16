@@ -969,20 +969,32 @@ export default function AdminDashboard() {
                           </div>
 
                           {/* Quick actions */}
-                          {lead.phone && (
+                          {(lead.phone || lead.email) && (
                             <div style={{ display: 'flex', gap: '8px' }}>
-                              <a href={`tel:${lead.phone}`} style={{
-                                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                gap: '6px', padding: '10px 8px', borderRadius: '10px',
-                                background: '#1e3a5f', color: '#60a5fa',
-                                textDecoration: 'none', fontSize: '13px', fontWeight: 600,
-                              }}>📞 Call</a>
-                              <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{
-                                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                gap: '6px', padding: '10px 8px', borderRadius: '10px',
-                                background: '#0a2e1a', color: '#34d399',
-                                textDecoration: 'none', fontSize: '13px', fontWeight: 600,
-                              }}>💬 WhatsApp</a>
+                              {lead.phone && (
+                                <a href={`tel:${lead.phone}`} style={{
+                                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  gap: '6px', padding: '10px 8px', borderRadius: '10px',
+                                  background: '#1e3a5f', color: '#60a5fa',
+                                  textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+                                }}>📞 Call</a>
+                              )}
+                              {lead.phone && (
+                                <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{
+                                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  gap: '6px', padding: '10px 8px', borderRadius: '10px',
+                                  background: '#0a2e1a', color: '#34d399',
+                                  textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+                                }}>💬 WhatsApp</a>
+                              )}
+                              {lead.email && (
+                                <a href={`mailto:${lead.email}`} style={{
+                                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  gap: '6px', padding: '10px 8px', borderRadius: '10px',
+                                  background: '#2d1a4a', color: '#c084fc',
+                                  textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+                                }}>✉️ Email</a>
+                              )}
                             </div>
                           )}
 
