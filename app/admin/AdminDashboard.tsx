@@ -41,6 +41,7 @@ interface Lead {
   notes: string | null;
   status: 'new' | 'contacted' | 'qualified' | 'dead';
   raw_conversation: string | null;
+  next_action: string | null;
 }
 
 const LEAD_STATUS: Record<string, { bg: string; text: string }> = {
@@ -48,6 +49,20 @@ const LEAD_STATUS: Record<string, { bg: string; text: string }> = {
   contacted: { bg: '#3d2e0a', text: '#fbbf24' },
   qualified: { bg: '#0a2e1a', text: '#34d399' },
   dead:      { bg: '#1f1f1f', text: '#6b7280' },
+};
+
+const NEXT_ACTIONS: { value: string; label: string; color: string }[] = [
+  { value: 'awaiting_callback',    label: 'Awaiting callback',      color: '#60a5fa' },
+  { value: 'book_valuation',       label: 'Book valuation',         color: '#f59e0b' },
+  { value: 'send_brochure',        label: 'Send brochure',          color: '#a78bfa' },
+  { value: 'mortgage_advice',      label: 'Needs mortgage advice',  color: '#fb923c' },
+  { value: 'followup_3_days',      label: 'Follow-up in 3 days',    color: '#34d399' },
+  { value: 'schedule_viewing',     label: 'Schedule viewing',       color: '#f472b6' },
+];
+
+const PIPELINE_STAGES = ['New', 'Contacted', 'Qualified', 'Valuation', 'Won'];
+const STAGE_STATUS_MAP: Record<string, number> = {
+  new: 0, contacted: 1, qualified: 2, dead: -1,
 };
 
 function timeAgo(iso: string): string {
@@ -105,6 +120,10 @@ export default function AdminDashboard() {
   const [languageDraft, setLanguageDraft]   = useState<string>('english');
   const [languageSaving, setLanguageSaving] = useState(false);
   const [languageSaved, setLanguageSaved]   = useState(false);
+  const [leadTab, setLeadTab] = useState<'all' | 'new' | 'contacted' | 'qualified'>('all');
+  const [nextActionDrafts, setNextActionDrafts] = useState<Record<string, string>>({});
+  const [nextActionSaving, setNextActionSaving] = useState<Record<string, boolean>>({});
+  const [nextActionSaved, setNextActionSaved]   = useState<Record<string, boolean>>({});
 
   const fetchClients = useCallback(async () => {
     const res = await fetch('/api/clients');
@@ -129,6 +148,10 @@ export default function AdminDashboard() {
     setPositionSaved(false);
     setLanguageDraft(client.language ?? 'english');
     setLanguageSaved(false);
+    setLeadTab('all');
+    setNextActionDrafts({});
+    setNextActionSaving({});
+    setNextActionSaved({});
     setInfoDraft({
       contact_name: client.contact_name ?? '',
       email: client.email ?? '',
@@ -221,6 +244,29 @@ export default function AdminDashboard() {
     setLanguageSaved(true);
     setClients(prev => prev.map(c => c.id === clientId ? { ...c, language: languageDraft } : c));
     setTimeout(() => setLanguageSaved(false), 2000);
+  }
+
+  async function saveNextAction(leadId: string) {
+    const value = nextActionDrafts[leadId] ?? '';
+    setNextActionSaving(p => ({ ...p, [leadId]: true }));
+    await fetch(`/api/leads/${leadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ next_action: value || null }),
+    });
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, next_action: value || null } : l));
+    setNextActionSaving(p => ({ ...p, [leadId]: false }));
+    setNextActionSaved(p => ({ ...p, [leadId]: true }));
+    setTimeout(() => setNextActionSaved(p => ({ ...p, [leadId]: false })), 2000);
+  }
+
+  async function updateLeadStatus(leadId: string, status: string) {
+    await fetch(`/api/leads/${leadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: status as Lead['status'] } : l));
   }
 
   async function saveInfo(clientId: string) {
@@ -745,102 +791,223 @@ export default function AdminDashboard() {
 
           {/* Leads */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Leads</span>
               {newLeads > 0 && (
-                <span style={{
-                  background: '#b8882e', color: '#fff',
-                  fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px',
-                }}>
+                <span style={{ background: '#b8882e', color: '#fff', fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px' }}>
                   {newLeads} new
                 </span>
               )}
             </div>
 
+            {/* Tabs */}
+            {!detailLoading && (
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '4px' }}>
+                {(['all', 'new', 'contacted', 'qualified'] as const).map(tab => {
+                  const count = tab === 'all' ? leads.length : leads.filter(l => l.status === tab).length;
+                  const active = leadTab === tab;
+                  return (
+                    <button key={tab} onClick={() => setLeadTab(tab)} style={{
+                      flex: 1, padding: '7px 4px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                      fontSize: '11px', fontWeight: 600, textTransform: 'capitalize',
+                      background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                      color: active ? '#ffffff' : 'rgba(255,255,255,0.35)',
+                      transition: 'all 0.15s ease',
+                    }}>
+                      {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                      {count > 0 && <span style={{ marginLeft: '4px', opacity: 0.6 }}>({count})</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {detailLoading && (
-              <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '14px', marginTop: '30px' }}>
-                Loading leads…
-              </p>
-            )}
-            {!detailLoading && leads.length === 0 && (
-              <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '14px', marginTop: '30px' }}>
-                No leads yet.
-              </p>
+              <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '14px', marginTop: '30px' }}>Loading leads…</p>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {leads.map(lead => {
-                const isOpen = expandedLead === lead.id;
-                const sc = LEAD_STATUS[lead.status] ?? LEAD_STATUS.new;
-                return (
-                  <div key={lead.id} style={{
-                    ...card,
-                    border: isOpen ? '1px solid rgba(184,136,46,0.25)' : '1px solid rgba(255,255,255,0.04)',
-                  }}>
-                    <div onClick={() => setExpandedLead(isOpen ? null : lead.id)}
-                      style={{ padding: '12px 14px', cursor: 'pointer', userSelect: 'none' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span style={{ fontWeight: 700, fontSize: '14px' }}>{lead.name}</span>
-                            <span style={{
-                              background: sc.bg, color: sc.text,
-                              fontSize: '10px', fontWeight: 700, borderRadius: '99px',
-                              padding: '2px 8px', textTransform: 'uppercase',
-                            }}>
-                              {lead.status}
-                            </span>
-                          </div>
-                          <div style={{ marginTop: '4px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            {lead.phone && <span>{lead.phone}</span>}
-                            {lead.email && <span>{lead.email}</span>}
-                          </div>
-                        </div>
-                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', textAlign: 'right', flexShrink: 0, marginLeft: '8px' }}>
-                          <div>{timeAgo(lead.created_at)}</div>
-                          <div style={{ marginTop: '4px' }}>{isOpen ? '▲' : '▼'}</div>
-                        </div>
-                      </div>
-                    </div>
+            {/* Empty states */}
+            {!detailLoading && (() => {
+              const filtered = leadTab === 'all' ? leads : leads.filter(l => l.status === leadTab);
+              if (filtered.length > 0) return null;
+              const emptyMessages: Record<string, { icon: string; title: string; body: string }> = {
+                all:       { icon: '💬', title: 'No leads yet', body: 'Once someone chats on the widget and shares their details, they\'ll appear here.' },
+                new:       { icon: '✨', title: 'No new leads', body: 'Fresh leads land here the moment the widget captures them.' },
+                contacted: { icon: '📞', title: 'No contacted leads', body: 'Move a lead here once you\'ve made first contact.' },
+                qualified: { icon: '🏆', title: 'No qualified leads', body: 'Leads move here once motivation, timeline and property details are confirmed.' },
+              };
+              const em = emptyMessages[leadTab];
+              return (
+                <div style={{ textAlign: 'center', padding: '32px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.07)' }}>
+                  <div style={{ fontSize: '28px', marginBottom: '10px' }}>{em.icon}</div>
+                  <div style={{ fontWeight: 600, fontSize: '14px', color: 'rgba(255,255,255,0.5)', marginBottom: '6px' }}>{em.title}</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.6, maxWidth: '220px', margin: '0 auto' }}>{em.body}</div>
+                </div>
+              );
+            })()}
 
-                    {isOpen && (
-                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {lead.phone && (
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <a href={`tel:${lead.phone}`} style={{
-                              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              gap: '6px', padding: '10px 8px', borderRadius: '10px',
-                              background: '#1e3a5f', color: '#60a5fa',
-                              textDecoration: 'none', fontSize: '13px', fontWeight: 600,
-                            }}>📞 Call</a>
-                            <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{
-                              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              gap: '6px', padding: '10px 8px', borderRadius: '10px',
-                              background: '#0a2e1a', color: '#34d399',
-                              textDecoration: 'none', fontSize: '13px', fontWeight: 600,
-                            }}>💬 WhatsApp</a>
-                          </div>
-                        )}
-                        {lead.notes && (
-                          <div style={{ background: '#0d0f14', borderRadius: '8px', padding: '10px 12px' }}>
-                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Summary</div>
-                            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{lead.notes}</div>
-                          </div>
-                        )}
-                        {lead.raw_conversation && (
-                          <div style={{ background: '#0d0f14', borderRadius: '8px', padding: '10px 12px' }}>
-                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Conversation</div>
-                            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: '180px', overflowY: 'auto' }}>
-                              {lead.raw_conversation}
+            {/* Lead cards */}
+            {!detailLoading && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {(leadTab === 'all' ? leads : leads.filter(l => l.status === leadTab)).map(lead => {
+                  const isOpen = expandedLead === lead.id;
+                  const sc = LEAD_STATUS[lead.status] ?? LEAD_STATUS.new;
+                  const stageIdx = STAGE_STATUS_MAP[lead.status] ?? 0;
+                  const nextActionObj = NEXT_ACTIONS.find(a => a.value === lead.next_action);
+                  const naDraft = nextActionDrafts[lead.id] ?? lead.next_action ?? '';
+
+                  return (
+                    <div key={lead.id} style={{
+                      ...card,
+                      border: isOpen ? '1px solid rgba(184,136,46,0.25)' : '1px solid rgba(255,255,255,0.04)',
+                    }}>
+                      {/* Card header */}
+                      <div onClick={() => setExpandedLead(isOpen ? null : lead.id)}
+                        style={{ padding: '12px 14px', cursor: 'pointer', userSelect: 'none' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              <span style={{ fontWeight: 700, fontSize: '14px' }}>{lead.name}</span>
+                              <span style={{ background: sc.bg, color: sc.text, fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px', textTransform: 'uppercase' }}>
+                                {lead.status}
+                              </span>
+                              {nextActionObj && (
+                                <span style={{ background: 'rgba(255,255,255,0.06)', color: nextActionObj.color, fontSize: '10px', fontWeight: 600, borderRadius: '99px', padding: '2px 8px' }}>
+                                  → {nextActionObj.label}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ marginTop: '4px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              {lead.phone && <span>{lead.phone}</span>}
+                              {lead.email && <span>{lead.email}</span>}
                             </div>
                           </div>
-                        )}
+                          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', textAlign: 'right', flexShrink: 0, marginLeft: '8px' }}>
+                            <div>{timeAgo(lead.created_at)}</div>
+                            <div style={{ marginTop: '4px' }}>{isOpen ? '▲' : '▼'}</div>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+
+                      {isOpen && (
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                          {/* Pipeline progress bar */}
+                          {lead.status !== 'dead' && (
+                            <div>
+                              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Pipeline</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                                {PIPELINE_STAGES.map((stage, i) => {
+                                  const done = i <= stageIdx;
+                                  const current = i === stageIdx;
+                                  return (
+                                    <div key={stage} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                                        <div style={{
+                                          width: '8px', height: '8px', borderRadius: '50%',
+                                          background: done ? '#b8882e' : 'rgba(255,255,255,0.12)',
+                                          boxShadow: current ? '0 0 8px rgba(184,136,46,0.7)' : 'none',
+                                          marginBottom: '4px', flexShrink: 0,
+                                        }} />
+                                        <span style={{ fontSize: '9px', color: done ? '#b8882e' : 'rgba(255,255,255,0.2)', fontWeight: current ? 700 : 400, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                                          {stage}
+                                        </span>
+                                      </div>
+                                      {i < PIPELINE_STAGES.length - 1 && (
+                                        <div style={{ height: '2px', flex: 1, background: i < stageIdx ? '#b8882e' : 'rgba(255,255,255,0.08)', marginBottom: '16px', minWidth: '8px' }} />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Move stage */}
+                          <div>
+                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Move to stage</div>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                              {(['new', 'contacted', 'qualified', 'dead'] as const).filter(s => s !== lead.status).map(s => {
+                                const sc2 = LEAD_STATUS[s];
+                                return (
+                                  <button key={s} onClick={() => updateLeadStatus(lead.id, s)} style={{
+                                    padding: '5px 10px', borderRadius: '8px', border: `1px solid ${sc2.text}22`,
+                                    background: sc2.bg, color: sc2.text, fontSize: '11px', fontWeight: 600,
+                                    cursor: 'pointer', textTransform: 'capitalize',
+                                  }}>
+                                    {s}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Next action */}
+                          <div>
+                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next action</div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <select
+                                value={naDraft}
+                                onChange={e => setNextActionDrafts(p => ({ ...p, [lead.id]: e.target.value }))}
+                                style={{ ...input, flex: 1, fontSize: '12px', padding: '8px 10px', appearance: 'none', cursor: 'pointer' }}
+                              >
+                                <option value="">— None —</option>
+                                {NEXT_ACTIONS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+                              </select>
+                              <button
+                                onClick={() => saveNextAction(lead.id)}
+                                disabled={nextActionSaving[lead.id]}
+                                style={{
+                                  ...ghostBtn, padding: '8px 14px', flexShrink: 0,
+                                  color: nextActionSaved[lead.id] ? '#34d399' : 'rgba(255,255,255,0.6)',
+                                }}
+                              >
+                                {nextActionSaved[lead.id] ? '✓' : 'Save'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Quick actions */}
+                          {lead.phone && (
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <a href={`tel:${lead.phone}`} style={{
+                                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                gap: '6px', padding: '10px 8px', borderRadius: '10px',
+                                background: '#1e3a5f', color: '#60a5fa',
+                                textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+                              }}>📞 Call</a>
+                              <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{
+                                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                gap: '6px', padding: '10px 8px', borderRadius: '10px',
+                                background: '#0a2e1a', color: '#34d399',
+                                textDecoration: 'none', fontSize: '13px', fontWeight: 600,
+                              }}>💬 WhatsApp</a>
+                            </div>
+                          )}
+
+                          {lead.notes && (
+                            <div style={{ background: '#0d0f14', borderRadius: '8px', padding: '10px 12px' }}>
+                              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Summary</div>
+                              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{lead.notes}</div>
+                            </div>
+                          )}
+
+                          {lead.raw_conversation && (
+                            <div style={{ background: '#0d0f14', borderRadius: '8px', padding: '10px 12px' }}>
+                              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Conversation</div>
+                              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: '180px', overflowY: 'auto' }}>
+                                {lead.raw_conversation}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

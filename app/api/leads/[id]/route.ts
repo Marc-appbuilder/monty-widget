@@ -3,11 +3,11 @@ import { supabase } from '@/lib/supabase';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { status } = await req.json();
+  const body = await req.json();
 
   const { error } = await supabase
     .from('leads')
-    .update({ status })
+    .update(body)
     .eq('id', id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
