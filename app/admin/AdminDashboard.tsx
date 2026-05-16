@@ -42,6 +42,7 @@ interface Lead {
   status: 'new' | 'contacted' | 'qualified' | 'dead';
   raw_conversation: string | null;
   next_action: string | null;
+  property_value: number | null;
 }
 
 const LEAD_STATUS: Record<string, { bg: string; text: string }> = {
@@ -59,6 +60,29 @@ const NEXT_ACTIONS: { value: string; label: string; color: string }[] = [
   { value: 'followup_3_days',      label: 'Follow-up in 3 days',    color: '#34d399' },
   { value: 'schedule_viewing',     label: 'Schedule viewing',       color: '#f472b6' },
 ];
+
+function leadScore(lead: Lead): number {
+  let score = 0;
+  if (lead.email)         score += 20;
+  if (lead.phone)         score += 20;
+  if (lead.enquiry_type)  score += 20;
+  if (lead.notes)         score += 20;
+  const days = (Date.now() - new Date(lead.created_at).getTime()) / 86400000;
+  if (days <= 7)       score += 20;
+  else if (days <= 30) score += 10;
+  return score;
+}
+
+function scoreColour(score: number): string {
+  if (score >= 80) return '#34d399';
+  if (score >= 60) return '#fbbf24';
+  if (score >= 40) return '#fb923c';
+  return '#ef4444';
+}
+
+function formatFee(value: number): string {
+  return '£' + Math.round(value * 0.0125).toLocaleString('en-GB');
+}
 
 const PIPELINE_STAGES = ['New', 'Contacted', 'Qualified'];
 const STAGE_STATUS_MAP: Record<string, number> = {
@@ -124,6 +148,9 @@ export default function AdminDashboard() {
   const [nextActionDrafts, setNextActionDrafts] = useState<Record<string, string>>({});
   const [nextActionSaving, setNextActionSaving] = useState<Record<string, boolean>>({});
   const [nextActionSaved, setNextActionSaved]   = useState<Record<string, boolean>>({});
+  const [propValDrafts, setPropValDrafts]   = useState<Record<string, string>>({});
+  const [propValSaving, setPropValSaving]   = useState<Record<string, boolean>>({});
+  const [propValSaved, setPropValSaved]     = useState<Record<string, boolean>>({});
 
   const fetchClients = useCallback(async () => {
     const res = await fetch('/api/clients');
@@ -152,6 +179,9 @@ export default function AdminDashboard() {
     setNextActionDrafts({});
     setNextActionSaving({});
     setNextActionSaved({});
+    setPropValDrafts({});
+    setPropValSaving({});
+    setPropValSaved({});
     setInfoDraft({
       contact_name: client.contact_name ?? '',
       email: client.email ?? '',
@@ -258,6 +288,21 @@ export default function AdminDashboard() {
     setNextActionSaving(p => ({ ...p, [leadId]: false }));
     setNextActionSaved(p => ({ ...p, [leadId]: true }));
     setTimeout(() => setNextActionSaved(p => ({ ...p, [leadId]: false })), 2000);
+  }
+
+  async function savePropertyValue(leadId: string) {
+    const raw = propValDrafts[leadId] ?? '';
+    const value = raw ? parseFloat(raw.replace(/[^0-9.]/g, '')) : null;
+    setPropValSaving(p => ({ ...p, [leadId]: true }));
+    await fetch(`/api/leads/${leadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ property_value: value }),
+    });
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, property_value: value } : l));
+    setPropValSaving(p => ({ ...p, [leadId]: false }));
+    setPropValSaved(p => ({ ...p, [leadId]: true }));
+    setTimeout(() => setPropValSaved(p => ({ ...p, [leadId]: false })), 2000);
   }
 
   async function updateLeadStatus(leadId: string, status: string) {
@@ -856,6 +901,8 @@ export default function AdminDashboard() {
                   const stageIdx = STAGE_STATUS_MAP[lead.status] ?? 0;
                   const nextActionObj = NEXT_ACTIONS.find(a => a.value === lead.next_action);
                   const naDraft = nextActionDrafts[lead.id] ?? lead.next_action ?? '';
+                  const score = leadScore(lead);
+                  const pvDraft = propValDrafts[lead.id] ?? (lead.property_value ? String(lead.property_value) : '');
 
                   return (
                     <div key={lead.id} style={{
@@ -872,6 +919,14 @@ export default function AdminDashboard() {
                               <span style={{ background: sc.bg, color: sc.text, fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px', textTransform: 'uppercase' }}>
                                 {lead.status}
                               </span>
+                              <span style={{ background: `${scoreColour(score)}18`, color: scoreColour(score), fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px' }}>
+                                ★ {score}
+                              </span>
+                              {lead.property_value && (
+                                <span style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontWeight: 600, borderRadius: '99px', padding: '2px 8px' }}>
+                                  {formatFee(lead.property_value)} fee
+                                </span>
+                              )}
                               {nextActionObj && (
                                 <span style={{ background: 'rgba(255,255,255,0.06)', color: nextActionObj.color, fontSize: '10px', fontWeight: 600, borderRadius: '99px', padding: '2px 8px' }}>
                                   → {nextActionObj.label}
@@ -923,6 +978,56 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           )}
+
+                          {/* Lead score */}
+                          <div style={{ background: '#0d0f14', borderRadius: '10px', padding: '10px 12px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Lead score</div>
+                              <div style={{ fontSize: '18px', fontWeight: 800, color: scoreColour(score) }}>{score}<span style={{ fontSize: '11px', fontWeight: 400, color: 'rgba(255,255,255,0.3)' }}>/100</span></div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              {[
+                                { label: 'Email captured',    done: !!lead.email },
+                                { label: 'Phone captured',    done: !!lead.phone },
+                                { label: 'Enquiry type',      done: !!lead.enquiry_type },
+                                { label: 'Summary recorded',  done: !!lead.notes },
+                                { label: 'Recent (≤7 days)',  done: (Date.now() - new Date(lead.created_at).getTime()) / 86400000 <= 7 },
+                              ].map(item => (
+                                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
+                                  <span style={{ color: item.done ? '#34d399' : 'rgba(255,255,255,0.2)' }}>{item.done ? '✓' : '○'}</span>
+                                  <span style={{ color: item.done ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)' }}>{item.label}</span>
+                                  <span style={{ marginLeft: 'auto', color: item.done ? '#34d399' : 'rgba(255,255,255,0.15)', fontWeight: 600 }}>+20</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Property value & fee */}
+                          <div>
+                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Property value</div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <input
+                                type="number"
+                                placeholder="e.g. 350000"
+                                value={pvDraft}
+                                onChange={e => setPropValDrafts(p => ({ ...p, [lead.id]: e.target.value }))}
+                                style={{ ...input, flex: 1, fontSize: '12px', padding: '8px 10px' }}
+                              />
+                              <button
+                                onClick={() => savePropertyValue(lead.id)}
+                                disabled={propValSaving[lead.id]}
+                                style={{ ...ghostBtn, padding: '8px 14px', flexShrink: 0, color: propValSaved[lead.id] ? '#34d399' : 'rgba(255,255,255,0.6)' }}
+                              >
+                                {propValSaved[lead.id] ? '✓' : 'Save'}
+                              </button>
+                            </div>
+                            {lead.property_value && (
+                              <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(184,136,46,0.08)', borderRadius: '8px', padding: '8px 12px', border: '1px solid rgba(184,136,46,0.2)' }}>
+                                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>Potential fee (1.25%)</span>
+                                <span style={{ fontSize: '16px', fontWeight: 800, color: '#b8882e' }}>{formatFee(lead.property_value)}</span>
+                              </div>
+                            )}
+                          </div>
 
                           {/* Move stage */}
                           <div>
