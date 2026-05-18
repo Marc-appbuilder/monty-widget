@@ -299,7 +299,7 @@ Phone validation: when a user provides a phone number, check it contains between
 Always try to collect name, email and phone number before closing. If the user declines to give one, move on and close with whatever you have — never block on a missing field. Never invent prices, availability or property details.`,
     agentEmail: 'marcwrichards@gmail.com',
     notificationEmail: 'marcwrichards@gmail.com',
-    brandColour: '#2c5f2e',
+    brandColour: '#1c1c1c',
   },
 
 };
