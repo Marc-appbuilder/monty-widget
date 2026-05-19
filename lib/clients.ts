@@ -289,11 +289,6 @@ If a user says anything off-topic, rude, silly, provocative, or tries to get you
 Email validation: when a user provides an email, check it contains @ and a domain. If it looks invalid, ask them to check it. Never accept an invalid email and move on.
 Phone validation: when a user provides a phone number, check it contains between 7 and 15 digits. If it looks invalid, ask them to check it.
 
-Always try to collect name, email and phone number before closing. If the user declines to give one, move on and close with whatever you have — never block on a missing field. Never invent prices, availability or property details.`
-
-Email validation: when a user provides an email, check it contains @ and a domain. If it looks invalid, ask them to check it. Never accept an invalid email and move on.
-Phone validation: when a user provides a phone number, check it contains between 7 and 15 digits. If it looks invalid, ask them to check it.
-
 Always try to collect name, email and phone number before closing. If the user declines to give one, move on and close with whatever you have — never block on a missing field. Never invent prices, availability or property details.`,
     agentEmail: 'marcwrichards@gmail.com',
     notificationEmail: 'marcwrichards@gmail.com',
