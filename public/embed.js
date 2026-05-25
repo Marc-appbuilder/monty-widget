@@ -220,7 +220,7 @@
   });
   fabArmLeft.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
-      '<line x1="44" y1="70" x2="5" y2="7" stroke="#AAFF00" stroke-width="11" stroke-linecap="round"/>' +
+      '<line x1="44" y1="70" x2="10" y2="8" stroke="#AAFF00" stroke-width="12" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Right arm */
@@ -237,7 +237,7 @@
   });
   fabArmRight.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
-      '<line x1="44" y1="70" x2="83" y2="7" stroke="#AAFF00" stroke-width="11" stroke-linecap="round"/>' +
+      '<line x1="44" y1="70" x2="78" y2="8" stroke="#AAFF00" stroke-width="12" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -275,15 +275,20 @@
   }
 
   fab.addEventListener('mouseover', function () {
+    _isHoveringFab = true;
     if (isOpen) return;
     _setArmsHover();
-    if (_teaserText && !_teaserDismissed && teaser.style.display === 'none' && !isMobile()) {
+    /* Reveal prompt immediately on hover if not yet shown this cycle */
+    if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
       clearTimeout(_teaserAutoTimer);
       _showTeaser();
     }
   });
-  fab.addEventListener('mouseout', function () { if (!isOpen) _setArmsResting(); });
+  fab.addEventListener('mouseout', function () {
+    _isHoveringFab = false;
+    if (!isOpen) _setArmsResting();
+  });
   fab.addEventListener('click', function () {
     if (_justDragged) { _justDragged = false; return; }
     if (isOpen) { closeFab(); } else { openFab(); }
@@ -297,10 +302,11 @@
   var _teaserDismissed  = false;
   var _teaserTimer      = null;
   var _teaserAutoTimer  = null;
-  var _teaserText       = '';
+  var _teaserPrompts    = [];   /* rotating array of prompt strings */
+  var _teaserIndex      = 0;   /* which prompt shows next */
   var _teaserShowCount  = 0;
   var _teaserArmsAngle  = 0;
-  var _TEASER_MAX       = 3;
+  var _isHoveringFab    = false;
 
   function _escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -316,8 +322,8 @@
     color:         '#F5F7F4',
     borderRadius:  '13px',
     boxShadow:     '0 0 20px rgba(170,255,0,0.08)',
-    padding:       '10px 18px',
-    fontSize:      '13px',
+    padding:       '11px 22px',
+    fontSize:      '14px',
     fontFamily:    '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     fontWeight:    '500',
     letterSpacing: '0.02em',
@@ -326,6 +332,7 @@
     display:       'none',
     whiteSpace:    'nowrap',
     userSelect:    'none',
+    maxWidth:      '85vw',
   });
 
   var teaserText = document.createElement('span');
@@ -342,9 +349,12 @@
   });
 
   function _showTeaser() {
-    if (_teaserDismissed || isOpen || isMobile() || !_teaserText) return;
-    if (_teaserShowCount >= _TEASER_MAX) return;
+    if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
+    var maxShows = isMobile() ? 2 : 3;
+    if (_teaserShowCount >= maxShows) return;
     _teaserShowCount++;
+    var prompt = _teaserPrompts[_teaserIndex % _teaserPrompts.length];
+    _teaserIndex++;
     /* V opens slightly first, bubble follows 150ms later */
     _teaserArmsAngle = 8;
     _setArmsResting();
@@ -352,7 +362,7 @@
       if (_teaserDismissed || isOpen) return;
       teaserText.innerHTML =
         '<span style="color:#AAFF00;font-size:7px;vertical-align:2px;margin-right:6px">●</span>' +
-        _escHtml(_teaserText);
+        _escHtml(prompt);
       teaser.style.display   = 'block';
       teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
     }, 150);
@@ -371,22 +381,38 @@
   }
 
   function _scheduleCycle() {
-    if (_teaserDismissed || _teaserShowCount >= _TEASER_MAX) return;
+    var mob      = isMobile();
+    var maxShows = mob ? 2 : 3;
+    var visibleMs = mob ? 3500 : 4500;
+    var repeatMs  = mob
+      ? (30000 + Math.random() * 5000)
+      : (25000 + Math.random() * 5000);
+
+    if (_teaserDismissed || _teaserShowCount >= maxShows) return;
     _showTeaser();
-    /* Auto-hide after 5s then repeat at 8–12s intervals */
-    _teaserAutoTimer = setTimeout(function () {
+
+    /* Stay visible while hovering, then hide and reschedule */
+    function tryHide() {
+      if (_isHoveringFab && !isMobile()) {
+        _teaserAutoTimer = setTimeout(tryHide, 400);
+        return;
+      }
       _hideTeaser(function () {
-        if (!_teaserDismissed && _teaserShowCount < _TEASER_MAX) {
-          _teaserTimer = setTimeout(_scheduleCycle, 8000 + Math.random() * 4000);
+        if (!_teaserDismissed && _teaserShowCount < maxShows) {
+          _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
         }
       });
-    }, 5000);
+    }
+    _teaserAutoTimer = setTimeout(tryHide, visibleMs);
   }
 
   function initTeaser(text) {
     if (!text) return;
-    _teaserText = text;
-    _teaserTimer = setTimeout(_scheduleCycle, 2500);
+    /* Support comma-separated list for prompt rotation */
+    _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!_teaserPrompts.length) return;
+    var firstDelay = isMobile() ? 2000 : 2500;
+    _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
   }
 
   /* ── 7. Widget container ─────────────────────────────────────────────────── */
@@ -449,6 +475,7 @@
   function openFab() {
     isOpen = true;
     if (_closeTimer) { clearTimeout(_closeTimer); _closeTimer = null; }
+    _teaserDismissed = true;  /* no more prompts once chat is opened */
     teaser.style.display = 'none';
     teaser.style.animation = '';
     _teaserArmsAngle = 0;
