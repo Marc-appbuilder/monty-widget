@@ -50,7 +50,8 @@
     /* Chat panel: expands from V origin (bottom-right) on open, collapses on close */
     '@keyframes ea-widget-in{from{opacity:0;transform:scale(0.04)}to{opacity:1;transform:scale(1)}}' +
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
-    '@keyframes ea-teaser-in{from{opacity:0}to{opacity:1}}';
+    '@keyframes ea-teaser-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}' +
+    '@keyframes ea-teaser-out{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(8px)}}';
   document.head.appendChild(styleEl);
 
   /* ── 5. FAB wrapper ─────────────────────────────────────────────────────── */
@@ -267,12 +268,21 @@
   function _setArmsResting() {
     fabArmLeft.style.animation  = 'none';
     fabArmRight.style.animation = 'none';
-    fabArmLeft.style.transform  = 'rotate(0deg)';
-    fabArmRight.style.transform = 'rotate(0deg)';
+    var a = _teaserArmsAngle || 0;
+    fabArmLeft.style.transform  = 'rotate(' + (-a) + 'deg)';
+    fabArmRight.style.transform = 'rotate(' + a + 'deg)';
   }
 
-  fab.addEventListener('mouseover', function () { if (!isOpen) _setArmsHover(); });
-  fab.addEventListener('mouseout',  function () { if (!isOpen) _setArmsResting(); });
+  fab.addEventListener('mouseover', function () {
+    if (isOpen) return;
+    _setArmsHover();
+    if (_teaserText && !_teaserDismissed && teaser.style.display === 'none' && !isMobile()) {
+      clearTimeout(_teaserTimer);
+      clearTimeout(_teaserAutoTimer);
+      _showTeaser();
+    }
+  });
+  fab.addEventListener('mouseout', function () { if (!isOpen) _setArmsResting(); });
   fab.addEventListener('click', function () {
     if (_justDragged) { _justDragged = false; return; }
     if (isOpen) { closeFab(); } else { openFab(); }
@@ -282,57 +292,100 @@
   fabWrap.appendChild(fabArmRight);
   fabWrap.appendChild(fab);
 
-  /* ── 6. Teaser bubble ───────────────────────────────────────────────────── */
-  var teaser = document.createElement('div');
-  var _teaserDismissed = false;
-  var _teaserTimer = null;
+  /* ── 6. Signal prompt ───────────────────────────────────────────────────── */
+  var _teaserDismissed  = false;
+  var _teaserTimer      = null;
+  var _teaserAutoTimer  = null;
+  var _teaserText       = '';
+  var _teaserShowCount  = 0;
+  var _teaserArmsAngle  = 0;
+  var _TEASER_MAX       = 3;
 
+  function _escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  var teaser = document.createElement('div');
   Object.assign(teaser.style, {
     position:      'absolute',
-    bottom:        '80px',
-    right:         '0',
-    background:    '#ffffff',
-    color:         '#1c1c1c',
-    borderRadius:  '12px',
-    boxShadow:     '0 4px 16px rgba(0,0,0,0.12)',
-    padding:       '12px 16px',
-    fontSize:      '14px',
-    fontFamily:    '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    bottom:        '92px',          /* 76px V + 16px gap */
+    left:          '44px',          /* center of 88px V */
+    transform:     'translateX(-50%)',
+    background:    'rgba(17,17,17,0.93)',
+    color:         '#F5F7F4',
+    borderRadius:  '13px',
+    boxShadow:     '0 0 20px rgba(170,255,0,0.08)',
+    padding:       '10px 18px',
+    fontSize:      '13px',
+    fontFamily:    '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     fontWeight:    '500',
-    lineHeight:    '1.4',
+    letterSpacing: '0.02em',
+    lineHeight:    '1',
     cursor:        'pointer',
     display:       'none',
     whiteSpace:    'nowrap',
     userSelect:    'none',
   });
 
-  /* Triangle pointer at bottom-right toward the FAB */
-  teaser.innerHTML =
-    '<span style="position:absolute;bottom:-7px;right:22px;width:0;height:0;' +
-    'border-left:7px solid transparent;border-right:7px solid transparent;' +
-    'border-top:7px solid #ffffff;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.08));"></span>';
-
   var teaserText = document.createElement('span');
   teaser.appendChild(teaserText);
-
   fabWrap.appendChild(teaser);
 
   teaser.addEventListener('click', function () {
     _teaserDismissed = true;
+    clearTimeout(_teaserTimer);
+    clearTimeout(_teaserAutoTimer);
     teaser.style.display = 'none';
+    _teaserArmsAngle = 0;
     openFab();
   });
 
-  function showTeaser(text) {
-    if (_teaserDismissed || isOpen || isMobile()) return;
-    teaserText.textContent = text;
-    teaser.style.display   = 'block';
-    teaser.style.animation = 'ea-teaser-in 0.5s ease both';
+  function _showTeaser() {
+    if (_teaserDismissed || isOpen || isMobile() || !_teaserText) return;
+    if (_teaserShowCount >= _TEASER_MAX) return;
+    _teaserShowCount++;
+    /* V opens slightly first, bubble follows 150ms later */
+    _teaserArmsAngle = 8;
+    _setArmsResting();
+    setTimeout(function () {
+      if (_teaserDismissed || isOpen) return;
+      teaserText.innerHTML =
+        '<span style="color:#AAFF00;font-size:7px;vertical-align:2px;margin-right:6px">●</span>' +
+        _escHtml(_teaserText);
+      teaser.style.display   = 'block';
+      teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
+    }, 150);
+  }
+
+  function _hideTeaser(cb) {
+    if (teaser.style.display === 'none') { if (cb) cb(); return; }
+    teaser.style.animation = 'ea-teaser-out 0.2s ease-in both';
+    setTimeout(function () {
+      teaser.style.display   = 'none';
+      teaser.style.animation = '';
+      _teaserArmsAngle = 0;
+      if (!isOpen) _setArmsResting();
+      if (cb) cb();
+    }, 220);
+  }
+
+  function _scheduleCycle() {
+    if (_teaserDismissed || _teaserShowCount >= _TEASER_MAX) return;
+    _showTeaser();
+    /* Auto-hide after 5s then repeat at 8–12s intervals */
+    _teaserAutoTimer = setTimeout(function () {
+      _hideTeaser(function () {
+        if (!_teaserDismissed && _teaserShowCount < _TEASER_MAX) {
+          _teaserTimer = setTimeout(_scheduleCycle, 8000 + Math.random() * 4000);
+        }
+      });
+    }, 5000);
   }
 
   function initTeaser(text) {
     if (!text) return;
-    _teaserTimer = setTimeout(function () { showTeaser(text); }, 2500);
+    _teaserText = text;
+    _teaserTimer = setTimeout(_scheduleCycle, 2500);
   }
 
   /* ── 7. Widget container ─────────────────────────────────────────────────── */
@@ -396,7 +449,10 @@
     isOpen = true;
     if (_closeTimer) { clearTimeout(_closeTimer); _closeTimer = null; }
     teaser.style.display = 'none';
-    if (_teaserTimer) { clearTimeout(_teaserTimer); _teaserTimer = null; }
+    teaser.style.animation = '';
+    _teaserArmsAngle = 0;
+    clearTimeout(_teaserTimer);
+    clearTimeout(_teaserAutoTimer);
     if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); }
     overlay.style.display = 'block';
     fabWrap.style.display = isMobile() ? 'none' : 'flex';
@@ -431,6 +487,14 @@
 
   /* ── 9. Mount ───────────────────────────────────────────────────────────── */
   function mount() {
+    /* Space Grotesk — signal prompt font */
+    if (!document.getElementById('ea-sg-font')) {
+      var fl = document.createElement('link');
+      fl.id   = 'ea-sg-font';
+      fl.rel  = 'stylesheet';
+      fl.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500&display=swap';
+      document.head.appendChild(fl);
+    }
     document.body.appendChild(overlay);
     document.body.appendChild(container);
     document.body.appendChild(fabWrap);
