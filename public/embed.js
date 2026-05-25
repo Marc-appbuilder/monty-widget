@@ -60,8 +60,8 @@
   Object.assign(fabWrap.style, {
     position: 'fixed',
     zIndex:   '2147483647',
-    width:    '72px',
-    height:   '64px',
+    width:    '88px',
+    height:   '76px',
     overflow: 'visible',
   });
 
@@ -118,8 +118,8 @@
   function _clampFab(x, y) {
     var pad = 8;
     return [
-      Math.max(pad, Math.min(window.innerWidth  - 72 - pad, x)),
-      Math.max(pad, Math.min(window.innerHeight - 64 - pad, y)),
+      Math.max(pad, Math.min(window.innerWidth  - 88 - pad, x)),
+      Math.max(pad, Math.min(window.innerHeight - 76 - pad, y)),
     ];
   }
 
@@ -130,7 +130,7 @@
     // Prefer left of FAB when FAB is in the right half of the screen, else right
     var left = fx > window.innerWidth / 2
       ? fx - cw - gap
-      : fx + 72 + gap;
+      : fx + 88 + gap;
     left = Math.max(pad, Math.min(window.innerWidth - cw - pad, left));
     // Prefer above FAB when in the bottom half, else below
     var top = fy + ch > window.innerHeight - pad
@@ -199,10 +199,10 @@
     if (isOpen) { if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); } }
   });
 
-  /* V arm geometry — both arms share a 72×64 SVG viewport,
-     rotating around the vertex at (36, 58) */
-  var _armTx  = 'transform 0.42s cubic-bezier(0.4,0,0.2,1)';
-  var _armOri = '36px 58px'; /* vertex — rotation pivot */
+  /* V arm geometry — both arms share an 88×76 SVG viewport,
+     rotating around the vertex at (44, 70) */
+  var _armTx  = 'transform 0.35s ease-in-out';
+  var _armOri = '44px 70px'; /* vertex — rotation pivot */
 
   /* Left arm */
   var fabArmLeft = document.createElement('div');
@@ -210,15 +210,15 @@
     position:        'absolute',
     top:             '0',
     left:            '0',
-    width:           '72px',
-    height:          '64px',
+    width:           '88px',
+    height:          '76px',
     transformOrigin: _armOri,
     transition:      _armTx,
     pointerEvents:   'none',
   });
   fabArmLeft.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="64" viewBox="0 0 72 64" fill="none">' +
-      '<line x1="36" y1="58" x2="5" y2="7" stroke="#AAFF00" stroke-width="9" stroke-linecap="round"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
+      '<line x1="44" y1="70" x2="5" y2="7" stroke="#AAFF00" stroke-width="11" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Right arm */
@@ -227,15 +227,15 @@
     position:        'absolute',
     top:             '0',
     left:            '0',
-    width:           '72px',
-    height:          '64px',
+    width:           '88px',
+    height:          '76px',
     transformOrigin: _armOri,
     transition:      _armTx,
     pointerEvents:   'none',
   });
   fabArmRight.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="64" viewBox="0 0 72 64" fill="none">' +
-      '<line x1="36" y1="58" x2="67" y2="7" stroke="#AAFF00" stroke-width="9" stroke-linecap="round"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
+      '<line x1="44" y1="70" x2="83" y2="7" stroke="#AAFF00" stroke-width="11" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -245,8 +245,8 @@
     position:  'absolute',
     top:       '0',
     left:      '0',
-    width:     '72px',
-    height:    '64px',
+    width:     '88px',
+    height:    '76px',
     border:    'none',
     background:'transparent',
     cursor:    'pointer',
