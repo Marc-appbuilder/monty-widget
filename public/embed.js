@@ -216,7 +216,7 @@
     height:          '76px',
     transformOrigin: _armOri,
     transition:      _armTx + ', color 0.2s ease',
-    color:           '#B7FF2A',
+    color:           '#AAFF00',
     pointerEvents:   'none',
   });
   fabArmLeft.innerHTML =
@@ -234,7 +234,7 @@
     height:          '76px',
     transformOrigin: _armOri,
     transition:      _armTx + ', color 0.2s ease',
-    color:           '#B7FF2A',
+    color:           '#AAFF00',
     pointerEvents:   'none',
   });
   fabArmRight.innerHTML =
@@ -290,8 +290,8 @@
   });
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
-    fabArmLeft.style.color  = '#B7FF2A';
-    fabArmRight.style.color = '#B7FF2A';
+    fabArmLeft.style.color  = '#AAFF00';
+    fabArmRight.style.color = '#AAFF00';
     if (!isOpen) _setArmsResting();
   });
   fab.addEventListener('click', function () {
