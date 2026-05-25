@@ -195,7 +195,7 @@ export default function LoginPage() {
         fontSize: '12px',
         color: 'rgba(255,255,255,0.18)',
       }}>
-        © {new Date().getFullYear()} Vaughan
+        © 2026 VaughanAI
       </p>
     </div>
   );
