@@ -63,7 +63,7 @@
     position: 'fixed',
     zIndex:   '2147483647',
     width:    '88px',
-    height:   '56px',
+    height:   '76px',
     overflow: 'visible',
   });
 
@@ -204,7 +204,7 @@
   /* V arm geometry — both arms share an 88×76 SVG viewport,
      rotating around the vertex at (44, 70) */
   var _armTx  = 'transform 0.35s ease-in-out';
-  var _armOri = '44px 50px'; /* vertex — rotation pivot */
+  var _armOri = '44px 70px'; /* vertex — rotation pivot */
 
   /* Left arm */
   var fabArmLeft = document.createElement('div');
@@ -213,15 +213,15 @@
     top:             '0',
     left:            '0',
     width:           '88px',
-    height:          '56px',
+    height:          '76px',
     transformOrigin: _armOri,
     transition:      _armTx + ', color 0.2s ease',
     color:           '#B7FF2A',
     pointerEvents:   'none',
   });
   fabArmLeft.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" fill="none">' +
-      '<line x1="44" y1="51" x2="7" y2="7" stroke="currentColor" stroke-width="15" stroke-linecap="square"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
+      '<line x1="44" y1="70" x2="10" y2="8" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Right arm */
@@ -231,15 +231,15 @@
     top:             '0',
     left:            '0',
     width:           '88px',
-    height:          '56px',
+    height:          '76px',
     transformOrigin: _armOri,
     transition:      _armTx + ', color 0.2s ease',
     color:           '#B7FF2A',
     pointerEvents:   'none',
   });
   fabArmRight.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" fill="none">' +
-      '<line x1="44" y1="51" x2="81" y2="7" stroke="currentColor" stroke-width="15" stroke-linecap="square"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
+      '<line x1="44" y1="70" x2="78" y2="8" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -250,7 +250,7 @@
     top:       '0',
     left:      '0',
     width:     '88px',
-    height:    '56px',
+    height:    '76px',
     border:    'none',
     background:'transparent',
     cursor:    'pointer',
@@ -320,7 +320,7 @@
   var teaser = document.createElement('div');
   Object.assign(teaser.style, {
     position:      'absolute',
-    bottom:        '72px',          /* 56px V + 16px gap */
+    bottom:        '92px',          /* 76px V + 16px gap */
     left:          '44px',          /* center of 88px V */
     transform:     'translateX(-50%)',
     background:    'rgba(17,17,17,0.93)',
@@ -445,7 +445,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '24px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : '92px',
+        bottom:    isFloated ? 'auto'  : '112px',
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
