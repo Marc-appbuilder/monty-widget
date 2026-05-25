@@ -215,12 +215,13 @@
     width:           '88px',
     height:          '56px',
     transformOrigin: _armOri,
-    transition:      _armTx + ', filter 0.3s ease',
+    transition:      _armTx + ', color 0.2s ease',
+    color:           '#B7FF2A',
     pointerEvents:   'none',
   });
   fabArmLeft.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" fill="none">' +
-      '<line x1="44" y1="51" x2="7" y2="7" stroke="#FFFFFF" stroke-width="15" stroke-linecap="square"/>' +
+      '<line x1="44" y1="51" x2="7" y2="7" stroke="currentColor" stroke-width="15" stroke-linecap="square"/>' +
     '</svg>';
 
   /* Right arm */
@@ -232,12 +233,13 @@
     width:           '88px',
     height:          '56px',
     transformOrigin: _armOri,
-    transition:      _armTx + ', filter 0.3s ease',
+    transition:      _armTx + ', color 0.2s ease',
+    color:           '#B7FF2A',
     pointerEvents:   'none',
   });
   fabArmRight.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" fill="none">' +
-      '<line x1="44" y1="51" x2="81" y2="7" stroke="#FFFFFF" stroke-width="15" stroke-linecap="square"/>' +
+      '<line x1="44" y1="51" x2="81" y2="7" stroke="currentColor" stroke-width="15" stroke-linecap="square"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -274,14 +276,12 @@
     fabArmRight.style.transform = 'rotate(' + a + 'deg)';
   }
 
-  var _glowFilter = 'drop-shadow(0 0 8px #AAFF00) drop-shadow(0 0 3px #AAFF00)';
-
   fab.addEventListener('mouseover', function () {
     _isHoveringFab = true;
     if (isOpen) return;
     _setArmsHover();
-    fabArmLeft.style.filter  = _glowFilter;
-    fabArmRight.style.filter = _glowFilter;
+    fabArmLeft.style.color  = '#AAFF00';
+    fabArmRight.style.color = '#AAFF00';
     if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
       clearTimeout(_teaserAutoTimer);
@@ -290,8 +290,8 @@
   });
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
-    fabArmLeft.style.filter  = 'none';
-    fabArmRight.style.filter = 'none';
+    fabArmLeft.style.color  = '#B7FF2A';
+    fabArmRight.style.color = '#B7FF2A';
     if (!isOpen) _setArmsResting();
   });
   fab.addEventListener('click', function () {
