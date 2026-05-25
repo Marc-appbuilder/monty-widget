@@ -20,7 +20,7 @@
     })();
 
   var srcUrl   = new URL(scriptEl.src);
-  var origin   = srcUrl.origin;
+  var origin   = srcUrl.searchParams.get('origin') || srcUrl.origin;
   var clientId   = srcUrl.searchParams.get('clientId') || 'demo';
   var colorArg   = srcUrl.searchParams.get('color');
   var teaserArg  = srcUrl.searchParams.get('teaserText');
