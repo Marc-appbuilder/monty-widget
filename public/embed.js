@@ -516,21 +516,23 @@
     clearTimeout(_teaserAutoTimer);
     if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); }
     overlay.style.display = 'block';
-    fabWrap.style.display = isMobile() ? 'none' : 'flex';
+    fabWrap.style.display = 'flex'; /* stay visible so arm-open animation plays on all devices */
     _setArmsOpen(55);
     fab.setAttribute('aria-label', 'Close chat');
 
-    container.style.visibility   = 'visible';
+    container.style.visibility    = 'visible';
     container.style.pointerEvents = 'auto';
 
     if (isMobile()) {
       _mobClose.style.display  = 'block';
       _mobHandle.style.display = 'block';
-      /* container is at translateY(100%) from applyContainerSize — force paint then slide up */
+      /* Panel slides up while arms are still visibly opening — hide V once panel arrives */
       container.style.transition = 'none';
       container.offsetHeight; /* force reflow so starting transform is painted */
       container.style.transition = 'transform 0.38s cubic-bezier(0.22,1,0.36,1)';
       container.style.transform  = 'translateY(0)';
+      _closeTimer = null;
+      setTimeout(function () { if (isOpen) fabWrap.style.display = 'none'; }, 400);
     } else {
       _mobClose.style.display  = 'none';
       _mobHandle.style.display = 'none';
@@ -549,6 +551,7 @@
     if (isMobile()) {
       _mobClose.style.display  = 'none';
       _mobHandle.style.display = 'none';
+      fabWrap.style.display = 'flex'; /* show V so arms animate back to resting */
       container.style.transition = 'transform 0.28s cubic-bezier(0.4,0,1,1)';
       container.style.transform  = 'translateY(100%)';
       _closeTimer = setTimeout(function () {
