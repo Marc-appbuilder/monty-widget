@@ -280,8 +280,7 @@
   });
   vIcon.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">' +
-      '<line x1="14" y1="16" x2="32" y2="48" stroke="white" stroke-width="5.5" stroke-linecap="round"/>' +
-      '<line x1="50" y1="16" x2="32" y2="48" stroke="white" stroke-width="5.5" stroke-linecap="round"/>' +
+      '<path d="M10 13 L32 52 L54 13" stroke="#AAFF00" stroke-width="8" stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="6"/>' +
     '</svg>';
 
   /* X icon — appears after panels split open */
@@ -300,7 +299,7 @@
     pointerEvents:  'none',
   });
   closeIcon.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round">' +
       '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
     '</svg>';
 
@@ -480,24 +479,21 @@
   }
 
   /* ── 8. Apply brand colour ──────────────────────────────────────────────── */
-  function applyColor(hex) {
-    var rgb = hexRgb(hex);
+  function applyColor() {
+    /* widget-redesign: fixed design — black circle, acid-green V */
+    fabGlow.style.background       = '#0a0a0a';
+    fabPanelLeft.style.background  = '#0a0a0a';
+    fabPanelRight.style.background = '#0a0a0a';
 
-    /* Radar pulse ring */
-    radar.style.borderColor = 'rgba(' + rgb + ',0.55)';
-    radar.style.animation   = 'ea-pulse 3s ease-out 2.8s infinite';
+    /* Single faint acid-green pulse ring — clean, not distracting */
+    radar.style.borderColor = 'rgba(170,255,0,0.28)';
+    radar.style.borderWidth = '2px';
+    radar.style.animation   = 'ea-pulse 4s ease-out 3.5s infinite';
 
-    /* Split panel backgrounds */
-    var grad = 'linear-gradient(135deg,' + hex + ' 0%,rgba(' + rgb + ',0.82) 100%)';
-    fabPanelLeft.style.background  = grad;
-    fabPanelRight.style.background = grad;
-
-    /* Breathing glow on the glow layer (extends beyond fabClip's overflow:hidden) */
-    fabGlow.style.setProperty('--ea-glow-rest',
-      '0 4px 20px rgba(' + rgb + ',0.35)');
-    fabGlow.style.setProperty('--ea-glow-peak',
-      '0 6px 36px rgba(' + rgb + ',0.65), 0 0 18px rgba(' + rgb + ',0.3)');
-    fabGlow.style.animation = 'ea-breathe 3.5s ease-in-out 2.6s infinite';
+    /* Subtle glow: dark shadow with a breath of green on peak */
+    fabGlow.style.setProperty('--ea-glow-rest', '0 4px 24px rgba(0,0,0,0.55)');
+    fabGlow.style.setProperty('--ea-glow-peak', '0 6px 32px rgba(0,0,0,0.75), 0 0 18px rgba(170,255,0,0.14)');
+    fabGlow.style.animation = 'ea-breathe 4s ease-in-out 2.6s infinite';
   }
 
   /* ── 9. Mount ───────────────────────────────────────────────────────────── */
@@ -506,22 +502,17 @@
     document.body.appendChild(container);
     document.body.appendChild(fabWrap);
 
-    if (colorArg) {
-      applyFabPosition('bottom-right');
-      applyColor(colorArg);
-    } else {
-      fetch(origin + '/api/client-config/' + encodeURIComponent(clientId))
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          applyFabPosition(d.widgetPosition || 'bottom-right');
-          applyColor(d.brandColour || '#1a365d');
-          initTeaser(d.teaserText || null);
-        })
-        .catch(function () {
-          applyFabPosition('bottom-right');
-          applyColor('#1a365d');
-        });
-    }
+    fetch(origin + '/api/client-config/' + encodeURIComponent(clientId))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        applyFabPosition(d.widgetPosition || 'bottom-right');
+        applyColor();
+        initTeaser(d.teaserText || null);
+      })
+      .catch(function () {
+        applyFabPosition('bottom-right');
+        applyColor();
+      });
   }
 
   if (document.readyState === 'loading') {
