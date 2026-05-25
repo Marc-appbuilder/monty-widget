@@ -24,9 +24,6 @@
   var clientId   = srcUrl.searchParams.get('clientId') || 'demo';
   var colorArg   = srcUrl.searchParams.get('color');
   var teaserArg  = srcUrl.searchParams.get('teaserText');
-  var pillMode   = srcUrl.searchParams.get('pill') === 'true';
-  var _padX      = pillMode ? 18 : 0;
-  var _padY      = pillMode ? 14 : 0;
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -65,18 +62,10 @@
   Object.assign(fabWrap.style, {
     position: 'fixed',
     zIndex:   '2147483647',
-    width:    (88 + _padX * 2) + 'px',
-    height:   (65 + _padY * 2) + 'px',
+    width:    '80px',
+    height:   '60px',
     overflow: 'visible',
   });
-  if (pillMode) {
-    Object.assign(fabWrap.style, {
-      borderRadius:         '100px',
-      background:           'rgba(18,18,18,0.72)',
-      backdropFilter:       'blur(14px)',
-      WebkitBackdropFilter: 'blur(14px)',
-    });
-  }
 
   function applyFabPosition(pos) {
     _pos = pos || 'bottom-right';
@@ -215,40 +204,40 @@
   /* V arm geometry — both arms share an 88×76 SVG viewport,
      rotating around the vertex at (44, 70) */
   var _armTx  = 'transform 0.35s ease-in-out';
-  var _armOri = (44 + _padX) + 'px ' + (61 + _padY) + 'px'; /* vertex — rotation pivot */
+  var _armOri = '40px 54px'; /* vertex — rotation pivot */
 
   /* Left arm */
   var fabArmLeft = document.createElement('div');
   Object.assign(fabArmLeft.style, {
     position:        'absolute',
-    top:             _padY + 'px',
-    left:            _padX + 'px',
-    width:           '88px',
-    height:          '65px',
+    top:             '0',
+    left:            '0',
+    width:           '80px',
+    height:          '60px',
     transformOrigin: _armOri,
-    transition:      _armTx,
+    transition:      _armTx + ', filter 0.3s ease',
     pointerEvents:   'none',
   });
   fabArmLeft.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="65" viewBox="0 0 88 65" fill="none">' +
-      '<line x1="44" y1="61" x2="5" y2="5" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60" viewBox="0 0 80 60" fill="none">' +
+      '<line x1="40" y1="54" x2="6" y2="6" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Right arm */
   var fabArmRight = document.createElement('div');
   Object.assign(fabArmRight.style, {
     position:        'absolute',
-    top:             _padY + 'px',
-    left:            _padX + 'px',
-    width:           '88px',
-    height:          '65px',
+    top:             '0',
+    left:            '0',
+    width:           '80px',
+    height:          '60px',
     transformOrigin: _armOri,
-    transition:      _armTx,
+    transition:      _armTx + ', filter 0.3s ease',
     pointerEvents:   'none',
   });
   fabArmRight.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="65" viewBox="0 0 88 65" fill="none">' +
-      '<line x1="44" y1="61" x2="83" y2="5" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60" viewBox="0 0 80 60" fill="none">' +
+      '<line x1="40" y1="54" x2="74" y2="6" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -258,8 +247,8 @@
     position:  'absolute',
     top:       '0',
     left:      '0',
-    width:     (88 + _padX * 2) + 'px',
-    height:    (65 + _padY * 2) + 'px',
+    width:     '80px',
+    height:    '60px',
     border:    'none',
     background:'transparent',
     cursor:    'pointer',
@@ -285,12 +274,14 @@
     fabArmRight.style.transform = 'rotate(' + a + 'deg)';
   }
 
+  var _glowFilter = 'drop-shadow(0 0 8px #AAFF00) drop-shadow(0 0 3px #AAFF00)';
+
   fab.addEventListener('mouseover', function () {
     _isHoveringFab = true;
     if (isOpen) return;
     _setArmsHover();
-    hoverGlyph.style.opacity = '1';
-    /* Reveal prompt immediately on hover if not yet shown this cycle */
+    fabArmLeft.style.filter  = _glowFilter;
+    fabArmRight.style.filter = _glowFilter;
     if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
       clearTimeout(_teaserAutoTimer);
@@ -299,7 +290,8 @@
   });
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
-    hoverGlyph.style.opacity = '0';
+    fabArmLeft.style.filter  = 'none';
+    fabArmRight.style.filter = 'none';
     if (!isOpen) _setArmsResting();
   });
   fab.addEventListener('click', function () {
@@ -307,26 +299,8 @@
     if (isOpen) { closeFab(); } else { openFab(); }
   });
 
-  /* Hover glyph — two thin message lines, fades in on hover, never dominates */
-  var hoverGlyph = document.createElement('div');
-  Object.assign(hoverGlyph.style, {
-    position:      'absolute',
-    top:           (17 + _padY) + 'px',
-    left:          (44 + _padX) + 'px',
-    transform:     'translateX(-50%)',
-    opacity:       '0',
-    transition:    'opacity 0.3s ease',
-    pointerEvents: 'none',
-  });
-  hoverGlyph.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 26 12" fill="none">' +
-      '<line x1="0" y1="3" x2="26" y2="3" stroke="rgba(255,255,255,0.58)" stroke-width="1.5" stroke-linecap="round"/>' +
-      '<line x1="0" y1="9" x2="18" y2="9" stroke="rgba(255,255,255,0.58)" stroke-width="1.5" stroke-linecap="round"/>' +
-    '</svg>';
-
   fabWrap.appendChild(fabArmLeft);
   fabWrap.appendChild(fabArmRight);
-  fabWrap.appendChild(hoverGlyph);
   fabWrap.appendChild(fab);
 
   /* ── 6. Signal prompt ───────────────────────────────────────────────────── */
@@ -346,8 +320,8 @@
   var teaser = document.createElement('div');
   Object.assign(teaser.style, {
     position:      'absolute',
-    bottom:        (81 + _padY * 2) + 'px',
-    left:          (44 + _padX) + 'px',
+    bottom:        '76px',          /* 60px V + 16px gap */
+    left:          '40px',          /* center of 80px V */
     transform:     'translateX(-50%)',
     background:    'rgba(17,17,17,0.93)',
     color:         '#F5F7F4',
@@ -471,7 +445,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '24px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : (101 + _padY * 2) + 'px',
+        bottom:    isFloated ? 'auto'  : '96px',
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
