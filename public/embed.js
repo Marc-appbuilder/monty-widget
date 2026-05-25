@@ -24,6 +24,9 @@
   var clientId   = srcUrl.searchParams.get('clientId') || 'demo';
   var colorArg   = srcUrl.searchParams.get('color');
   var teaserArg  = srcUrl.searchParams.get('teaserText');
+  var pillMode   = srcUrl.searchParams.get('pill') === 'true';
+  var _padX      = pillMode ? 18 : 0;
+  var _padY      = pillMode ? 14 : 0;
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -62,10 +65,18 @@
   Object.assign(fabWrap.style, {
     position: 'fixed',
     zIndex:   '2147483647',
-    width:    '88px',
-    height:   '65px',
+    width:    (88 + _padX * 2) + 'px',
+    height:   (65 + _padY * 2) + 'px',
     overflow: 'visible',
   });
+  if (pillMode) {
+    Object.assign(fabWrap.style, {
+      borderRadius:         '100px',
+      background:           'rgba(18,18,18,0.72)',
+      backdropFilter:       'blur(14px)',
+      WebkitBackdropFilter: 'blur(14px)',
+    });
+  }
 
   function applyFabPosition(pos) {
     _pos = pos || 'bottom-right';
@@ -204,14 +215,14 @@
   /* V arm geometry — both arms share an 88×76 SVG viewport,
      rotating around the vertex at (44, 70) */
   var _armTx  = 'transform 0.35s ease-in-out';
-  var _armOri = '44px 61px'; /* vertex — rotation pivot */
+  var _armOri = (44 + _padX) + 'px ' + (61 + _padY) + 'px'; /* vertex — rotation pivot */
 
   /* Left arm */
   var fabArmLeft = document.createElement('div');
   Object.assign(fabArmLeft.style, {
     position:        'absolute',
-    top:             '0',
-    left:            '0',
+    top:             _padY + 'px',
+    left:            _padX + 'px',
     width:           '88px',
     height:          '65px',
     transformOrigin: _armOri,
@@ -227,8 +238,8 @@
   var fabArmRight = document.createElement('div');
   Object.assign(fabArmRight.style, {
     position:        'absolute',
-    top:             '0',
-    left:            '0',
+    top:             _padY + 'px',
+    left:            _padX + 'px',
     width:           '88px',
     height:          '65px',
     transformOrigin: _armOri,
@@ -247,8 +258,8 @@
     position:  'absolute',
     top:       '0',
     left:      '0',
-    width:     '88px',
-    height:    '65px',
+    width:     (88 + _padX * 2) + 'px',
+    height:    (65 + _padY * 2) + 'px',
     border:    'none',
     background:'transparent',
     cursor:    'pointer',
@@ -300,8 +311,8 @@
   var hoverGlyph = document.createElement('div');
   Object.assign(hoverGlyph.style, {
     position:      'absolute',
-    top:           '17px',
-    left:          '44px',
+    top:           (17 + _padY) + 'px',
+    left:          (44 + _padX) + 'px',
     transform:     'translateX(-50%)',
     opacity:       '0',
     transition:    'opacity 0.3s ease',
@@ -335,8 +346,8 @@
   var teaser = document.createElement('div');
   Object.assign(teaser.style, {
     position:      'absolute',
-    bottom:        '81px',          /* 65px V + 16px gap */
-    left:          '44px',          /* center of 88px V */
+    bottom:        (81 + _padY * 2) + 'px',
+    left:          (44 + _padX) + 'px',
     transform:     'translateX(-50%)',
     background:    'rgba(17,17,17,0.93)',
     color:         '#F5F7F4',
@@ -460,7 +471,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '24px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : '101px',
+        bottom:    isFloated ? 'auto'  : (101 + _padY * 2) + 'px',
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
