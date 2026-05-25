@@ -45,40 +45,44 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: '#0f1f3d',
+      background: '#0a0a0a',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '24px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      fontFamily: '"Space Grotesk", system-ui, sans-serif',
       WebkitFontSmoothing: 'antialiased',
     }}>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap"
-        rel="stylesheet"
-      />
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400&display=swap" rel="stylesheet"/>
 
-      {/* Logo / wordmark */}
-      <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+      {/* Logo / wordmark — A3 treatment */}
+      <div style={{ marginBottom: '48px', textAlign: 'center' }}>
         <div style={{
-          fontFamily: '"Cormorant Garamond", serif',
-          fontSize: '42px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 0,
+          fontSize: '36px',
           fontWeight: 700,
-          letterSpacing: '0.02em',
-          color: '#f8f3ea',
+          letterSpacing: '-0.025em',
+          color: '#ffffff',
           lineHeight: 1,
         }}>
-          Vaughan<span style={{ color: '#b8882e' }}>AI</span>
+          <svg viewBox="0 0 88 76" fill="none" style={{ height: '0.72em', width: 'auto', display: 'block', marginRight: '-0.04em', flexShrink: 0 }}>
+            <line x1="44" y1="70" x2="10" y2="8" stroke="#AAFF00" strokeWidth="14" strokeLinecap="round"/>
+            <line x1="44" y1="70" x2="78" y2="8" stroke="#AAFF00" strokeWidth="14" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontFamily: '"Sora", sans-serif', fontWeight: 400 }}>aughan</span>
         </div>
         <div style={{
-          marginTop: '6px',
-          fontSize: '13px',
-          color: 'rgba(248,243,234,0.4)',
-          letterSpacing: '0.08em',
+          marginTop: '8px',
+          fontSize: '11px',
+          color: 'rgba(255,255,255,0.28)',
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
+          fontWeight: 700,
         }}>
-          Estate agent platform
+          Client Portal
         </div>
       </div>
 
@@ -86,31 +90,32 @@ export default function LoginPage() {
       <div style={{
         width: '100%',
         maxWidth: '380px',
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(184,136,46,0.2)',
-        borderRadius: '20px',
+        background: '#111',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '16px',
         padding: '32px 28px',
       }}>
         {!sent ? (
           <>
             <h1 style={{
               margin: '0 0 6px',
-              fontSize: '20px',
+              fontSize: '18px',
               fontWeight: 700,
-              color: '#f8f3ea',
+              color: '#ffffff',
+              letterSpacing: '-0.02em',
             }}>
               Sign in
             </h1>
             <p style={{
               margin: '0 0 24px',
               fontSize: '14px',
-              color: 'rgba(248,243,234,0.45)',
-              lineHeight: 1.5,
+              color: 'rgba(255,255,255,0.4)',
+              lineHeight: 1.6,
             }}>
               Enter your email and we'll send you a magic link.
             </p>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <input
                 type="email"
                 placeholder="you@agency.co.uk"
@@ -119,15 +124,16 @@ export default function LoginPage() {
                 required
                 autoFocus
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(184,136,46,0.25)',
-                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '10px',
                   padding: '13px 16px',
-                  color: '#f8f3ea',
+                  color: '#ffffff',
                   fontSize: '15px',
                   outline: 'none',
                   width: '100%',
                   boxSizing: 'border-box',
+                  fontFamily: 'inherit',
                 }}
               />
 
@@ -139,15 +145,17 @@ export default function LoginPage() {
                 type="submit"
                 disabled={loading || !email}
                 style={{
-                  background: loading || !email ? 'rgba(184,136,46,0.4)' : '#b8882e',
-                  color: '#fff',
+                  background: loading || !email ? 'rgba(170,255,0,0.35)' : '#AAFF00',
+                  color: '#0a0a0a',
                   border: 'none',
-                  borderRadius: '12px',
+                  borderRadius: '10px',
                   padding: '14px',
                   fontSize: '15px',
                   fontWeight: 700,
                   cursor: loading || !email ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.15s ease',
+                  transition: 'opacity 0.15s',
+                  fontFamily: 'inherit',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {loading ? 'Sending…' : 'Send magic link'}
@@ -156,23 +164,24 @@ export default function LoginPage() {
           </>
         ) : (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>✉️</div>
-            <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 700, color: '#f8f3ea' }}>
+            <div style={{ fontSize: '36px', marginBottom: '16px' }}>✉️</div>
+            <h2 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
               Check your inbox
             </h2>
-            <p style={{ margin: '0 0 20px', fontSize: '14px', color: 'rgba(248,243,234,0.5)', lineHeight: 1.6 }}>
-              We sent a magic link to <strong style={{ color: '#f8f3ea' }}>{email}</strong>. Click it to sign in.
+            <p style={{ margin: '0 0 20px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+              We sent a magic link to <strong style={{ color: '#ffffff' }}>{email}</strong>. Click it to sign in.
             </p>
             <button
               onClick={() => { setSent(false); setEmail(''); }}
               style={{
                 background: 'transparent',
-                border: '1px solid rgba(184,136,46,0.3)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: '10px',
                 padding: '10px 20px',
-                color: 'rgba(248,243,234,0.5)',
+                color: 'rgba(255,255,255,0.4)',
                 fontSize: '13px',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
             >
               Use a different email
@@ -184,9 +193,9 @@ export default function LoginPage() {
       <p style={{
         marginTop: '32px',
         fontSize: '12px',
-        color: 'rgba(248,243,234,0.2)',
+        color: 'rgba(255,255,255,0.18)',
       }}>
-        © {new Date().getFullYear()} VaughanAI
+        © {new Date().getFullYear()} Vaughan
       </p>
     </div>
   );
