@@ -47,10 +47,9 @@
     '@keyframes ea-fab-el{from{opacity:0;transform:translateX(-110px)}to{opacity:1;transform:translateX(0)}}' +
     '@keyframes ea-fab-emr{from{opacity:0;transform:translateX(110px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
     '@keyframes ea-fab-eml{from{opacity:0;transform:translateX(-110px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
-    /* Gentle breathing glow */
-    '@keyframes ea-breathe{0%,100%{box-shadow:var(--ea-glow-rest)}50%{box-shadow:var(--ea-glow-peak)}}' +
-    /* Radar / sonar pulse — emanates from circle outward */
-    '@keyframes ea-pulse{0%{transform:scale(1);opacity:0.7}100%{transform:scale(2.6);opacity:0}}' +
+    /* V arm breathing — arms hinge slowly outward and back */
+    '@keyframes ea-arm-l{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-7deg)}}' +
+    '@keyframes ea-arm-r{0%,100%{transform:rotate(0deg)}50%{transform:rotate(7deg)}}' +
     '@keyframes ea-teaser-in{from{opacity:0}to{opacity:1}}';
   document.head.appendChild(styleEl);
 
@@ -61,7 +60,7 @@
   Object.assign(fabWrap.style, {
     position: 'fixed',
     zIndex:   '2147483647',
-    width:    '64px',
+    width:    '72px',
     height:   '64px',
     overflow: 'visible',
   });
@@ -119,7 +118,7 @@
   function _clampFab(x, y) {
     var pad = 8;
     return [
-      Math.max(pad, Math.min(window.innerWidth  - 64 - pad, x)),
+      Math.max(pad, Math.min(window.innerWidth  - 72 - pad, x)),
       Math.max(pad, Math.min(window.innerHeight - 64 - pad, y)),
     ];
   }
@@ -131,7 +130,7 @@
     // Prefer left of FAB when FAB is in the right half of the screen, else right
     var left = fx > window.innerWidth / 2
       ? fx - cw - gap
-      : fx + 64 + gap;
+      : fx + 72 + gap;
     left = Math.max(pad, Math.min(window.innerWidth - cw - pad, left));
     // Prefer above FAB when in the bottom half, else below
     var top = fy + ch > window.innerHeight - pad
@@ -200,137 +199,87 @@
     if (isOpen) { if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); } }
   });
 
-  /* Radar ring */
-  var radar = document.createElement('span');
-  Object.assign(radar.style, {
+  /* V arm geometry — both arms share a 72×64 SVG viewport,
+     rotating around the vertex at (36, 58) */
+  var _armTx  = 'transform 0.42s cubic-bezier(0.4,0,0.2,1)';
+  var _armOri = '36px 58px'; /* vertex — rotation pivot */
+
+  /* Left arm */
+  var fabArmLeft = document.createElement('div');
+  Object.assign(fabArmLeft.style, {
     position:        'absolute',
     top:             '0',
     left:            '0',
-    width:           '64px',
+    width:           '72px',
     height:          '64px',
-    borderRadius:    '50%',
-    border:          '3px solid transparent',
-    boxSizing:       'border-box',
+    transformOrigin: _armOri,
+    transition:      _armTx,
     pointerEvents:   'none',
-    transformOrigin: 'center center',
   });
-
-  /* Glow layer — breathing box-shadow, sits behind panels */
-  var fabGlow = document.createElement('div');
-  Object.assign(fabGlow.style, {
-    position:     'absolute',
-    top:          '0',
-    left:         '0',
-    width:        '64px',
-    height:       '64px',
-    borderRadius: '50%',
-    pointerEvents:'none',
-  });
-
-  /* Circular clip container — clips panels to circle boundary as they slide */
-  var fabClip = document.createElement('div');
-  Object.assign(fabClip.style, {
-    position:     'absolute',
-    top:          '0',
-    left:         '0',
-    width:        '64px',
-    height:       '64px',
-    borderRadius: '50%',
-    overflow:     'hidden',
-    pointerEvents:'none',
-  });
-
-  /* Left semicircle panel */
-  var fabPanelLeft = document.createElement('div');
-  Object.assign(fabPanelLeft.style, {
-    position:  'absolute',
-    top:       '0',
-    left:      '0',
-    width:     '64px',
-    height:    '64px',
-    clipPath:  'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
-    transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
-  });
-
-  /* Right semicircle panel */
-  var fabPanelRight = document.createElement('div');
-  Object.assign(fabPanelRight.style, {
-    position:  'absolute',
-    top:       '0',
-    left:      '0',
-    width:     '64px',
-    height:    '64px',
-    clipPath:  'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
-    transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
-  });
-
-  /* Geometric V icon — white, shown when closed */
-  var vIcon = document.createElement('div');
-  Object.assign(vIcon.style, {
-    position:       'absolute',
-    top:            '0',
-    left:           '0',
-    width:          '64px',
-    height:         '64px',
-    display:        'flex',
-    alignItems:     'center',
-    justifyContent: 'center',
-    transition:     'opacity 0.15s ease',
-    pointerEvents:  'none',
-  });
-  vIcon.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">' +
-      '<path d="M10 13 L32 52 L54 13" stroke="#AAFF00" stroke-width="8" stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="6"/>' +
+  fabArmLeft.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="64" viewBox="0 0 72 64" fill="none">' +
+      '<line x1="36" y1="58" x2="5" y2="7" stroke="#AAFF00" stroke-width="9" stroke-linecap="round"/>' +
     '</svg>';
 
-  /* X icon — appears after panels split open */
-  var closeIcon = document.createElement('div');
-  Object.assign(closeIcon.style, {
-    position:       'absolute',
-    top:            '0',
-    left:           '0',
-    width:          '64px',
-    height:         '64px',
-    display:        'flex',
-    alignItems:     'center',
-    justifyContent: 'center',
-    opacity:        '0',
-    transition:     'opacity 0.18s ease 0.28s',
-    pointerEvents:  'none',
+  /* Right arm */
+  var fabArmRight = document.createElement('div');
+  Object.assign(fabArmRight.style, {
+    position:        'absolute',
+    top:             '0',
+    left:            '0',
+    width:           '72px',
+    height:          '64px',
+    transformOrigin: _armOri,
+    transition:      _armTx,
+    pointerEvents:   'none',
   });
-  closeIcon.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round">' +
-      '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
+  fabArmRight.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="64" viewBox="0 0 72 64" fill="none">' +
+      '<line x1="36" y1="58" x2="67" y2="7" stroke="#AAFF00" stroke-width="9" stroke-linecap="round"/>' +
     '</svg>';
 
-  /* Transparent click target — on top of everything */
+  /* Transparent click target covers the full V area */
   var fab = document.createElement('button');
   fab.setAttribute('aria-label', 'Open chat');
   Object.assign(fab.style, {
-    position:     'absolute',
-    top:          '0',
-    left:         '0',
-    width:        '64px',
-    height:       '64px',
-    borderRadius: '50%',
-    border:       'none',
-    background:   'transparent',
-    cursor:       'pointer',
+    position:  'absolute',
+    top:       '0',
+    left:      '0',
+    width:     '72px',
+    height:    '64px',
+    border:    'none',
+    background:'transparent',
+    cursor:    'pointer',
   });
-  fab.addEventListener('mouseover', function () { if (!isOpen) fabClip.style.filter = 'brightness(1.12)'; });
-  fab.addEventListener('mouseout',  function () { fabClip.style.filter = ''; });
+
+  function _setArmsOpen(deg) {
+    fabArmLeft.style.animation  = 'none';
+    fabArmRight.style.animation = 'none';
+    fabArmLeft.style.transform  = 'rotate(' + (-deg) + 'deg)';
+    fabArmRight.style.transform = 'rotate(' + deg + 'deg)';
+  }
+  function _setArmsHover() {
+    fabArmLeft.style.animation  = 'none';
+    fabArmRight.style.animation = 'none';
+    fabArmLeft.style.transform  = 'rotate(-13deg)';
+    fabArmRight.style.transform = 'rotate(13deg)';
+  }
+  function _setArmsBreathing() {
+    fabArmLeft.style.transform  = '';
+    fabArmRight.style.transform = '';
+    fabArmLeft.style.animation  = 'ea-arm-l 3.5s ease-in-out 0.5s infinite';
+    fabArmRight.style.animation = 'ea-arm-r 3.5s ease-in-out 0.5s infinite';
+  }
+
+  fab.addEventListener('mouseover', function () { if (!isOpen) _setArmsHover(); });
+  fab.addEventListener('mouseout',  function () { if (!isOpen) _setArmsBreathing(); });
   fab.addEventListener('click', function () {
     if (_justDragged) { _justDragged = false; return; }
     if (isOpen) { closeFab(); } else { openFab(); }
   });
 
-  fabClip.appendChild(fabPanelLeft);
-  fabClip.appendChild(fabPanelRight);
-  fabClip.appendChild(vIcon);
-  fabClip.appendChild(closeIcon);
-  fabWrap.appendChild(radar);
-  fabWrap.appendChild(fabGlow);
-  fabWrap.appendChild(fabClip);
+  fabWrap.appendChild(fabArmLeft);
+  fabWrap.appendChild(fabArmRight);
   fabWrap.appendChild(fab);
 
   /* ── 6. Teaser bubble ───────────────────────────────────────────────────── */
@@ -451,14 +400,7 @@
     container.style.animation = (isMobile() ? 'ea-widget-in-mob' : 'ea-widget-in') + ' 0.28s cubic-bezier(0.22,1,0.36,1) both';
     overlay.style.display     = 'block';
     fabWrap.style.display     = isMobile() ? 'none' : 'flex';
-    radar.style.animationPlayState = 'paused';
-    /* Split: V fades, panels slide apart, X fades in (delayed) */
-    vIcon.style.transition        = 'opacity 0.15s ease';
-    vIcon.style.opacity           = '0';
-    fabPanelLeft.style.transform  = 'translateX(-64px)';
-    fabPanelRight.style.transform = 'translateX(64px)';
-    closeIcon.style.transition    = 'opacity 0.18s ease 0.28s';
-    closeIcon.style.opacity       = '1';
+    _setArmsOpen(55);
     fab.setAttribute('aria-label', 'Close chat');
   }
 
@@ -467,33 +409,13 @@
     container.style.display = 'none';
     overlay.style.display   = 'none';
     fabWrap.style.display   = 'flex';
-    radar.style.animationPlayState = 'running';
-    /* Merge: X fades fast, panels slide back, V fades in after panels close */
-    closeIcon.style.transition    = 'opacity 0.12s ease';
-    closeIcon.style.opacity       = '0';
-    fabPanelLeft.style.transform  = 'translateX(0)';
-    fabPanelRight.style.transform = 'translateX(0)';
-    vIcon.style.transition        = 'opacity 0.15s ease 0.32s';
-    vIcon.style.opacity           = '1';
+    _setArmsBreathing();
     fab.setAttribute('aria-label', 'Open chat');
   }
 
-  /* ── 8. Apply brand colour ──────────────────────────────────────────────── */
+  /* ── 8. Initialise V — start arm breathing after entrance */
   function applyColor() {
-    /* widget-redesign: fixed design — black circle, acid-green V */
-    fabGlow.style.background       = '#0a0a0a';
-    fabPanelLeft.style.background  = '#0a0a0a';
-    fabPanelRight.style.background = '#0a0a0a';
-
-    /* Single faint acid-green pulse ring — clean, not distracting */
-    radar.style.borderColor = 'rgba(170,255,0,0.28)';
-    radar.style.borderWidth = '2px';
-    radar.style.animation   = 'ea-pulse 4s ease-out 3.5s infinite';
-
-    /* Subtle glow: dark shadow with a breath of green on peak */
-    fabGlow.style.setProperty('--ea-glow-rest', '0 4px 24px rgba(0,0,0,0.55)');
-    fabGlow.style.setProperty('--ea-glow-peak', '0 6px 32px rgba(0,0,0,0.75), 0 0 18px rgba(170,255,0,0.14)');
-    fabGlow.style.animation = 'ea-breathe 4s ease-in-out 2.6s infinite';
+    _setArmsBreathing();
   }
 
   /* ── 9. Mount ───────────────────────────────────────────────────────────── */
