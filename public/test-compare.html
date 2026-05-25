@@ -87,11 +87,11 @@
 
   <div class="panels">
     <div class="panel">
-      <div class="label">Standalone V</div>
+      <div class="label">Rounded ends</div>
       <iframe id="f1"></iframe>
     </div>
     <div class="panel">
-      <div class="label">Glass Pill</div>
+      <div class="label">Flat ends</div>
       <iframe id="f2"></iframe>
     </div>
   </div>
@@ -99,7 +99,7 @@
   <script>
     var base = 'https://cdn.jsdelivr.net/gh/Marc-appbuilder/monty-widget@widget-redesign/public/embed.js';
     var api  = 'https://app.vaughanai.co';
-    var bg   = '#1c1c1c'; /* vaughan-and-co brand background */
+    var bg   = '#1c1c1c';
 
     function makeSrcdoc(extraParams) {
       return '<!DOCTYPE html><html><head>' +
@@ -111,7 +111,7 @@
     }
 
     document.getElementById('f1').srcdoc = makeSrcdoc('');
-    document.getElementById('f2').srcdoc = makeSrcdoc('&pill=true');
+    document.getElementById('f2').srcdoc = makeSrcdoc('&linecap=butt');
   </script>
 
 </body>

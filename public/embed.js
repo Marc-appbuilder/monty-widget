@@ -24,6 +24,7 @@
   var clientId   = srcUrl.searchParams.get('clientId') || 'demo';
   var colorArg   = srcUrl.searchParams.get('color');
   var teaserArg  = srcUrl.searchParams.get('teaserText');
+  var linecap    = srcUrl.searchParams.get('linecap') || 'round';
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -221,7 +222,7 @@
   });
   fabArmLeft.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
-      '<line x1="44" y1="70" x2="10" y2="8" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>' +
+      '<line x1="44" y1="70" x2="10" y2="8" stroke="currentColor" stroke-width="14" stroke-linecap="' + linecap + '"/>' +
     '</svg>';
 
   /* Right arm */
@@ -239,7 +240,7 @@
   });
   fabArmRight.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
-      '<line x1="44" y1="70" x2="78" y2="8" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>' +
+      '<line x1="44" y1="70" x2="78" y2="8" stroke="currentColor" stroke-width="14" stroke-linecap="' + linecap + '"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
