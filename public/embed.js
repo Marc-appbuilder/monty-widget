@@ -526,13 +526,15 @@
     if (isMobile()) {
       _mobClose.style.display  = 'block';
       _mobHandle.style.display = 'block';
-      /* Panel slides up while arms are still visibly opening — hide V once panel arrives */
+      /* Arms open for 200ms, then panel slides up behind them */
       container.style.transition = 'none';
-      container.offsetHeight; /* force reflow so starting transform is painted */
-      container.style.transition = 'transform 0.38s cubic-bezier(0.22,1,0.36,1)';
-      container.style.transform  = 'translateY(0)';
-      _closeTimer = null;
-      setTimeout(function () { if (isOpen) fabWrap.style.display = 'none'; }, 400);
+      container.offsetHeight;
+      setTimeout(function () {
+        if (!isOpen) return;
+        container.style.transition = 'transform 0.38s cubic-bezier(0.22,1,0.36,1)';
+        container.style.transform  = 'translateY(0)';
+        setTimeout(function () { if (isOpen) fabWrap.style.display = 'none'; }, 420);
+      }, 200);
     } else {
       _mobClose.style.display  = 'none';
       _mobHandle.style.display = 'none';
@@ -577,6 +579,26 @@
     _setArmsResting();
   }
 
+  function applyMobileScale() {
+    if (!isMobile()) return;
+    /* Scale V to ~75% on mobile — desktop geometry unchanged */
+    var w = '66px', h = '57px', ori = '33px 52px';
+    fabWrap.style.width  = w;
+    fabWrap.style.height = h;
+    [fabArmLeft, fabArmRight].forEach(function (arm) {
+      arm.style.width          = w;
+      arm.style.height         = h;
+      arm.style.transformOrigin = ori;
+      var svg = arm.querySelector('svg');
+      if (svg) { svg.setAttribute('width', '66'); svg.setAttribute('height', '57'); }
+    });
+    fab.style.width  = w;
+    fab.style.height = h;
+    /* Re-centre signal prompt over scaled V */
+    teaser.style.left   = '33px';
+    teaser.style.bottom = '73px'; /* 57px V + 16px gap */
+  }
+
   /* ── 9. Mount ───────────────────────────────────────────────────────────── */
   function mount() {
     /* Space Grotesk — signal prompt font */
@@ -595,11 +617,13 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         applyFabPosition(d.widgetPosition || 'bottom-right');
+        applyMobileScale();
         applyColor();
         initTeaser(teaserArg || d.teaserText || null);
       })
       .catch(function () {
         applyFabPosition('bottom-right');
+        applyMobileScale();
         applyColor();
         initTeaser(teaserArg || null);
       });
