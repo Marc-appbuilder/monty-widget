@@ -115,36 +115,41 @@
 <body>
 
   <header>
-    <h1>Glade Tech</h1>
-    <span>Widget Test Page</span>
+    <h1>VaughanAI</h1>
+    <span>Widget Redesign Test</span>
   </header>
 
   <main>
-    <h2>This is a sample Glade Tech website.</h2>
+    <h2>New V-icon FAB — widget-redesign branch</h2>
     <p>
-      This page simulates a third-party site with the Vaughan widget embedded.
-      The chat bubble should appear in the bottom-right corner of the screen.
+      The chat button in the bottom-right uses the new split-V design.
+      Click it to see the panels slide apart and the chat open.
     </p>
     <p>
-      Click the chat bubble to open the widget and test the conversation
-      flow with Vaughan (Glade Tech).
+      Click again (or the × that appears) to close and watch the panels
+      merge back together.
     </p>
 
     <div class="card">
       <h3>Embed config</h3>
       <p>
-        <code>clientId=glade-tech</code> &nbsp;·&nbsp;
-        <code>origin=https://app.vaughanai.co</code>
+        <code>clientId=demo</code> &nbsp;·&nbsp;
+        <code id="origin-display"></code>
       </p>
     </div>
 
     <div class="hint">
       <div class="dot"></div>
-      Widget loaded from <code>https://app.vaughanai.co/embed.js</code>
+      Widget loaded from this deployment
     </div>
   </main>
 
-  <script src="https://app.vaughanai.co/embed.js?clientId=glade-tech" async></script>
+  <script>
+    document.getElementById('origin-display').textContent = 'origin=' + window.location.origin;
+    var s = document.createElement('script');
+    s.src = window.location.origin + '/embed.js?clientId=demo';
+    document.body.appendChild(s);
+  </script>
 
 </body>
 </html>
