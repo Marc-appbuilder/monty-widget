@@ -47,9 +47,9 @@
     '@keyframes ea-fab-el{from{opacity:0;transform:translateX(-110px)}to{opacity:1;transform:translateX(0)}}' +
     '@keyframes ea-fab-emr{from{opacity:0;transform:translateX(110px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
     '@keyframes ea-fab-eml{from{opacity:0;transform:translateX(-110px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
-    /* V arm breathing — arms hinge slowly outward and back */
-    '@keyframes ea-arm-l{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-7deg)}}' +
-    '@keyframes ea-arm-r{0%,100%{transform:rotate(0deg)}50%{transform:rotate(7deg)}}' +
+    /* Chat panel: expands from V origin (bottom-right) on open, collapses on close */
+    '@keyframes ea-widget-in{from{opacity:0;transform:scale(0.04)}to{opacity:1;transform:scale(1)}}' +
+    '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0}to{opacity:1}}';
   document.head.appendChild(styleEl);
 
@@ -264,15 +264,15 @@
     fabArmLeft.style.transform  = 'rotate(-13deg)';
     fabArmRight.style.transform = 'rotate(13deg)';
   }
-  function _setArmsBreathing() {
-    fabArmLeft.style.transform  = '';
-    fabArmRight.style.transform = '';
-    fabArmLeft.style.animation  = 'ea-arm-l 3.5s ease-in-out 0.5s infinite';
-    fabArmRight.style.animation = 'ea-arm-r 3.5s ease-in-out 0.5s infinite';
+  function _setArmsResting() {
+    fabArmLeft.style.animation  = 'none';
+    fabArmRight.style.animation = 'none';
+    fabArmLeft.style.transform  = 'rotate(0deg)';
+    fabArmRight.style.transform = 'rotate(0deg)';
   }
 
   fab.addEventListener('mouseover', function () { if (!isOpen) _setArmsHover(); });
-  fab.addEventListener('mouseout',  function () { if (!isOpen) _setArmsBreathing(); });
+  fab.addEventListener('mouseout',  function () { if (!isOpen) _setArmsResting(); });
   fab.addEventListener('click', function () {
     if (_justDragged) { _justDragged = false; return; }
     if (isOpen) { closeFab(); } else { openFab(); }
@@ -358,9 +358,9 @@
       var topVal    = _pos === 'lower-left' || _pos === 'lower-right'
         ? 'calc(72% - 290px)' : 'calc(50% - 290px)';
       Object.assign(container.style, {
-        right:     isLeft    ? 'auto'  : '96px',
+        right:     isLeft    ? 'auto'  : '24px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : '96px',
+        bottom:    isFloated ? 'auto'  : '112px',
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
@@ -386,6 +386,7 @@
 
   /* ── 7. Toggle state ─────────────────────────────────────────────────────── */
   var isOpen = false;
+  var _closeTimer = null;
 
   overlay.addEventListener('click', function () { if (isOpen) closeFab(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) closeFab(); });
@@ -393,29 +394,39 @@
 
   function openFab() {
     isOpen = true;
+    if (_closeTimer) { clearTimeout(_closeTimer); _closeTimer = null; }
     teaser.style.display = 'none';
     if (_teaserTimer) { clearTimeout(_teaserTimer); _teaserTimer = null; }
     if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); }
-    container.style.display   = 'block';
-    container.style.animation = (isMobile() ? 'ea-widget-in-mob' : 'ea-widget-in') + ' 0.28s cubic-bezier(0.22,1,0.36,1) both';
-    overlay.style.display     = 'block';
-    fabWrap.style.display     = isMobile() ? 'none' : 'flex';
+    overlay.style.display = 'block';
+    fabWrap.style.display = isMobile() ? 'none' : 'flex';
+    /* Arms open first, chat springs out of the opening */
     _setArmsOpen(55);
+    container.style.display   = 'block';
+    container.style.animation = isMobile()
+      ? 'ea-widget-in-mob 0.3s cubic-bezier(0.22,1,0.36,1) both'
+      : 'ea-widget-in 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.06s both';
     fab.setAttribute('aria-label', 'Close chat');
   }
 
   function closeFab() {
     isOpen = false;
-    container.style.display = 'none';
-    overlay.style.display   = 'none';
-    fabWrap.style.display   = 'flex';
-    _setArmsBreathing();
+    overlay.style.display = 'none';
+    fabWrap.style.display = 'flex';
+    _setArmsResting();
     fab.setAttribute('aria-label', 'Open chat');
+    /* Collapse chat back into the V, then hide */
+    container.style.animation = 'ea-widget-out 0.22s ease-in both';
+    _closeTimer = setTimeout(function () {
+      container.style.display   = 'none';
+      container.style.animation = '';
+      _closeTimer = null;
+    }, 240);
   }
 
-  /* ── 8. Initialise V — start arm breathing after entrance */
+  /* ── 8. Initialise V — static, clean, waiting */
   function applyColor() {
-    _setArmsBreathing();
+    _setArmsResting();
   }
 
   /* ── 9. Mount ───────────────────────────────────────────────────────────── */
