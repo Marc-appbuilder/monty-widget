@@ -62,8 +62,8 @@
   Object.assign(fabWrap.style, {
     position: 'fixed',
     zIndex:   '2147483647',
-    width:    '80px',
-    height:   '60px',
+    width:    '88px',
+    height:   '56px',
     overflow: 'visible',
   });
 
@@ -204,7 +204,7 @@
   /* V arm geometry — both arms share an 88×76 SVG viewport,
      rotating around the vertex at (44, 70) */
   var _armTx  = 'transform 0.35s ease-in-out';
-  var _armOri = '40px 54px'; /* vertex — rotation pivot */
+  var _armOri = '44px 50px'; /* vertex — rotation pivot */
 
   /* Left arm */
   var fabArmLeft = document.createElement('div');
@@ -212,15 +212,15 @@
     position:        'absolute',
     top:             '0',
     left:            '0',
-    width:           '80px',
-    height:          '60px',
+    width:           '88px',
+    height:          '56px',
     transformOrigin: _armOri,
     transition:      _armTx + ', filter 0.3s ease',
     pointerEvents:   'none',
   });
   fabArmLeft.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60" viewBox="0 0 80 60" fill="none">' +
-      '<line x1="40" y1="54" x2="6" y2="6" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" fill="none">' +
+      '<line x1="44" y1="51" x2="7" y2="7" stroke="#FFFFFF" stroke-width="15" stroke-linecap="square"/>' +
     '</svg>';
 
   /* Right arm */
@@ -229,15 +229,15 @@
     position:        'absolute',
     top:             '0',
     left:            '0',
-    width:           '80px',
-    height:          '60px',
+    width:           '88px',
+    height:          '56px',
     transformOrigin: _armOri,
     transition:      _armTx + ', filter 0.3s ease',
     pointerEvents:   'none',
   });
   fabArmRight.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60" viewBox="0 0 80 60" fill="none">' +
-      '<line x1="40" y1="54" x2="74" y2="6" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" fill="none">' +
+      '<line x1="44" y1="51" x2="81" y2="7" stroke="#FFFFFF" stroke-width="15" stroke-linecap="square"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -247,8 +247,8 @@
     position:  'absolute',
     top:       '0',
     left:      '0',
-    width:     '80px',
-    height:    '60px',
+    width:     '88px',
+    height:    '56px',
     border:    'none',
     background:'transparent',
     cursor:    'pointer',
@@ -320,8 +320,8 @@
   var teaser = document.createElement('div');
   Object.assign(teaser.style, {
     position:      'absolute',
-    bottom:        '76px',          /* 60px V + 16px gap */
-    left:          '40px',          /* center of 80px V */
+    bottom:        '72px',          /* 56px V + 16px gap */
+    left:          '44px',          /* center of 88px V */
     transform:     'translateX(-50%)',
     background:    'rgba(17,17,17,0.93)',
     color:         '#F5F7F4',
@@ -445,7 +445,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '24px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : '96px',
+        bottom:    isFloated ? 'auto'  : '92px',
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
