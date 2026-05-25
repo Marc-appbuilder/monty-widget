@@ -431,7 +431,7 @@
     /* Support comma-separated list for prompt rotation */
     _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
-    var firstDelay = isMobile() ? 2000 : 2500;
+    var firstDelay = isMobile() ? 6000 : 2500;
     _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
   }
 
