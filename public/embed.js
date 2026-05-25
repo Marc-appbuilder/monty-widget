@@ -287,6 +287,12 @@
     if (_justDragged) { _justDragged = false; return; }
     if (isOpen) { closeFab(); } else { openFab(); }
   });
+  /* Reliable tap on iOS Safari / Android Chrome — preventDefault stops ghost click */
+  fab.addEventListener('touchend', function (e) {
+    e.preventDefault();
+    if (_justDragged) { _justDragged = false; return; }
+    if (isOpen) { closeFab(); } else { openFab(); }
+  }, { passive: false });
 
   fabWrap.appendChild(fabArmLeft);
   fabWrap.appendChild(fabArmRight);
@@ -413,17 +419,49 @@
   var container = document.createElement('div');
   Object.assign(container.style, {
     position: 'fixed', zIndex: '2147483646',
-    overflow: 'hidden', display: 'none', transformOrigin: 'bottom right',
+    overflow: 'hidden', transformOrigin: 'bottom right',
+    /* Pre-rendered but hidden — stays in render tree so first open is instant */
+    visibility: 'hidden', pointerEvents: 'none',
   });
+
+  /* Mobile bottom-sheet close button */
+  var _mobClose = document.createElement('button');
+  Object.assign(_mobClose.style, {
+    display:     'none',
+    position:    'absolute', top: '10px', right: '14px', zIndex: '10',
+    width:       '30px', height: '30px', borderRadius: '50%',
+    background:  'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer',
+    fontSize:    '18px', color: '#444', lineHeight: '30px', textAlign: 'center',
+    WebkitTapHighlightColor: 'transparent',
+  });
+  _mobClose.textContent = '×';
+  _mobClose.setAttribute('aria-label', 'Close chat');
+  _mobClose.addEventListener('click', function () { closeFab(); });
+  _mobClose.addEventListener('touchend', function (e) { e.preventDefault(); closeFab(); }, { passive: false });
+  container.appendChild(_mobClose);
+
+  /* Mobile drag-handle pill */
+  var _mobHandle = document.createElement('div');
+  Object.assign(_mobHandle.style, {
+    display:      'none',
+    position:     'absolute', top: '8px', left: '50%',
+    transform:    'translateX(-50%)',
+    width:        '36px', height: '4px', borderRadius: '2px',
+    background:   'rgba(0,0,0,0.15)', zIndex: '10', pointerEvents: 'none',
+  });
+  container.appendChild(_mobHandle);
 
   function applyContainerSize() {
     if (isMobile()) {
       Object.assign(container.style, {
-        top: '0', left: '0', right: '0', bottom: '0',
-        width: '100%', height: '100%',
+        left: '0', right: '0', bottom: '0', top: 'auto',
+        width: '100%', height: '70vh',
         maxWidth: 'none', maxHeight: 'none',
-        borderRadius: '0', boxShadow: 'none',
-        transform: 'none',
+        borderRadius: '16px 16px 0 0',
+        boxShadow: '0 -4px 40px rgba(0,0,0,0.18)',
+        transformOrigin: 'bottom center',
+        /* Starting position for slide-up — overwritten to translateY(0) on open */
+        transform: 'translateY(100%)',
       });
     } else {
       var isLeft    = _pos.indexOf('left') !== -1;
@@ -463,13 +501,14 @@
   var _closeTimer = null;
 
   overlay.addEventListener('click', function () { if (isOpen) closeFab(); });
+  overlay.addEventListener('touchend', function (e) { if (isOpen) { e.preventDefault(); closeFab(); } }, { passive: false });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) closeFab(); });
   window.addEventListener('message', function (e) { if (e.data === 'vaughan:close' && isOpen) closeFab(); });
 
   function openFab() {
     isOpen = true;
     if (_closeTimer) { clearTimeout(_closeTimer); _closeTimer = null; }
-    _teaserDismissed = true;  /* no more prompts once chat is opened */
+    _teaserDismissed = true;
     teaser.style.display = 'none';
     teaser.style.animation = '';
     _teaserArmsAngle = 0;
@@ -478,13 +517,26 @@
     if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); }
     overlay.style.display = 'block';
     fabWrap.style.display = isMobile() ? 'none' : 'flex';
-    /* Arms open first, chat springs out of the opening */
     _setArmsOpen(55);
-    container.style.display   = 'block';
-    container.style.animation = isMobile()
-      ? 'ea-widget-in-mob 0.3s cubic-bezier(0.22,1,0.36,1) both'
-      : 'ea-widget-in 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.06s both';
     fab.setAttribute('aria-label', 'Close chat');
+
+    container.style.visibility   = 'visible';
+    container.style.pointerEvents = 'auto';
+
+    if (isMobile()) {
+      _mobClose.style.display  = 'block';
+      _mobHandle.style.display = 'block';
+      /* container is at translateY(100%) from applyContainerSize — force paint then slide up */
+      container.style.transition = 'none';
+      container.offsetHeight; /* force reflow so starting transform is painted */
+      container.style.transition = 'transform 0.38s cubic-bezier(0.22,1,0.36,1)';
+      container.style.transform  = 'translateY(0)';
+    } else {
+      _mobClose.style.display  = 'none';
+      _mobHandle.style.display = 'none';
+      container.style.transition = 'none';
+      container.style.animation  = 'ea-widget-in 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.06s both';
+    }
   }
 
   function closeFab() {
@@ -493,13 +545,28 @@
     fabWrap.style.display = 'flex';
     _setArmsResting();
     fab.setAttribute('aria-label', 'Open chat');
-    /* Collapse chat back into the V, then hide */
-    container.style.animation = 'ea-widget-out 0.22s ease-in both';
-    _closeTimer = setTimeout(function () {
-      container.style.display   = 'none';
-      container.style.animation = '';
-      _closeTimer = null;
-    }, 240);
+
+    if (isMobile()) {
+      _mobClose.style.display  = 'none';
+      _mobHandle.style.display = 'none';
+      container.style.transition = 'transform 0.28s cubic-bezier(0.4,0,1,1)';
+      container.style.transform  = 'translateY(100%)';
+      _closeTimer = setTimeout(function () {
+        container.style.visibility    = 'hidden';
+        container.style.pointerEvents = 'none';
+        container.style.transition    = 'none';
+        _closeTimer = null;
+      }, 300);
+    } else {
+      container.style.transition = 'none';
+      container.style.animation  = 'ea-widget-out 0.22s ease-in both';
+      _closeTimer = setTimeout(function () {
+        container.style.visibility    = 'hidden';
+        container.style.pointerEvents = 'none';
+        container.style.animation     = '';
+        _closeTimer = null;
+      }, 240);
+    }
   }
 
   /* ── 8. Initialise V — static, clean, waiting */
