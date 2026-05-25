@@ -220,7 +220,7 @@
   });
   fabArmLeft.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
-      '<line x1="44" y1="70" x2="10" y2="8" stroke="#AAFF00" stroke-width="12" stroke-linecap="round"/>' +
+      '<line x1="44" y1="70" x2="10" y2="8" stroke="#AAFF00" stroke-width="14" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Right arm */
@@ -237,7 +237,7 @@
   });
   fabArmRight.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="76" viewBox="0 0 88 76" fill="none">' +
-      '<line x1="44" y1="70" x2="78" y2="8" stroke="#AAFF00" stroke-width="12" stroke-linecap="round"/>' +
+      '<line x1="44" y1="70" x2="78" y2="8" stroke="#AAFF00" stroke-width="14" stroke-linecap="round"/>' +
     '</svg>';
 
   /* Transparent click target covers the full V area */
@@ -278,6 +278,7 @@
     _isHoveringFab = true;
     if (isOpen) return;
     _setArmsHover();
+    hoverGlyph.style.opacity = '1';
     /* Reveal prompt immediately on hover if not yet shown this cycle */
     if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
@@ -287,6 +288,7 @@
   });
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
+    hoverGlyph.style.opacity = '0';
     if (!isOpen) _setArmsResting();
   });
   fab.addEventListener('click', function () {
@@ -294,8 +296,26 @@
     if (isOpen) { closeFab(); } else { openFab(); }
   });
 
+  /* Hover glyph — two thin message lines, fades in on hover, never dominates */
+  var hoverGlyph = document.createElement('div');
+  Object.assign(hoverGlyph.style, {
+    position:      'absolute',
+    top:           '20px',
+    left:          '44px',
+    transform:     'translateX(-50%)',
+    opacity:       '0',
+    transition:    'opacity 0.3s ease',
+    pointerEvents: 'none',
+  });
+  hoverGlyph.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 26 12" fill="none">' +
+      '<line x1="0" y1="3" x2="26" y2="3" stroke="rgba(255,255,255,0.58)" stroke-width="1.5" stroke-linecap="round"/>' +
+      '<line x1="0" y1="9" x2="18" y2="9" stroke="rgba(255,255,255,0.58)" stroke-width="1.5" stroke-linecap="round"/>' +
+    '</svg>';
+
   fabWrap.appendChild(fabArmLeft);
   fabWrap.appendChild(fabArmRight);
+  fabWrap.appendChild(hoverGlyph);
   fabWrap.appendChild(fab);
 
   /* ── 6. Signal prompt ───────────────────────────────────────────────────── */
