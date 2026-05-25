@@ -215,27 +215,123 @@
     transformOrigin: 'center center',
   });
 
-  /* FAB button */
-  var fab = document.createElement('button');
-  fab.setAttribute('aria-label', 'Open chat');
-  Object.assign(fab.style, {
+  /* Glow layer — breathing box-shadow, sits behind panels */
+  var fabGlow = document.createElement('div');
+  Object.assign(fabGlow.style, {
+    position:     'absolute',
+    top:          '0',
+    left:         '0',
+    width:        '64px',
+    height:       '64px',
+    borderRadius: '50%',
+    pointerEvents:'none',
+  });
+
+  /* Circular clip container — clips panels to circle boundary as they slide */
+  var fabClip = document.createElement('div');
+  Object.assign(fabClip.style, {
+    position:     'absolute',
+    top:          '0',
+    left:         '0',
+    width:        '64px',
+    height:       '64px',
+    borderRadius: '50%',
+    overflow:     'hidden',
+    pointerEvents:'none',
+  });
+
+  /* Left semicircle panel */
+  var fabPanelLeft = document.createElement('div');
+  Object.assign(fabPanelLeft.style, {
+    position:  'absolute',
+    top:       '0',
+    left:      '0',
+    width:     '64px',
+    height:    '64px',
+    clipPath:  'polygon(0 0, 50% 0, 50% 100%, 0 100%)',
+    transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
+  });
+
+  /* Right semicircle panel */
+  var fabPanelRight = document.createElement('div');
+  Object.assign(fabPanelRight.style, {
+    position:  'absolute',
+    top:       '0',
+    left:      '0',
+    width:     '64px',
+    height:    '64px',
+    clipPath:  'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)',
+    transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)',
+  });
+
+  /* Geometric V icon — white, shown when closed */
+  var vIcon = document.createElement('div');
+  Object.assign(vIcon.style, {
     position:       'absolute',
     top:            '0',
     left:           '0',
     width:          '64px',
     height:         '64px',
-    borderRadius:   '50%',
-    border:         'none',
-    cursor:         'pointer',
     display:        'flex',
     alignItems:     'center',
     justifyContent: 'center',
-    transition:     'transform 0.15s ease',
+    transition:     'opacity 0.15s ease',
+    pointerEvents:  'none',
   });
-  fab.addEventListener('mouseover', function () { fab.style.transform = 'scale(1.1)'; });
-  fab.addEventListener('mouseout',  function () { fab.style.transform = 'scale(1)'; });
+  vIcon.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">' +
+      '<line x1="14" y1="16" x2="32" y2="48" stroke="white" stroke-width="5.5" stroke-linecap="round"/>' +
+      '<line x1="50" y1="16" x2="32" y2="48" stroke="white" stroke-width="5.5" stroke-linecap="round"/>' +
+    '</svg>';
 
+  /* X icon — appears after panels split open */
+  var closeIcon = document.createElement('div');
+  Object.assign(closeIcon.style, {
+    position:       'absolute',
+    top:            '0',
+    left:           '0',
+    width:          '64px',
+    height:         '64px',
+    display:        'flex',
+    alignItems:     'center',
+    justifyContent: 'center',
+    opacity:        '0',
+    transition:     'opacity 0.18s ease 0.28s',
+    pointerEvents:  'none',
+  });
+  closeIcon.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">' +
+      '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
+    '</svg>';
+
+  /* Transparent click target — on top of everything */
+  var fab = document.createElement('button');
+  fab.setAttribute('aria-label', 'Open chat');
+  Object.assign(fab.style, {
+    position:     'absolute',
+    top:          '0',
+    left:         '0',
+    width:        '64px',
+    height:       '64px',
+    borderRadius: '50%',
+    border:       'none',
+    background:   'transparent',
+    cursor:       'pointer',
+  });
+  fab.addEventListener('mouseover', function () { if (!isOpen) fabClip.style.filter = 'brightness(1.12)'; });
+  fab.addEventListener('mouseout',  function () { fabClip.style.filter = ''; });
+  fab.addEventListener('click', function () {
+    if (_justDragged) { _justDragged = false; return; }
+    if (isOpen) { closeFab(); } else { openFab(); }
+  });
+
+  fabClip.appendChild(fabPanelLeft);
+  fabClip.appendChild(fabPanelRight);
+  fabClip.appendChild(vIcon);
+  fabClip.appendChild(closeIcon);
   fabWrap.appendChild(radar);
+  fabWrap.appendChild(fabGlow);
+  fabWrap.appendChild(fabClip);
   fabWrap.appendChild(fab);
 
   /* ── 6. Teaser bubble ───────────────────────────────────────────────────── */
@@ -343,16 +439,9 @@
   /* ── 7. Toggle state ─────────────────────────────────────────────────────── */
   var isOpen = false;
 
-  var closeInner =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">' +
-      '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
-    '</svg>';
-
   overlay.addEventListener('click', function () { if (isOpen) closeFab(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) closeFab(); });
   window.addEventListener('message', function (e) { if (e.data === 'vaughan:close' && isOpen) closeFab(); });
-
-  var _chatInner = '';
 
   function openFab() {
     isOpen = true;
@@ -361,10 +450,16 @@
     if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); }
     container.style.display   = 'block';
     container.style.animation = (isMobile() ? 'ea-widget-in-mob' : 'ea-widget-in') + ' 0.28s cubic-bezier(0.22,1,0.36,1) both';
-    overlay.style.display     = isMobile() ? 'block' : 'block';
+    overlay.style.display     = 'block';
     fabWrap.style.display     = isMobile() ? 'none' : 'flex';
     radar.style.animationPlayState = 'paused';
-    fab.innerHTML = closeInner;
+    /* Split: V fades, panels slide apart, X fades in (delayed) */
+    vIcon.style.transition        = 'opacity 0.15s ease';
+    vIcon.style.opacity           = '0';
+    fabPanelLeft.style.transform  = 'translateX(-64px)';
+    fabPanelRight.style.transform = 'translateX(64px)';
+    closeIcon.style.transition    = 'opacity 0.18s ease 0.28s';
+    closeIcon.style.opacity       = '1';
     fab.setAttribute('aria-label', 'Close chat');
   }
 
@@ -374,7 +469,13 @@
     overlay.style.display   = 'none';
     fabWrap.style.display   = 'flex';
     radar.style.animationPlayState = 'running';
-    fab.innerHTML = _chatInner;
+    /* Merge: X fades fast, panels slide back, V fades in after panels close */
+    closeIcon.style.transition    = 'opacity 0.12s ease';
+    closeIcon.style.opacity       = '0';
+    fabPanelLeft.style.transform  = 'translateX(0)';
+    fabPanelRight.style.transform = 'translateX(0)';
+    vIcon.style.transition        = 'opacity 0.15s ease 0.32s';
+    vIcon.style.opacity           = '1';
     fab.setAttribute('aria-label', 'Open chat');
   }
 
@@ -382,38 +483,21 @@
   function applyColor(hex) {
     var rgb = hexRgb(hex);
 
-    /* Radar pulse ring — expands outward from circle using brand colour */
+    /* Radar pulse ring */
     radar.style.borderColor = 'rgba(' + rgb + ',0.55)';
     radar.style.animation   = 'ea-pulse 3s ease-out 2.8s infinite';
 
-    /* FAB background */
-    fab.style.background = 'linear-gradient(135deg, ' + hex + ' 0%, rgba(' + rgb + ',0.82) 100%)';
-    fab.style.boxShadow  = 'var(--ea-glow-rest)';
+    /* Split panel backgrounds */
+    var grad = 'linear-gradient(135deg,' + hex + ' 0%,rgba(' + rgb + ',0.82) 100%)';
+    fabPanelLeft.style.background  = grad;
+    fabPanelRight.style.background = grad;
 
-    /* CSS custom props for breathing animation */
-    fab.style.setProperty('--ea-glow-rest',
-      '0 4px 20px rgba(' + rgb + ',0.35), inset 0 1px 0 rgba(255,255,255,0.22)');
-    fab.style.setProperty('--ea-glow-peak',
-      '0 6px 36px rgba(' + rgb + ',0.65), 0 0 18px rgba(' + rgb + ',0.3), inset 0 1px 0 rgba(255,255,255,0.22)');
-
-    /* Start breathing glow (delayed to after entrance) */
-    fab.style.animation = 'ea-breathe 3.5s ease-in-out 2.6s infinite';
-
-    /* Chat icon */
-    _chatInner =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 32 32" fill="none">' +
-        '<path d="M16 3C9.373 3 4 7.925 4 14c0 3.13 1.387 5.958 3.636 8.003L6 29l6.5-3.25A13.6 13.6 0 0 0 16 26c6.627 0 12-4.925 12-11S22.627 3 16 3Z" fill="white" opacity="0.95"/>' +
-        '<circle cx="11" cy="14" r="1.5" fill="' + hex + '" opacity="0.9"/>' +
-        '<circle cx="16" cy="14" r="1.5" fill="' + hex + '" opacity="0.9"/>' +
-        '<circle cx="21" cy="14" r="1.5" fill="' + hex + '" opacity="0.9"/>' +
-      '</svg>';
-
-    fab.innerHTML = _chatInner;
-    fab.onclick = null;
-    fab.addEventListener('click', function () {
-      if (_justDragged) { _justDragged = false; return; }
-      if (isOpen) { closeFab(); } else { openFab(); }
-    });
+    /* Breathing glow on the glow layer (extends beyond fabClip's overflow:hidden) */
+    fabGlow.style.setProperty('--ea-glow-rest',
+      '0 4px 20px rgba(' + rgb + ',0.35)');
+    fabGlow.style.setProperty('--ea-glow-peak',
+      '0 6px 36px rgba(' + rgb + ',0.65), 0 0 18px rgba(' + rgb + ',0.3)');
+    fabGlow.style.animation = 'ea-breathe 3.5s ease-in-out 2.6s infinite';
   }
 
   /* ── 9. Mount ───────────────────────────────────────────────────────────── */
