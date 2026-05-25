@@ -21,8 +21,9 @@
 
   var srcUrl   = new URL(scriptEl.src);
   var origin   = srcUrl.origin;
-  var clientId = srcUrl.searchParams.get('clientId') || 'demo';
-  var colorArg = srcUrl.searchParams.get('color');
+  var clientId   = srcUrl.searchParams.get('clientId') || 'demo';
+  var colorArg   = srcUrl.searchParams.get('color');
+  var teaserArg  = srcUrl.searchParams.get('teaserText');
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -504,11 +505,12 @@
       .then(function (d) {
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyColor();
-        initTeaser(d.teaserText || null);
+        initTeaser(teaserArg || d.teaserText || null);
       })
       .catch(function () {
         applyFabPosition('bottom-right');
         applyColor();
+        initTeaser(teaserArg || null);
       });
   }
 
