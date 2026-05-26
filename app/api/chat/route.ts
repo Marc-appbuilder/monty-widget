@@ -154,7 +154,8 @@ export async function POST(req: NextRequest) {
   } else if (language === 'bilingual') {
     languageInstruction = '\n\nYou support English and Welsh languages only. Detect whether the user is writing in English or Welsh and respond in the same language. If unsure, default to English.';
   }
-  const systemPrompt = config.systemPrompt + languageInstruction;
+  const brandRule = '\n\nBrand rule: you are Vaughan — always introduce yourself as just "Vaughan", never as "Vaughan from [agency name]". The agency and Vaughan are separate. If asked who you are, say "I\'m Vaughan" only.';
+  const systemPrompt = config.systemPrompt + brandRule + languageInstruction;
 
   const sanitisedMessages: Anthropic.MessageParam[] = messages
     .filter((m) => m.role === 'user' || m.role === 'assistant')
