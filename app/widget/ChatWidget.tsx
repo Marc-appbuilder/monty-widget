@@ -306,14 +306,14 @@ export default function ChatWidget({ clientId, config }: Props) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '15px',
-            fontWeight: 700,
             flexShrink: 0,
-            background: `linear-gradient(135deg, ${brand} 0%, ${brandLight} 100%)`,
-            color: fg,
-            boxShadow: `0 0 0 2px rgba(${rgb}, 0.3), 0 0 20px rgba(${rgb}, 0.4)`,
+            background: '#0a0a0a',
+            boxShadow: `0 0 0 2px rgba(${rgb}, 0.3), 0 0 20px rgba(${rgb}, 0.2)`,
           }}>
-            {config.name.charAt(0)}
+            <svg viewBox="0 0 88 76" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="19">
+              <line x1="44" y1="72" x2="10" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
+              <line x1="44" y1="72" x2="78" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
+            </svg>
           </div>
         )}
 
@@ -506,7 +506,7 @@ export default function ChatWidget({ clientId, config }: Props) {
         </p>
         <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.01em' }}>
           Powered by{' '}
-          <span style={{ color: '#b8882e', fontWeight: 700 }}>VaughanAI</span>
+          <span style={{ color: '#AAFF00', fontWeight: 700 }}>Vaughan</span>
         </p>
       </div>
     </div>

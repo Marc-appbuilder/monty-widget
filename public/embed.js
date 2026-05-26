@@ -74,7 +74,7 @@
     /* On mobile always use bottom-right — admin positions are desktop-only */
     if (isMobile()) {
       Object.assign(fabWrap.style, {
-        bottom: '24px', top: 'auto', right: '24px', left: 'auto',
+        bottom: '24px', top: 'auto', right: '32px', left: 'auto',
         animation: 'ea-fab-er 0.6s cubic-bezier(0.22,1,0.36,1) 2s both',
       });
       return;
@@ -91,7 +91,7 @@
     Object.assign(fabWrap.style, {
       bottom: isFloated ? 'auto'  : '24px',
       top:    isFloated ? topVal  : 'auto',
-      right:  isLeft    ? 'auto'  : '24px',
+      right:  isLeft    ? 'auto'  : '32px',
       left:   isLeft    ? '24px'  : 'auto',
       animation: anim + ' 0.6s cubic-bezier(0.22,1,0.36,1) 2s both',
     });
@@ -462,7 +462,7 @@
       var topVal    = _pos === 'lower-left' || _pos === 'lower-right'
         ? 'calc(72% - 290px)' : 'calc(50% - 290px)';
       Object.assign(container.style, {
-        right:     isLeft    ? 'auto'  : '24px',
+        right:     isLeft    ? 'auto'  : '32px',
         left:      isLeft    ? '96px'  : 'auto',
         bottom:    isFloated ? 'auto'  : '112px',
         top:       isFloated ? topVal  : 'auto',
