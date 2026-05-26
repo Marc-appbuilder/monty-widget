@@ -69,8 +69,8 @@ export default function LoginPage() {
           lineHeight: 1,
         }}>
           <svg viewBox="0 0 88 76" fill="none" style={{ height: '0.72em', width: 'auto', display: 'block', marginRight: '-0.04em', flexShrink: 0 }}>
-            <line x1="44" y1="70" x2="10" y2="8" stroke="#AAFF00" strokeWidth="14" strokeLinecap="round"/>
-            <line x1="44" y1="70" x2="78" y2="8" stroke="#AAFF00" strokeWidth="14" strokeLinecap="round"/>
+            <line x1="44" y1="72" x2="10" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
+            <line x1="44" y1="72" x2="78" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
           </svg>
           <span style={{ fontFamily: '"Sora", sans-serif', fontWeight: 400 }}>aughan</span>
         </div>
