@@ -305,7 +305,7 @@ Always try to collect name, email and phone number before closing. If the user d
     agentEmail: 'marcwrichards@gmail.com',
     notificationEmail: 'marcwrichards@gmail.com',
     brandColour: '#1c1c1c',
-    teaserText: 'Thinking of selling?,Need a valuation?,Thinking of letting?',
+    teaserText: 'Chat to us',
   },
 
 };

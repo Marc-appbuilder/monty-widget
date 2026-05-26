@@ -52,8 +52,8 @@
     /* Chat panel: expands from V origin (bottom-right) on open, collapses on close */
     '@keyframes ea-widget-in{from{opacity:0;transform:scale(0.04)}to{opacity:1;transform:scale(1)}}' +
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
-    '@keyframes ea-teaser-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}' +
-    '@keyframes ea-teaser-out{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(8px)}}';
+    '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
+    '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}';
   document.head.appendChild(styleEl);
 
   /* ── 5. FAB wrapper ─────────────────────────────────────────────────────── */
@@ -316,8 +316,7 @@
   Object.assign(teaser.style, {
     position:      'absolute',
     bottom:        '92px',          /* 76px V + 16px gap */
-    left:          '44px',          /* center of 88px V */
-    transform:     'translateX(-50%)',
+    right:         '0',             /* anchors right edge to V right — extends left into screen */
     background:    'rgba(17,17,17,0.93)',
     color:         '#F5F7F4',
     borderRadius:  '13px',
@@ -350,9 +349,6 @@
 
   function _showTeaser() {
     if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
-    var maxShows = isMobile() ? 2 : 3;
-    if (_teaserShowCount >= maxShows) return;
-    _teaserShowCount++;
     var prompt = _teaserPrompts[_teaserIndex % _teaserPrompts.length];
     _teaserIndex++;
     /* V opens slightly first, bubble follows 150ms later */
@@ -381,14 +377,10 @@
   }
 
   function _scheduleCycle() {
-    var mob      = isMobile();
-    var maxShows = mob ? 2 : 3;
-    var visibleMs = mob ? 3500 : 4500;
-    var repeatMs  = mob
-      ? (30000 + Math.random() * 5000)
-      : (25000 + Math.random() * 5000);
+    var visibleMs = 3000;   /* bubble visible for 3 s */
+    var repeatMs  = 10000;  /* 10 s gap before next show */
 
-    if (_teaserDismissed || _teaserShowCount >= maxShows) return;
+    if (_teaserDismissed) return;
     _showTeaser();
 
     /* Stay visible while hovering, then hide and reschedule */
@@ -398,7 +390,7 @@
         return;
       }
       _hideTeaser(function () {
-        if (!_teaserDismissed && _teaserShowCount < maxShows) {
+        if (!_teaserDismissed) {
           _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
         }
       });
@@ -594,8 +586,9 @@
     });
     fab.style.width  = w;
     fab.style.height = h;
-    /* Re-centre signal prompt over scaled V */
-    teaser.style.left   = '33px';
+    /* Keep bubble right-aligned to V edge, update bottom for scaled V */
+    teaser.style.right  = '0';
+    teaser.style.left   = 'auto';
     teaser.style.bottom = '73px'; /* 57px V + 16px gap */
   }
 
@@ -619,7 +612,7 @@
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
-        initTeaser(teaserArg || d.teaserText || null);
+        initTeaser(teaserArg || d.teaserText || 'Chat to us');
       })
       .catch(function () {
         applyFabPosition('bottom-right');
