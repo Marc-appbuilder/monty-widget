@@ -51,29 +51,36 @@ export default function LoginPage() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '24px',
-      fontFamily: "'Space Grotesk', -apple-system, sans-serif",
+      fontFamily: '"Space Grotesk", system-ui, sans-serif',
       WebkitFontSmoothing: 'antialiased',
     }}>
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400&display=swap" rel="stylesheet"/>
 
       {/* Logo / wordmark */}
-      <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+      <div style={{ marginBottom: '48px', textAlign: 'center' }}>
         <div style={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: '32px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 0,
+          fontSize: '36px',
           fontWeight: 700,
           letterSpacing: '-0.025em',
           color: '#ffffff',
           lineHeight: 1,
         }}>
-          Vaughan
+          <svg viewBox="0 0 88 76" fill="none" style={{ height: '0.72em', width: 'auto', display: 'block', marginRight: '-0.04em', flexShrink: 0 }}>
+            <line x1="44" y1="70" x2="10" y2="8" stroke="#AAFF00" strokeWidth="14" strokeLinecap="round"/>
+            <line x1="44" y1="70" x2="78" y2="8" stroke="#AAFF00" strokeWidth="14" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontFamily: '"Sora", sans-serif', fontWeight: 400 }}>aughan</span>
         </div>
         <div style={{
           marginTop: '8px',
           fontSize: '11px',
-          color: 'rgba(255,255,255,0.3)',
-          letterSpacing: '0.1em',
+          color: 'rgba(255,255,255,0.28)',
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          fontWeight: 600,
+          fontWeight: 700,
         }}>
           Client Portal
         </div>
@@ -83,7 +90,7 @@ export default function LoginPage() {
       <div style={{
         width: '100%',
         maxWidth: '380px',
-        background: '#111111',
+        background: '#111',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: '16px',
         padding: '32px 28px',
@@ -92,9 +99,10 @@ export default function LoginPage() {
           <>
             <h1 style={{
               margin: '0 0 6px',
-              fontSize: '20px',
+              fontSize: '18px',
               fontWeight: 700,
               color: '#ffffff',
+              letterSpacing: '-0.02em',
             }}>
               Sign in
             </h1>
@@ -102,12 +110,12 @@ export default function LoginPage() {
               margin: '0 0 24px',
               fontSize: '14px',
               color: 'rgba(255,255,255,0.4)',
-              lineHeight: 1.5,
+              lineHeight: 1.6,
             }}>
               Enter your email and we&apos;ll send you a magic link.
             </p>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <input
                 type="email"
                 placeholder="you@agency.co.uk"
@@ -125,6 +133,7 @@ export default function LoginPage() {
                   outline: 'none',
                   width: '100%',
                   boxSizing: 'border-box',
+                  fontFamily: 'inherit',
                 }}
               />
 
@@ -136,7 +145,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={loading || !email}
                 style={{
-                  background: loading || !email ? 'rgba(179,255,0,0.25)' : '#b3ff00',
+                  background: loading || !email ? 'rgba(170,255,0,0.35)' : '#AAFF00',
                   color: '#0a0a0a',
                   border: 'none',
                   borderRadius: '10px',
@@ -144,8 +153,9 @@ export default function LoginPage() {
                   fontSize: '15px',
                   fontWeight: 700,
                   cursor: loading || !email ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.15s ease',
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  transition: 'opacity 0.15s',
+                  fontFamily: 'inherit',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {loading ? 'Sending…' : 'Send magic link'}
@@ -154,24 +164,24 @@ export default function LoginPage() {
           </>
         ) : (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '16px' }}>✉</div>
-            <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+            <div style={{ fontSize: '36px', marginBottom: '16px' }}>✉️</div>
+            <h2 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
               Check your inbox
             </h2>
-            <p style={{ margin: '0 0 20px', fontSize: '14px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
+            <p style={{ margin: '0 0 20px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
               We sent a magic link to <strong style={{ color: '#ffffff' }}>{email}</strong>. Click it to sign in.
             </p>
             <button
               onClick={() => { setSent(false); setEmail(''); }}
               style={{
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.12)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: '10px',
                 padding: '10px 20px',
                 color: 'rgba(255,255,255,0.4)',
                 fontSize: '13px',
                 cursor: 'pointer',
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
               }}
             >
               Use a different email
@@ -185,7 +195,7 @@ export default function LoginPage() {
         fontSize: '12px',
         color: 'rgba(255,255,255,0.18)',
       }}>
-        © {new Date().getFullYear()} Vaughan
+        © 2026 VaughanAI
       </p>
     </div>
   );
