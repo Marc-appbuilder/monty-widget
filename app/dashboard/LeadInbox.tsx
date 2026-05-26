@@ -123,10 +123,10 @@ export default function LeadInbox() {
 
   if (noAccount) return (
     <div style={{
-      minHeight: '100dvh', background: '#0d0f14', display: 'flex',
+      minHeight: '100dvh', background: '#0a0a0a', display: 'flex',
       flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: '32px', textAlign: 'center',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      fontFamily: "'Space Grotesk', -apple-system, sans-serif",
     }}>
       <div style={{ fontSize: '32px', marginBottom: '16px' }}>🔒</div>
       <h2 style={{ color: '#e8eaf0', fontSize: '18px', fontWeight: 700, margin: '0 0 8px' }}>No account found</h2>
@@ -153,16 +153,16 @@ export default function LeadInbox() {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: '#0d0f14',
+      background: '#0a0a0a',
       color: '#e8eaf0',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      fontFamily: "'Space Grotesk', -apple-system, sans-serif",
       WebkitFontSmoothing: 'antialiased',
     }}>
 
       {/* ── Header ── */}
       <div style={{
         padding: '20px 16px 0',
-        background: '#0a0c10',
+        background: '#0a0a0a',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         position: 'sticky',
         top: 0,
@@ -174,7 +174,7 @@ export default function LeadInbox() {
             <span style={{ fontWeight: 700, fontSize: '20px' }}>Lead Inbox</span>
             {newCount > 0 && (
               <span style={{
-                background: '#b8882e', color: '#fff',
+                background: '#b3ff00', color: '#0a0a0a',
                 fontSize: '11px', fontWeight: 700,
                 borderRadius: '99px', padding: '2px 8px',
               }}>
@@ -215,7 +215,7 @@ export default function LeadInbox() {
                 flex: 1,
                 padding: '8px 4px',
                 border: 'none',
-                borderBottom: active ? '2px solid #b8882e' : '2px solid transparent',
+                borderBottom: active ? '2px solid #b3ff00' : '2px solid transparent',
                 background: 'transparent',
                 color: active ? '#fff' : 'rgba(255,255,255,0.4)',
                 fontSize: '12px',
@@ -253,11 +253,11 @@ export default function LeadInbox() {
 
           return (
             <div key={lead.id} style={{
-              background: '#1a1d26',
+              background: '#111111',
               borderRadius: '14px',
               overflow: 'hidden',
               boxShadow: '0 2px 16px rgba(0,0,0,0.35)',
-              border: isOpen ? '1px solid rgba(184,136,46,0.25)' : '1px solid rgba(255,255,255,0.04)',
+              border: isOpen ? '1px solid rgba(179,255,0,0.2)' : '1px solid rgba(255,255,255,0.06)',
               transition: 'border-color 0.15s ease',
             }}>
 
@@ -389,7 +389,7 @@ export default function LeadInbox() {
 
                   {/* Notes */}
                   {lead.notes && (
-                    <div style={{ background: '#0d0f14', borderRadius: '10px', padding: '12px 14px' }}>
+                    <div style={{ background: '#0a0a0a', borderRadius: '10px', padding: '12px 14px' }}>
                       <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                         Summary
                       </div>
@@ -401,7 +401,7 @@ export default function LeadInbox() {
 
                   {/* Raw conversation */}
                   {lead.raw_conversation && (
-                    <div style={{ background: '#0d0f14', borderRadius: '10px', padding: '12px 14px' }}>
+                    <div style={{ background: '#0a0a0a', borderRadius: '10px', padding: '12px 14px' }}>
                       <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '8px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                         Conversation
                       </div>

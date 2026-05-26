@@ -381,26 +381,26 @@ export default function AdminDashboard() {
 
   // ── Shared styles ──────────────────────────────────────────
   const page: React.CSSProperties = {
-    minHeight: '100dvh', background: '#0d0f14', color: '#e8eaf0',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    minHeight: '100dvh', background: '#0a0a0a', color: '#e8eaf0',
+    fontFamily: "'Space Grotesk', -apple-system, sans-serif",
     WebkitFontSmoothing: 'antialiased',
   };
 
   const header: React.CSSProperties = {
-    padding: '20px 16px 16px', background: '#0a0c10',
+    padding: '20px 16px 16px', background: '#0a0a0a',
     borderBottom: '1px solid rgba(255,255,255,0.06)',
     position: 'sticky', top: 0, zIndex: 10,
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   };
 
   const card: React.CSSProperties = {
-    background: '#1a1d26', borderRadius: '14px', overflow: 'hidden',
+    background: '#111111', borderRadius: '14px', overflow: 'hidden',
     boxShadow: '0 2px 16px rgba(0,0,0,0.35)',
     border: '1px solid rgba(255,255,255,0.04)',
   };
 
   const goldBtn: React.CSSProperties = {
-    background: '#b8882e', color: '#fff', border: 'none',
+    background: '#b3ff00', color: '#0a0a0a', border: 'none',
     borderRadius: '10px', padding: '9px 16px', fontSize: '13px',
     fontWeight: 700, cursor: 'pointer',
   };
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
   };
 
   const input: React.CSSProperties = {
-    background: '#1a1d26', border: '1px solid rgba(255,255,255,0.1)',
+    background: '#111111', border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '10px', padding: '11px 14px', color: '#e8eaf0',
     fontSize: '14px', width: '100%', boxSizing: 'border-box', outline: 'none',
   };
@@ -550,9 +550,9 @@ export default function AdminDashboard() {
               <button key={s} onClick={() => setForm(prev => ({ ...prev, status: s }))} style={{
                 padding: '8px 20px', borderRadius: '8px', cursor: 'pointer',
                 fontSize: '13px', fontWeight: 600, textTransform: 'capitalize',
-                border: `1px solid ${form.status === s ? '#b8882e' : 'rgba(255,255,255,0.1)'}`,
-                background: form.status === s ? 'rgba(184,136,46,0.15)' : 'transparent',
-                color: form.status === s ? '#b8882e' : 'rgba(255,255,255,0.35)',
+                border: `1px solid ${form.status === s ? '#b3ff00' : 'rgba(255,255,255,0.1)'}`,
+                background: form.status === s ? 'rgba(179,255,0,0.1)' : 'transparent',
+                color: form.status === s ? '#b3ff00' : 'rgba(255,255,255,0.35)',
               }}>
                 {s}
               </button>
@@ -641,7 +641,7 @@ export default function AdminDashboard() {
               Embed code
             </div>
             <div style={{
-              background: '#0d0f14', borderRadius: '8px', padding: '10px 12px',
+              background: '#0a0a0a', borderRadius: '8px', padding: '10px 12px',
               fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace',
               wordBreak: 'break-all', lineHeight: 1.6, marginBottom: '10px',
             }}>
@@ -744,9 +744,9 @@ export default function AdminDashboard() {
                   style={{
                     padding: '9px 8px', borderRadius: '8px', cursor: 'pointer',
                     fontSize: '12px', fontWeight: 600, textAlign: 'center',
-                    border: `1px solid ${positionDraft === opt.val ? '#b8882e' : 'rgba(255,255,255,0.08)'}`,
-                    background: positionDraft === opt.val ? 'rgba(184,136,46,0.15)' : 'rgba(255,255,255,0.03)',
-                    color: positionDraft === opt.val ? '#b8882e' : 'rgba(255,255,255,0.4)',
+                    border: `1px solid ${positionDraft === opt.val ? '#b3ff00' : 'rgba(255,255,255,0.08)'}`,
+                    background: positionDraft === opt.val ? 'rgba(179,255,0,0.1)' : 'rgba(255,255,255,0.03)',
+                    color: positionDraft === opt.val ? '#b3ff00' : 'rgba(255,255,255,0.4)',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -837,7 +837,7 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Leads</span>
               {newLeads > 0 && (
-                <span style={{ background: '#b8882e', color: '#fff', fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px' }}>
+                <span style={{ background: '#b3ff00', color: '#0a0a0a', fontSize: '10px', fontWeight: 700, borderRadius: '99px', padding: '2px 8px' }}>
                   {newLeads} new
                 </span>
               )}
@@ -904,7 +904,7 @@ export default function AdminDashboard() {
                   return (
                     <div key={lead.id} style={{
                       ...card,
-                      border: isOpen ? '1px solid rgba(184,136,46,0.25)' : '1px solid rgba(255,255,255,0.04)',
+                      border: isOpen ? '1px solid rgba(179,255,0,0.2)' : '1px solid rgba(255,255,255,0.06)',
                     }}>
                       {/* Card header */}
                       <div onClick={() => setExpandedLead(isOpen ? null : lead.id)}
@@ -958,16 +958,16 @@ export default function AdminDashboard() {
                                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                                         <div style={{
                                           width: '8px', height: '8px', borderRadius: '50%',
-                                          background: done ? '#b8882e' : 'rgba(255,255,255,0.12)',
-                                          boxShadow: current ? '0 0 8px rgba(184,136,46,0.7)' : 'none',
+                                          background: done ? '#b3ff00' : 'rgba(255,255,255,0.12)',
+                                          boxShadow: current ? '0 0 8px rgba(179,255,0,0.5)' : 'none',
                                           marginBottom: '4px', flexShrink: 0,
                                         }} />
-                                        <span style={{ fontSize: '9px', color: done ? '#b8882e' : 'rgba(255,255,255,0.2)', fontWeight: current ? 700 : 400, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                                        <span style={{ fontSize: '9px', color: done ? '#b3ff00' : 'rgba(255,255,255,0.2)', fontWeight: current ? 700 : 400, textAlign: 'center', whiteSpace: 'nowrap' }}>
                                           {stage}
                                         </span>
                                       </div>
                                       {i < PIPELINE_STAGES.length - 1 && (
-                                        <div style={{ height: '2px', flex: 1, background: i === stageIdx - 1 ? '#b8882e' : 'rgba(255,255,255,0.08)', marginBottom: '16px', minWidth: '8px' }} />
+                                        <div style={{ height: '2px', flex: 1, background: i === stageIdx - 1 ? '#b3ff00' : 'rgba(255,255,255,0.08)', marginBottom: '16px', minWidth: '8px' }} />
                                       )}
                                     </div>
                                   );
@@ -977,7 +977,7 @@ export default function AdminDashboard() {
                           )}
 
                           {/* Lead score */}
-                          <div style={{ background: '#0d0f14', borderRadius: '10px', padding: '10px 12px' }}>
+                          <div style={{ background: '#0a0a0a', borderRadius: '10px', padding: '10px 12px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                               <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Lead score</div>
                               <div style={{ fontSize: '28px', fontWeight: 800, color: scoreColour(score), lineHeight: 1 }}>{score}<span style={{ fontSize: '12px', fontWeight: 400, color: 'rgba(255,255,255,0.3)' }}>/100</span></div>
@@ -1024,9 +1024,9 @@ export default function AdminDashboard() {
                               </button>
                             </div>
                             {lead.property_value && (
-                              <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(184,136,46,0.08)', borderRadius: '8px', padding: '8px 12px', border: '1px solid rgba(184,136,46,0.2)' }}>
+                              <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(179,255,0,0.06)', borderRadius: '8px', padding: '8px 12px', border: '1px solid rgba(179,255,0,0.15)' }}>
                                 <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>Potential fee (1.25%)</span>
-                                <span style={{ fontSize: '16px', fontWeight: 800, color: '#b8882e' }}>{formatFee(lead.property_value)}</span>
+                                <span style={{ fontSize: '16px', fontWeight: 800, color: '#b3ff00' }}>{formatFee(lead.property_value)}</span>
                               </div>
                             )}
                           </div>
@@ -1106,14 +1106,14 @@ export default function AdminDashboard() {
                           )}
 
                           {lead.notes && (
-                            <div style={{ background: '#0d0f14', borderRadius: '8px', padding: '10px 12px' }}>
+                            <div style={{ background: '#0a0a0a', borderRadius: '8px', padding: '10px 12px' }}>
                               <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Summary</div>
                               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{lead.notes}</div>
                             </div>
                           )}
 
                           {lead.raw_conversation && (
-                            <div style={{ background: '#0d0f14', borderRadius: '8px', padding: '10px 12px' }}>
+                            <div style={{ background: '#0a0a0a', borderRadius: '8px', padding: '10px 12px' }}>
                               <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Conversation</div>
                               <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: '180px', overflowY: 'auto' }}>
                                 {lead.raw_conversation}
