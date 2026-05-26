@@ -61,11 +61,13 @@
 
   var fabWrap = document.createElement('div');
   Object.assign(fabWrap.style, {
-    position: 'fixed',
-    zIndex:   '2147483647',
-    width:    '88px',
-    height:   '76px',
-    overflow: 'visible',
+    position:   'fixed',
+    zIndex:     '2147483647',
+    width:      '88px',
+    height:     '76px',
+    overflow:   'visible',
+    filter:     'none',
+    transition: 'filter 0.4s ease',
   });
 
   function applyFabPosition(pos) {
@@ -263,25 +265,45 @@
     fabArmLeft.style.transform  = 'rotate(' + (-deg) + 'deg)';
     fabArmRight.style.transform = 'rotate(' + deg + 'deg)';
   }
-  function _setArmsResting() {
+  function _setArmsResting(overrideAngle) {
     fabArmLeft.style.animation  = 'none';
     fabArmRight.style.animation = 'none';
-    var a = _teaserArmsAngle || 0;
+    var a = (overrideAngle !== undefined) ? overrideAngle : (_teaserArmsAngle || 0);
     fabArmLeft.style.transform  = 'rotate(' + (-a) + 'deg)';
     fabArmRight.style.transform = 'rotate(' + a + 'deg)';
+  }
+
+  /* Glow levels: none (idle) → prompt (bubble visible) → hover (interacting) */
+  function _setGlow(level) {
+    if (level === 'hover') {
+      fabWrap.style.filter = 'drop-shadow(0 0 12px rgba(170,255,0,0.28))';
+    } else if (level === 'prompt') {
+      fabWrap.style.filter = 'drop-shadow(0 0 8px rgba(170,255,0,0.18))';
+    } else {
+      fabWrap.style.filter = 'none';
+    }
   }
 
   fab.addEventListener('mouseover', function () {
     _isHoveringFab = true;
     if (isOpen) return;
+    _setGlow('hover');
     if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
       clearTimeout(_teaserAutoTimer);
       _showTeaser();
+      _setArmsResting(10); /* hover opens slightly past teaser angle */
+    } else if (teaser.style.display !== 'none') {
+      _setArmsResting(10); /* teaser already visible — open a touch further */
+    } else {
+      _setArmsResting(5);  /* no teaser — subtle spread to signal interactivity */
     }
   });
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
+    if (isOpen) return;
+    _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
+    _setGlow(teaser.style.display !== 'none' ? 'prompt' : 'none');
   });
   fab.addEventListener('click', function () {
     if (_justDragged) { _justDragged = false; return; }
@@ -351,9 +373,10 @@
     if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
     var prompt = _teaserPrompts[_teaserIndex % _teaserPrompts.length];
     _teaserIndex++;
-    /* V opens slightly first, bubble follows 150ms later */
+    /* V opens slightly, soft glow wakes up, bubble follows 150ms later */
     _teaserArmsAngle = 8;
     _setArmsResting();
+    if (!_isHoveringFab) _setGlow('prompt'); /* hover already set stronger glow */
     setTimeout(function () {
       if (_teaserDismissed || isOpen) return;
       teaserText.innerHTML =
@@ -372,6 +395,7 @@
       teaser.style.animation = '';
       _teaserArmsAngle = 0;
       if (!isOpen) _setArmsResting();
+      _setGlow(_isHoveringFab ? 'hover' : 'none'); /* keep hover glow if still over V */
       if (cb) cb();
     }, 220);
   }
@@ -504,6 +528,7 @@
     teaser.style.display = 'none';
     teaser.style.animation = '';
     _teaserArmsAngle = 0;
+    _setGlow('none'); /* FAB glow off — activity signals now live inside the chat */
     clearTimeout(_teaserTimer);
     clearTimeout(_teaserAutoTimer);
     if (_dragged && !isMobile()) { _repoContainer(); } else { applyContainerSize(); }
