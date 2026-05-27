@@ -58,8 +58,14 @@
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
     '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
-    /* Classic FAB heartbeat — lub-dub double beat then long pause */
-    '@keyframes ea-heartbeat{0%{transform:scale(1)}6%{transform:scale(1.09)}12%{transform:scale(1)}18%{transform:scale(1.05)}24%{transform:scale(1)}100%{transform:scale(1)}}';
+    /* Classic FAB heartbeat — lub-dub double beat with glow, then long rest */
+    '@keyframes ea-heartbeat{' +
+      '0%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
+      '6%{transform:scale(1.09);box-shadow:0 12px 36px rgba(0,0,0,0.35),0 0 22px rgba(255,255,255,0.18)}' +
+      '12%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
+      '18%{transform:scale(1.05);box-shadow:0 10px 28px rgba(0,0,0,0.30),0 0 14px rgba(255,255,255,0.10)}' +
+      '24%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
+      '100%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}}';
   document.head.appendChild(styleEl);
 
   /* ── 5. FAB wrapper ─────────────────────────────────────────────────────── */
@@ -337,10 +343,10 @@
     _isHoveringFab = false;
     if (isOpen) return;
     if (_isClassic) {
-      fab.style.transform  = '';
+      fab.style.transform   = '';
+      fab.style.boxShadow   = '';  /* animation owns box-shadow when running */
       fab.style.animationPlayState = 'running';
-      fab.style.background = '#151515';
-      fab.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.28)';
+      fab.style.background  = '#151515';
       return;
     }
     _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
@@ -616,7 +622,7 @@
     overlay.style.display = 'none';
     fabWrap.style.display = 'flex';
     _setArmsResting();
-    if (_isClassic) { _setClassicIcon(false); fab.style.transform = ''; fab.style.animationPlayState = 'running'; }
+    if (_isClassic) { _setClassicIcon(false); fab.style.transform = ''; fab.style.boxShadow = ''; fab.style.animationPlayState = 'running'; }
     fab.setAttribute('aria-label', 'Open chat');
     /* Persist mode: re-show teaser on desktop after chat closes */
     if (_teaserPersist && !isMobile()) {
@@ -668,8 +674,7 @@
       alignItems: 'center',
       justifyContent: 'center',
       padding: '0',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.28)',
-      transition: 'background 0.2s ease, box-shadow 0.2s ease',
+      transition: 'background 0.2s ease',
       animation: 'ea-heartbeat 2.4s ease-in-out infinite',
     });
     _setClassicIcon(false);
