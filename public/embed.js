@@ -22,9 +22,10 @@
   var srcUrl   = new URL(scriptEl.src);
   var origin   = srcUrl.searchParams.get('origin') || srcUrl.origin;
   var clientId   = srcUrl.searchParams.get('clientId') || 'demo';
-  var colorArg   = srcUrl.searchParams.get('color');
-  var teaserArg  = srcUrl.searchParams.get('teaserText');
-  var linecap    = srcUrl.searchParams.get('linecap') || 'round';
+  var colorArg       = srcUrl.searchParams.get('color');
+  var teaserArg      = srcUrl.searchParams.get('teaserText');
+  var linecap        = srcUrl.searchParams.get('linecap') || 'round';
+  var widgetStyleArg = srcUrl.searchParams.get('widgetStyle');
 
   var _widgetStyle   = 'v2';   // 'classic' or 'v2' — resolved from config
   var _isClassic     = false;
@@ -736,7 +737,7 @@
     fetch(origin + '/api/client-config/' + encodeURIComponent(clientId))
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        _widgetStyle = d.widgetStyle || 'v2';
+        _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic   = _widgetStyle === 'classic';
         if (_isClassic) buildClassicFab();
         applyFabPosition(d.widgetPosition || 'bottom-right');
