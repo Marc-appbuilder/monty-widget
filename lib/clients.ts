@@ -9,6 +9,7 @@ export interface ClientConfig {
   widgetPosition?: string; // 'bottom-right' | 'bottom-left' | 'middle-right' | 'middle-left'
   widgetStyle?: string;    // 'classic' | 'v2'
   widgetTheme?: string;    // 'dark' | 'light'
+  teaserPersist?: boolean; // desktop: keep teaser bubble permanently visible
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -199,6 +200,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
+    teaserPersist: true,
   },
 
   'vaughanai': {

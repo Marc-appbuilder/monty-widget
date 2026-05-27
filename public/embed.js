@@ -26,8 +26,9 @@
   var teaserArg  = srcUrl.searchParams.get('teaserText');
   var linecap    = srcUrl.searchParams.get('linecap') || 'round';
 
-  var _widgetStyle = 'v2';   // 'classic' or 'v2' — resolved from config
-  var _isClassic   = false;
+  var _widgetStyle   = 'v2';   // 'classic' or 'v2' — resolved from config
+  var _isClassic     = false;
+  var _teaserPersist = false;  // desktop-only: teaser stays visible permanently
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -449,6 +450,13 @@
         _teaserAutoTimer = setTimeout(tryHide, 400);
         return;
       }
+      /* Persist mode on desktop: never auto-hide — just rotate text after gap */
+      if (_teaserPersist && !isMobile()) {
+        if (!_teaserDismissed) {
+          _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
+        }
+        return;
+      }
       _hideTeaser(function () {
         if (!_teaserDismissed) {
           _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
@@ -458,12 +466,14 @@
     _teaserAutoTimer = setTimeout(tryHide, visibleMs);
   }
 
-  function initTeaser(text) {
+  function initTeaser(text, persist) {
     if (!text) return;
+    _teaserPersist = !!(persist && !isMobile());
     /* Support comma-separated list for prompt rotation */
     _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
-    var firstDelay = isMobile() ? 6000 : 2500;
+    /* Persist: show quickly on desktop; otherwise standard delays */
+    var firstDelay = _teaserPersist ? 800 : (isMobile() ? 6000 : 2500);
     _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
   }
 
@@ -604,6 +614,13 @@
     _setArmsResting();
     if (_isClassic) { _setClassicIcon(false); }
     fab.setAttribute('aria-label', 'Open chat');
+    /* Persist mode: re-show teaser on desktop after chat closes */
+    if (_teaserPersist && !isMobile()) {
+      _teaserDismissed = false;
+      clearTimeout(_teaserTimer);
+      clearTimeout(_teaserAutoTimer);
+      _teaserTimer = setTimeout(_scheduleCycle, 800);
+    }
 
     if (isMobile()) {
       _mobClose.style.display  = 'none';
@@ -715,7 +732,7 @@
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
-        initTeaser(teaserArg || d.teaserText || 'Chat to us');
+        initTeaser(teaserArg || d.teaserText || 'Chat to us', d.teaserPersist);
       })
       .catch(function () {
         applyFabPosition('bottom-right');

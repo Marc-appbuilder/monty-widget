@@ -10,7 +10,7 @@ export async function GET(
 
   const { data } = await supabase
     .from('clients')
-    .select('brand_color, teaser_text, border_colour, widget_position, widget_style, widget_theme')
+    .select('brand_color, teaser_text, border_colour, widget_position, widget_style, widget_theme, teaser_persist')
     .eq('agent_id', agentId)
     .maybeSingle();
 
@@ -23,5 +23,6 @@ export async function GET(
     widgetPosition: data?.widget_position  ?? staticConfig.widgetPosition  ?? 'bottom-right',
     widgetStyle:    data?.widget_style     ?? staticConfig.widgetStyle     ?? 'v2',
     widgetTheme:    data?.widget_theme     ?? staticConfig.widgetTheme     ?? 'dark',
+    teaserPersist:  data?.teaser_persist   ?? staticConfig.teaserPersist   ?? false,
   });
 }
