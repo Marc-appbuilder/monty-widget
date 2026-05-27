@@ -334,8 +334,8 @@
     if (isOpen) return;
     if (_isClassic) {
       fab.style.transform  = 'scale(1)';
-      fab.style.background = '#1c1c1c';
-      fab.style.boxShadow  = '0 2px 12px rgba(0,0,0,0.35)';
+      fab.style.background = '#151515';
+      fab.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.28)';
       return;
     }
     _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
@@ -524,7 +524,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '32px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : (_isClassic ? '96px' : '112px'),
+        bottom:    isFloated ? 'auto'  : (_isClassic ? '102px' : '112px'),
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
@@ -635,24 +635,24 @@
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
     /* Size fabWrap to the button */
-    fabWrap.style.width  = '60px';
-    fabWrap.style.height = '60px';
+    fabWrap.style.width  = '66px';
+    fabWrap.style.height = '66px';
     /* Turn the transparent fab into the visual button */
     Object.assign(fab.style, {
-      width: '60px', height: '60px',
+      width: '66px', height: '66px',
       borderRadius: '50%',
-      background: '#1c1c1c',
-      border: 'none',
+      background: '#151515',
+      border: '1px solid rgba(255,255,255,0.06)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '0',
-      boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.28)',
       transition: 'transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
     });
     _setClassicIcon(false);
-    /* Teaser sits above the 60px button */
-    teaser.style.bottom = '76px';
+    /* Teaser sits above the 66px button */
+    teaser.style.bottom = '82px';
   }
 
   /* ── 8b. Initialise V — static, clean, waiting */
@@ -664,13 +664,13 @@
     if (!isMobile()) return;
     if (_isClassic) {
       /* Classic button: 52px on mobile */
-      fabWrap.style.width  = '52px';
-      fabWrap.style.height = '52px';
-      fab.style.width      = '52px';
-      fab.style.height     = '52px';
+      fabWrap.style.width  = '56px';
+      fabWrap.style.height = '56px';
+      fab.style.width      = '56px';
+      fab.style.height     = '56px';
       teaser.style.right  = '0';
       teaser.style.left   = 'auto';
-      teaser.style.bottom = '68px'; /* 52px + 16px */
+      teaser.style.bottom = '72px'; /* 56px + 16px */
       return;
     }
     /* V widget: Scale to ~75% on mobile — desktop geometry unchanged */
