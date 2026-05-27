@@ -278,25 +278,26 @@
     fabArmRight.style.transform = 'rotate(' + a + 'deg)';
   }
 
-  /* Classic mode: swap chat-bubble ↔ × icon */
+  /* Classic mode: swap chat-bubble ↔ × icon — white icons, no colour */
   function _setClassicIcon(open) {
     if (!_isClassic) return;
     if (open) {
       fab.innerHTML =
         '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
-        '<line x1="3" y1="3" x2="17" y2="17" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<line x1="17" y1="3" x2="3" y2="17" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<line x1="3" y1="3" x2="17" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
+        '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
     } else {
       fab.innerHTML =
         '<svg width="26" height="26" viewBox="0 0 28 28" fill="none">' +
-        '<path d="M6 2H22Q26 2 26 6V17Q26 21 22 21H11L5 27L6 21Q2 21 2 17V6Q2 2 6 2Z" fill="#AAFF00"/>' +
+        '<path d="M6 2H22Q26 2 26 6V17Q26 21 22 21H11L5 27L6 21Q2 21 2 17V6Q2 2 6 2Z" fill="rgba(255,255,255,0.88)"/>' +
         '</svg>';
     }
   }
 
-  /* Glow levels: none (idle) → prompt (bubble visible) → hover (interacting) */
+  /* Glow levels — no-op for classic (classic uses natural shadow only, never coloured glow) */
   function _setGlow(level) {
+    if (_isClassic) return;
     if (level === 'hover') {
       fabWrap.style.filter = 'drop-shadow(0 0 12px rgba(170,255,0,0.28))';
     } else if (level === 'prompt') {
@@ -309,8 +310,14 @@
   fab.addEventListener('mouseover', function () {
     _isHoveringFab = true;
     if (isOpen) return;
+    if (_isClassic) {
+      /* Premium hover: subtle scale + slightly lighter circle, no coloured glow */
+      fab.style.transform  = 'scale(1.06)';
+      fab.style.background = '#2a2a2a';
+      fab.style.boxShadow  = '0 6px 24px rgba(0,0,0,0.45)';
+      return;
+    }
     _setGlow('hover');
-    if (_isClassic) { fab.style.transform = 'scale(1.08)'; }
     if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
       clearTimeout(_teaserAutoTimer);
@@ -325,7 +332,12 @@
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
     if (isOpen) return;
-    if (_isClassic) { fab.style.transform = 'scale(1)'; }
+    if (_isClassic) {
+      fab.style.transform  = 'scale(1)';
+      fab.style.background = '#1c1c1c';
+      fab.style.boxShadow  = '0 2px 12px rgba(0,0,0,0.35)';
+      return;
+    }
     _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
     _setGlow(teaser.style.display !== 'none' ? 'prompt' : 'none');
   });
@@ -629,14 +641,14 @@
     Object.assign(fab.style, {
       width: '60px', height: '60px',
       borderRadius: '50%',
-      background: '#111111',
-      border: '2px solid rgba(255,255,255,0.08)',
+      background: '#1c1c1c',
+      border: 'none',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '0',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-      transition: 'transform 0.2s ease',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+      transition: 'transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
     });
     _setClassicIcon(false);
     /* Teaser sits above the 60px button */
