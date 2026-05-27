@@ -58,13 +58,13 @@
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
     '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
-    /* Classic FAB heartbeat — lub-dub double beat with glow, then long rest */
+    /* Classic FAB heartbeat — smooth lub-dub, generous spacing so easing has room to breathe */
     '@keyframes ea-heartbeat{' +
       '0%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
-      '6%{transform:scale(1.09);box-shadow:0 12px 36px rgba(0,0,0,0.35),0 0 22px rgba(255,255,255,0.18)}' +
-      '12%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
-      '18%{transform:scale(1.05);box-shadow:0 10px 28px rgba(0,0,0,0.30),0 0 14px rgba(255,255,255,0.10)}' +
-      '24%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
+      '14%{transform:scale(1.05);box-shadow:0 10px 30px rgba(0,0,0,0.32),0 0 18px rgba(255,255,255,0.15)}' +
+      '28%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
+      '40%{transform:scale(1.03);box-shadow:0 9px 26px rgba(0,0,0,0.30),0 0 12px rgba(255,255,255,0.09)}' +
+      '54%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
       '100%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}}';
   document.head.appendChild(styleEl);
 
@@ -675,7 +675,7 @@
       justifyContent: 'center',
       padding: '0',
       transition: 'background 0.2s ease',
-      animation: 'ea-heartbeat 2.4s ease-in-out infinite',
+      animation: 'ea-heartbeat 3.2s ease-in-out infinite',
     });
     _setClassicIcon(false);
     /* Teaser sits above the 66px button */
