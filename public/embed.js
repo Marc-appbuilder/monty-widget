@@ -57,7 +57,9 @@
     '@keyframes ea-widget-in{from{opacity:0;transform:scale(0.04)}to{opacity:1;transform:scale(1)}}' +
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
-    '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}';
+    '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
+    /* Classic FAB heartbeat — lub-dub double beat then long pause */
+    '@keyframes ea-heartbeat{0%{transform:scale(1)}6%{transform:scale(1.09)}12%{transform:scale(1)}18%{transform:scale(1.05)}24%{transform:scale(1)}100%{transform:scale(1)}}';
   document.head.appendChild(styleEl);
 
   /* ── 5. FAB wrapper ─────────────────────────────────────────────────────── */
@@ -312,7 +314,8 @@
     _isHoveringFab = true;
     if (isOpen) return;
     if (_isClassic) {
-      /* Premium hover: subtle scale + slightly lighter circle, no coloured glow */
+      /* Pause heartbeat, hold at slightly larger scale */
+      fab.style.animationPlayState = 'paused';
       fab.style.transform  = 'scale(1.06)';
       fab.style.background = '#2a2a2a';
       fab.style.boxShadow  = '0 6px 24px rgba(0,0,0,0.45)';
@@ -334,7 +337,8 @@
     _isHoveringFab = false;
     if (isOpen) return;
     if (_isClassic) {
-      fab.style.transform  = 'scale(1)';
+      fab.style.transform  = '';
+      fab.style.animationPlayState = 'running';
       fab.style.background = '#151515';
       fab.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.28)';
       return;
@@ -581,7 +585,7 @@
     overlay.style.display = 'block';
     fabWrap.style.display = 'flex'; /* stay visible so arm-open animation plays on all devices */
     _setArmsOpen(55);
-    if (_isClassic) { fab.style.transform = 'scale(1)'; _setClassicIcon(true); }
+    if (_isClassic) { fab.style.animationPlayState = 'paused'; fab.style.transform = 'scale(1)'; _setClassicIcon(true); }
     fab.setAttribute('aria-label', 'Close chat');
 
     container.style.visibility    = 'visible';
@@ -612,7 +616,7 @@
     overlay.style.display = 'none';
     fabWrap.style.display = 'flex';
     _setArmsResting();
-    if (_isClassic) { _setClassicIcon(false); }
+    if (_isClassic) { _setClassicIcon(false); fab.style.transform = ''; fab.style.animationPlayState = 'running'; }
     fab.setAttribute('aria-label', 'Open chat');
     /* Persist mode: re-show teaser on desktop after chat closes */
     if (_teaserPersist && !isMobile()) {
@@ -665,7 +669,8 @@
       justifyContent: 'center',
       padding: '0',
       boxShadow: '0 8px 24px rgba(0,0,0,0.28)',
-      transition: 'transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+      transition: 'background 0.2s ease, box-shadow 0.2s ease',
+      animation: 'ea-heartbeat 2.4s ease-in-out infinite',
     });
     _setClassicIcon(false);
     /* Teaser sits above the 66px button */
