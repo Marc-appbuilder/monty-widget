@@ -313,6 +313,7 @@ Always try to collect name, email and phone number before closing. If the user d
     notificationEmail: 'marcwrichards@gmail.com',
     brandColour: '#1c1c1c',
     teaserText: 'Chat to us',
+    widgetStyle: 'classic',
   },
 
 };
