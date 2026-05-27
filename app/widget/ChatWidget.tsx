@@ -506,7 +506,9 @@ export default function ChatWidget({ clientId, config }: Props) {
         </p>
         <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.01em' }}>
           Powered by{' '}
-          <span style={{ color: '#AAFF00', fontWeight: 700 }}>Vaughan</span>
+          <span style={{ fontWeight: 700 }}>
+            <span style={{ color: '#AAFF00' }}>V</span><span style={{ color: 'rgba(255,255,255,0.85)' }}>aughan</span>
+          </span>
         </p>
       </div>
     </div>
