@@ -7,6 +7,8 @@ export interface ClientConfig {
   brandColour: string;
   teaserText?: string;
   widgetPosition?: string; // 'bottom-right' | 'bottom-left' | 'middle-right' | 'middle-left'
+  widgetStyle?: string;    // 'classic' | 'v2'
+  widgetTheme?: string;    // 'dark' | 'light'
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -195,6 +197,8 @@ Always try to collect name, email and phone number. If the user declines one, mo
     agentEmail: 'savas@avenue-estates.co.uk',
     notificationEmail: 'savas@avenue-estates.co.uk',
     brandColour: '#1c1c1c',
+    widgetStyle: 'classic',
+    widgetTheme: 'light',
   },
 
   'vaughanai': {

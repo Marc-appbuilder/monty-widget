@@ -26,6 +26,9 @@
   var teaserArg  = srcUrl.searchParams.get('teaserText');
   var linecap    = srcUrl.searchParams.get('linecap') || 'round';
 
+  var _widgetStyle = 'v2';   // 'classic' or 'v2' — resolved from config
+  var _isClassic   = false;
+
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
   window.__vaughanLoaded = true;
@@ -260,17 +263,36 @@
   });
 
   function _setArmsOpen(deg) {
+    if (_isClassic) return;
     fabArmLeft.style.animation  = 'none';
     fabArmRight.style.animation = 'none';
     fabArmLeft.style.transform  = 'rotate(' + (-deg) + 'deg)';
     fabArmRight.style.transform = 'rotate(' + deg + 'deg)';
   }
   function _setArmsResting(overrideAngle) {
+    if (_isClassic) return;
     fabArmLeft.style.animation  = 'none';
     fabArmRight.style.animation = 'none';
     var a = (overrideAngle !== undefined) ? overrideAngle : (_teaserArmsAngle || 0);
     fabArmLeft.style.transform  = 'rotate(' + (-a) + 'deg)';
     fabArmRight.style.transform = 'rotate(' + a + 'deg)';
+  }
+
+  /* Classic mode: swap chat-bubble ↔ × icon */
+  function _setClassicIcon(open) {
+    if (!_isClassic) return;
+    if (open) {
+      fab.innerHTML =
+        '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
+        '<line x1="3" y1="3" x2="17" y2="17" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<line x1="17" y1="3" x2="3" y2="17" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round"/>' +
+        '</svg>';
+    } else {
+      fab.innerHTML =
+        '<svg width="26" height="26" viewBox="0 0 28 28" fill="none">' +
+        '<path d="M6 2H22Q26 2 26 6V17Q26 21 22 21H11L5 27L6 21Q2 21 2 17V6Q2 2 6 2Z" fill="#AAFF00"/>' +
+        '</svg>';
+    }
   }
 
   /* Glow levels: none (idle) → prompt (bubble visible) → hover (interacting) */
@@ -288,6 +310,7 @@
     _isHoveringFab = true;
     if (isOpen) return;
     _setGlow('hover');
+    if (_isClassic) { fab.style.transform = 'scale(1.08)'; }
     if (_teaserPrompts.length && !_teaserDismissed && teaser.style.display === 'none') {
       clearTimeout(_teaserTimer);
       clearTimeout(_teaserAutoTimer);
@@ -302,6 +325,7 @@
   fab.addEventListener('mouseout', function () {
     _isHoveringFab = false;
     if (isOpen) return;
+    if (_isClassic) { fab.style.transform = 'scale(1)'; }
     _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
     _setGlow(teaser.style.display !== 'none' ? 'prompt' : 'none');
   });
@@ -488,7 +512,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '32px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : '112px',
+        bottom:    isFloated ? 'auto'  : (_isClassic ? '96px' : '112px'),
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
@@ -535,6 +559,7 @@
     overlay.style.display = 'block';
     fabWrap.style.display = 'flex'; /* stay visible so arm-open animation plays on all devices */
     _setArmsOpen(55);
+    if (_isClassic) { fab.style.transform = 'scale(1)'; _setClassicIcon(true); }
     fab.setAttribute('aria-label', 'Close chat');
 
     container.style.visibility    = 'visible';
@@ -565,6 +590,7 @@
     overlay.style.display = 'none';
     fabWrap.style.display = 'flex';
     _setArmsResting();
+    if (_isClassic) { _setClassicIcon(false); }
     fab.setAttribute('aria-label', 'Open chat');
 
     if (isMobile()) {
@@ -591,14 +617,51 @@
     }
   }
 
-  /* ── 8. Initialise V — static, clean, waiting */
+  /* ── 8a. Classic FAB — round button, applied after config fetch ── */
+  function buildClassicFab() {
+    /* Remove V arms — they were appended before we knew the style */
+    fabWrap.removeChild(fabArmLeft);
+    fabWrap.removeChild(fabArmRight);
+    /* Size fabWrap to the button */
+    fabWrap.style.width  = '60px';
+    fabWrap.style.height = '60px';
+    /* Turn the transparent fab into the visual button */
+    Object.assign(fab.style, {
+      width: '60px', height: '60px',
+      borderRadius: '50%',
+      background: '#111111',
+      border: '2px solid rgba(255,255,255,0.08)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+      transition: 'transform 0.2s ease',
+    });
+    _setClassicIcon(false);
+    /* Teaser sits above the 60px button */
+    teaser.style.bottom = '76px';
+  }
+
+  /* ── 8b. Initialise V — static, clean, waiting */
   function applyColor() {
     _setArmsResting();
   }
 
   function applyMobileScale() {
     if (!isMobile()) return;
-    /* Scale V to ~75% on mobile — desktop geometry unchanged */
+    if (_isClassic) {
+      /* Classic button: 52px on mobile */
+      fabWrap.style.width  = '52px';
+      fabWrap.style.height = '52px';
+      fab.style.width      = '52px';
+      fab.style.height     = '52px';
+      teaser.style.right  = '0';
+      teaser.style.left   = 'auto';
+      teaser.style.bottom = '68px'; /* 52px + 16px */
+      return;
+    }
+    /* V widget: Scale to ~75% on mobile — desktop geometry unchanged */
     var w = '66px', h = '57px', ori = '33px 52px';
     fabWrap.style.width  = w;
     fabWrap.style.height = h;
@@ -634,6 +697,9 @@
     fetch(origin + '/api/client-config/' + encodeURIComponent(clientId))
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        _widgetStyle = d.widgetStyle || 'v2';
+        _isClassic   = _widgetStyle === 'classic';
+        if (_isClassic) buildClassicFab();
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
