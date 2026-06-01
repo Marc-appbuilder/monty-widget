@@ -10,6 +10,7 @@ export interface ClientConfig {
   widgetStyle?: string;    // 'classic' | 'v2'
   widgetTheme?: string;    // 'dark' | 'light'
   teaserPersist?: boolean; // desktop: keep teaser bubble permanently visible
+  agentWhatsApp?: string;  // international format e.g. +447911123456
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -202,6 +203,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     widgetStyle: 'classic',
     widgetTheme: 'light',
     teaserPersist: true,
+    agentWhatsApp: '+447911123456',
   },
 
   'vaughanai': {

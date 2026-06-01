@@ -4,6 +4,7 @@ import { getClient } from '@/lib/clients';
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
 import type { LeadPayload } from '@/app/api/lead/route';
+import { sendWhatsAppNotification } from '@/lib/whatsapp';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 function getResend() {
@@ -91,7 +92,7 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
       <tr><td>Phone</td><td>${lead.phone ? `<a href="tel:${escapeHtml(lead.phone)}" style="color:${brandColour}">${escapeHtml(lead.phone)}</a>` : '<span style="color:#aaa">Not provided</span>'}</td></tr>
     </table>
     ${lead.summary ? `<div class="summary"><strong>What they were looking for:</strong>\n${escapeHtml(lead.summary)}</div>` : ''}
-    <div class="footer">Sent automatically by VaughanAI</div>
+    <div class="footer">Sent automatically by Vaughan</div>
   </div>
 </div>
 </body></html>`;
@@ -100,7 +101,7 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
 async function sendLeadEmail(lead: LeadPayload, clientId: string) {
   const config = getClient(clientId);
   const { error } = await getResend().emails.send({
-    from: 'VaughanAI <leads@vaughanai.co>',
+    from: 'Vaughan <leads@vaughanai.co>',
     to: config.notificationEmail,
     ...(lead.email ? { replyTo: lead.email } : {}),
     subject: `New lead — ${config.name}`,
@@ -228,7 +229,10 @@ export async function POST(req: NextRequest) {
               .gte('created_at', cutoff).limit(1);
             if (data && data.length > 0) isDuplicate = true;
           }
-          if (!isDuplicate) sendLeadEmail(toolInput, clientId).catch(console.error);
+          if (!isDuplicate) {
+            sendLeadEmail(toolInput, clientId).catch(console.error);
+            sendWhatsAppNotification(toolInput, clientId).catch(console.error);
+          }
           supabase.from('leads').insert({
             agent_id:         clientId,
             name:             toolInput.name,
