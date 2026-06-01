@@ -203,7 +203,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     widgetStyle: 'classic',
     widgetTheme: 'light',
     teaserPersist: true,
-    agentWhatsApp: '+447911123456',
+    agentWhatsApp: '+447730569891',
   },
 
   'vaughanai': {
@@ -316,6 +316,7 @@ Always try to collect name, email and phone number before closing. If the user d
     brandColour: '#1c1c1c',
     teaserText: 'Chat to us',
     widgetStyle: 'classic',
+    agentWhatsApp: '+447880577770',
   },
 
 };
