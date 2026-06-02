@@ -99,14 +99,18 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
 
 async function sendLeadEmail(lead: LeadPayload, clientId: string) {
   const config = getClient(clientId);
-  const { error } = await getResend().emails.send({
+  const { data, error } = await getResend().emails.send({
     from: 'Vaughan <leads@vaughanai.co>',
     to: config.notificationEmail,
     ...(lead.email ? { replyTo: lead.email } : {}),
     subject: `New lead — ${config.name}`,
     html: buildHtml(lead, config.name, config.brandColour),
   });
-  if (error) console.error('[lead] resend error:', error);
+  if (error) {
+    console.error('[lead] resend error:', JSON.stringify(error));
+    throw error;
+  }
+  console.log('[lead] email sent:', data?.id, '→', config.notificationEmail);
 }
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
@@ -229,7 +233,7 @@ export async function POST(req: NextRequest) {
             if (data && data.length > 0) isDuplicate = true;
           }
           if (!isDuplicate) {
-            sendLeadEmail(toolInput, clientId).catch(console.error);
+            await sendLeadEmail(toolInput, clientId);
           }
           supabase.from('leads').insert({
             agent_id:         clientId,
