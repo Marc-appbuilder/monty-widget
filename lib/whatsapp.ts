@@ -1,19 +1,18 @@
-import twilio from 'twilio';
 import type { LeadPayload } from '@/app/api/lead/route';
 import { getClient } from '@/lib/clients';
 
 const FROM = 'whatsapp:+12365069129';
 
-function getClient_() {
-  const sid   = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  if (!sid || !token) throw new Error('Twilio credentials not configured');
-  return twilio(sid, token);
-}
-
 export async function sendWhatsAppNotification(lead: LeadPayload, clientId: string): Promise<void> {
   const config = getClient(clientId);
   if (!config.agentWhatsApp) return;
+
+  const sid   = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  if (!sid || !token) return;
+
+  const twilio = (await import('twilio')).default;
+  const client = twilio(sid, token);
 
   const time = new Date().toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
@@ -28,7 +27,7 @@ export async function sendWhatsAppNotification(lead: LeadPayload, clientId: stri
     `Enquiry: ${lead.summary || 'Not provided'}\n` +
     `Time: ${time}`;
 
-  await getClient_().messages.create({
+  await client.messages.create({
     from: FROM,
     to:   `whatsapp:${config.agentWhatsApp}`,
     body,
