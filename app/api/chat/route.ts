@@ -234,6 +234,18 @@ export async function POST(req: NextRequest) {
           }
           if (!isDuplicate) {
             await sendLeadEmail(toolInput, clientId);
+            // WhatsApp fires separately — completely isolated, cannot affect email
+            fetch(new URL('/api/whatsapp', req.url).toString(), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clientId,
+                name:    toolInput.name,
+                phone:   toolInput.phone,
+                email:   toolInput.email,
+                summary: toolInput.summary,
+              }),
+            }).catch((e) => console.error('[whatsapp-fetch] error:', e));
           }
           supabase.from('leads').insert({
             agent_id:         clientId,
