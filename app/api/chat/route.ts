@@ -4,7 +4,8 @@ import { getClient } from '@/lib/clients';
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
 import type { LeadPayload } from '@/app/api/lead/route';
-import { sendWhatsAppNotification } from '@/lib/whatsapp';
+// WhatsApp import temporarily disabled — re-enable once emails confirmed stable
+// import { sendWhatsAppNotification } from '@/lib/whatsapp';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 function getResend() {
@@ -231,7 +232,7 @@ export async function POST(req: NextRequest) {
           }
           if (!isDuplicate) {
             sendLeadEmail(toolInput, clientId).catch(console.error);
-            sendWhatsAppNotification(toolInput, clientId).catch(console.error);
+            // sendWhatsAppNotification(toolInput, clientId).catch(console.error);
           }
           supabase.from('leads').insert({
             agent_id:         clientId,
