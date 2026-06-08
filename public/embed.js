@@ -30,7 +30,6 @@
   var _widgetStyle   = 'v2';   // 'classic' or 'v2' — resolved from config
   var _isClassic     = false;
   var _teaserPersist = false;  // desktop-only: teaser stays visible permanently
-  var _isChromeIOS   = /CriOS/i.test(navigator.userAgent); // Chrome on iPhone/iPad (not Safari)
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -573,7 +572,6 @@
   /* ── 7. Toggle state ─────────────────────────────────────────────────────── */
   var isOpen = false;
   var _closeTimer = null;
-  var _mobVVCleanup = null; /* cleans up visual viewport listener when chat closes */
 
   /* Desktop only — on mobile, click events leak from iframe taps on Chrome iOS and would wrongly close */
   overlay.addEventListener('click', function () { if (isOpen && !isMobile()) closeFab(); });
@@ -604,25 +602,6 @@
     if (isMobile()) {
       _mobClose.style.display  = 'block';
       _mobHandle.style.display = 'block';
-      /* Chrome iOS only: track visual viewport so container lifts above the keyboard.
-         Safari handles this natively — applying it there causes judder. */
-      if (_isChromeIOS && window.visualViewport && !_mobVVCleanup) {
-        var _vvHandler = function() {
-          if (!isOpen) return;
-          var kbH = Math.max(0, window.innerHeight - window.visualViewport.height);
-          container.style.bottom = kbH + 'px';
-          container.style.height = Math.max(200, (window.innerHeight - kbH) * 0.92) + 'px';
-        };
-        window.visualViewport.addEventListener('resize', _vvHandler);
-        window.visualViewport.addEventListener('scroll', _vvHandler);
-        _mobVVCleanup = function() {
-          window.visualViewport.removeEventListener('resize', _vvHandler);
-          window.visualViewport.removeEventListener('scroll', _vvHandler);
-          container.style.bottom = '0';
-          container.style.height = '70vh';
-          _mobVVCleanup = null;
-        };
-      }
       /* Arms open for 200ms, then panel slides up behind them */
       container.style.transition = 'none';
       container.offsetHeight;
@@ -656,7 +635,6 @@
     }
 
     if (isMobile()) {
-      if (_mobVVCleanup) { _mobVVCleanup(); }
       _mobClose.style.display  = 'none';
       _mobHandle.style.display = 'none';
       fabWrap.style.display = 'flex'; /* show V so arms animate back to resting */
