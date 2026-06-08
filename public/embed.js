@@ -30,6 +30,7 @@
   var _widgetStyle   = 'v2';   // 'classic' or 'v2' — resolved from config
   var _isClassic     = false;
   var _teaserPersist = false;  // desktop-only: teaser stays visible permanently
+  var _isChromeIOS   = /CriOS/i.test(navigator.userAgent);
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -573,9 +574,23 @@
   var isOpen = false;
   var _closeTimer = null;
 
-  /* Desktop only — on mobile, click events leak from iframe taps on Chrome iOS and would wrongly close */
+  /* Desktop only — Chrome iOS leaks click events from iframe taps which would wrongly close the widget */
   overlay.addEventListener('click', function () { if (isOpen && !isMobile()) closeFab(); });
-  overlay.addEventListener('touchend', function (e) { if (isOpen) { e.preventDefault(); closeFab(); } }, { passive: false });
+  /* Chrome iOS also leaks touchend from iframe — guard against touches inside the container.
+     Safari does NOT have this leak so it gets the original handler with no coordinate check. */
+  overlay.addEventListener('touchend', function (e) {
+    if (!isOpen) return;
+    if (_isChromeIOS) {
+      var t = e.changedTouches && e.changedTouches[0];
+      if (t) {
+        var r = container.getBoundingClientRect();
+        if (t.clientX >= r.left && t.clientX <= r.right &&
+            t.clientY >= r.top  && t.clientY <= r.bottom) return;
+      }
+    }
+    e.preventDefault();
+    closeFab();
+  }, { passive: false });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) closeFab(); });
   window.addEventListener('message', function (e) { if (e.data === 'vaughan:close' && isOpen) closeFab(); });
 
