@@ -208,7 +208,7 @@ export default function ChatWidget({ clientId, config }: Props) {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      height: '100%',    /* fill iframe — outer embed.js handles keyboard resize */
+      height: '100dvh',  /* dvh shrinks when the mobile keyboard opens */
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       fontSize: '15px',
       background: '#0d0f14',

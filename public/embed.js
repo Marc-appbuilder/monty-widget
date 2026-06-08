@@ -30,6 +30,7 @@
   var _widgetStyle   = 'v2';   // 'classic' or 'v2' — resolved from config
   var _isClassic     = false;
   var _teaserPersist = false;  // desktop-only: teaser stays visible permanently
+  var _isChromeIOS   = /CriOS/i.test(navigator.userAgent); // Chrome on iPhone/iPad (not Safari)
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -614,8 +615,9 @@
     if (isMobile()) {
       _mobClose.style.display  = 'block';
       _mobHandle.style.display = 'block';
-      /* Chrome mobile: track visual viewport so container lifts above the keyboard */
-      if (window.visualViewport && !_mobVVCleanup) {
+      /* Chrome iOS only: track visual viewport so container lifts above the keyboard.
+         Safari handles this natively — applying it there causes judder. */
+      if (_isChromeIOS && window.visualViewport && !_mobVVCleanup) {
         var _vvHandler = function() {
           if (!isOpen) return;
           var kbH = Math.max(0, window.innerHeight - window.visualViewport.height);
