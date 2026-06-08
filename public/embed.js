@@ -572,6 +572,7 @@
   /* ── 7. Toggle state ─────────────────────────────────────────────────────── */
   var isOpen = false;
   var _closeTimer = null;
+  var _mobVVCleanup = null; /* cleans up visual viewport listener when chat closes */
 
   overlay.addEventListener('click', function () { if (isOpen) closeFab(); });
   overlay.addEventListener('touchend', function (e) { if (isOpen) { e.preventDefault(); closeFab(); } }, { passive: false });
@@ -601,6 +602,24 @@
     if (isMobile()) {
       _mobClose.style.display  = 'block';
       _mobHandle.style.display = 'block';
+      /* Chrome mobile: track visual viewport so container lifts above the keyboard */
+      if (window.visualViewport && !_mobVVCleanup) {
+        var _vvHandler = function() {
+          if (!isOpen) return;
+          var kbH = Math.max(0, window.innerHeight - window.visualViewport.height);
+          container.style.bottom = kbH + 'px';
+          container.style.height = Math.max(200, (window.innerHeight - kbH) * 0.92) + 'px';
+        };
+        window.visualViewport.addEventListener('resize', _vvHandler);
+        window.visualViewport.addEventListener('scroll', _vvHandler);
+        _mobVVCleanup = function() {
+          window.visualViewport.removeEventListener('resize', _vvHandler);
+          window.visualViewport.removeEventListener('scroll', _vvHandler);
+          container.style.bottom = '0';
+          container.style.height = '70vh';
+          _mobVVCleanup = null;
+        };
+      }
       /* Arms open for 200ms, then panel slides up behind them */
       container.style.transition = 'none';
       container.offsetHeight;
@@ -634,6 +653,7 @@
     }
 
     if (isMobile()) {
+      if (_mobVVCleanup) { _mobVVCleanup(); }
       _mobClose.style.display  = 'none';
       _mobHandle.style.display = 'none';
       fabWrap.style.display = 'flex'; /* show V so arms animate back to resting */
