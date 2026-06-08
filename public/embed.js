@@ -574,8 +574,20 @@
   var _closeTimer = null;
   var _mobVVCleanup = null; /* cleans up visual viewport listener when chat closes */
 
-  overlay.addEventListener('click', function () { if (isOpen) closeFab(); });
-  overlay.addEventListener('touchend', function (e) { if (isOpen) { e.preventDefault(); closeFab(); } }, { passive: false });
+  /* Desktop only — on mobile, click events leak from iframe taps and would wrongly close the widget */
+  overlay.addEventListener('click', function () { if (isOpen && !isMobile()) closeFab(); });
+  /* Guard: only close if the touch ended outside the container (iframe touches can leak on Chrome iOS) */
+  overlay.addEventListener('touchend', function (e) {
+    if (!isOpen) return;
+    var t = e.changedTouches && e.changedTouches[0];
+    if (t) {
+      var r = container.getBoundingClientRect();
+      if (t.clientX >= r.left && t.clientX <= r.right &&
+          t.clientY >= r.top  && t.clientY <= r.bottom) return;
+    }
+    e.preventDefault();
+    closeFab();
+  }, { passive: false });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) closeFab(); });
   window.addEventListener('message', function (e) { if (e.data === 'vaughan:close' && isOpen) closeFab(); });
 
