@@ -592,7 +592,7 @@
       Object.assign(container.style, {
         right:     isLeft    ? 'auto'  : '32px',
         left:      isLeft    ? '96px'  : 'auto',
-        bottom:    isFloated ? 'auto'  : (_isClassic ? '102px' : '112px'),
+        bottom:    isFloated ? 'auto'  : (_isClassic ? '112px' : '112px'),
         top:       isFloated ? topVal  : 'auto',
         width:     '380px',
         height:    '580px',
@@ -727,11 +727,11 @@
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
     /* Size fabWrap to the button */
-    fabWrap.style.width  = '66px';
-    fabWrap.style.height = '66px';
+    fabWrap.style.width  = '80px';
+    fabWrap.style.height = '80px';
     /* Base button styles — logo vs icon mode diverge in _setClassicIcon */
     Object.assign(fab.style, {
-      width: '66px', height: '66px',
+      width: '80px', height: '80px',
       borderRadius: '50%',
       padding: '0',
       cursor: 'pointer',
@@ -739,8 +739,8 @@
       animation: _fabLogoUrl ? 'none' : 'ea-heartbeat 3.2s ease-in-out infinite',
     });
     _setClassicIcon(false);
-    /* Teaser sits above the 66px button */
-    teaser.style.bottom = '82px';
+    /* Teaser sits above the button */
+    teaser.style.bottom = '96px';
   }
 
   /* ── 8b. Initialise V — static, clean, waiting */
