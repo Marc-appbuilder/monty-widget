@@ -752,13 +752,13 @@
     if (!isMobile()) return;
     if (_isClassic) {
       /* Classic button: 52px on mobile */
-      fabWrap.style.width  = '56px';
-      fabWrap.style.height = '56px';
-      fab.style.width      = '56px';
-      fab.style.height     = '56px';
+      fabWrap.style.width  = '68px';
+      fabWrap.style.height = '68px';
+      fab.style.width      = '68px';
+      fab.style.height     = '68px';
       teaser.style.right  = '0';
       teaser.style.left   = 'auto';
-      teaser.style.bottom = '72px'; /* 56px + 16px */
+      teaser.style.bottom = '84px'; /* 68px + 16px */
       return;
     }
     /* V widget: Scale to ~75% on mobile — desktop geometry unchanged */
