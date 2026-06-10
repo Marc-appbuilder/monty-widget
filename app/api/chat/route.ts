@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
       try {
         /* ── First pass ── */
         const firstStream = anthropic.messages.stream({
-          model:      'claude-haiku-4-5-20251001',
+          model:      'claude-sonnet-4-6',
           max_tokens: 512,
           system:     systemPrompt,
           messages:   sanitisedMessages,
@@ -285,7 +285,7 @@ export async function POST(req: NextRequest) {
         ];
 
         const followUpStream = anthropic.messages.stream({
-          model:      'claude-haiku-4-5-20251001',
+          model:      'claude-sonnet-4-6',
           max_tokens: 256,
           system:     systemPrompt,
           messages:   followUpMessages,
