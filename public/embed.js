@@ -320,7 +320,7 @@
       fab.style.display        = 'block';
       fab.style.alignItems     = '';
       fab.style.justifyContent = '';
-      fab.innerHTML = '<img src="' + _fabLogoUrl + '" style="width:130%;height:130%;margin:-15%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;" alt=""/>';
+      fab.innerHTML = '<img src="' + _fabLogoUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;" alt=""/>';
     } else {
       /* Default: chat bubble icon */
       fab.style.background = '#151515';
