@@ -369,7 +369,7 @@ Always try to collect name, email and phone before closing. If the user declines
     brandColour: '#c47e5a',
     teaserText: 'Chat to us',
     widgetStyle: 'classic',
-    logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/tailor-made-seal.jpeg',
+    logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/tailor-made-seal.png',
   },
 
 };
