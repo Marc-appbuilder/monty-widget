@@ -322,10 +322,10 @@
     } else if (_fabLogoUrl) {
       /* Logo mode: background-image fills the circle — no child img element */
       fab.innerHTML                = '';
+      fab.style.backgroundColor    = 'transparent';
       fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
       fab.style.backgroundSize     = 'cover';
       fab.style.backgroundPosition = 'center';
-      fab.style.background         = '';
       fab.style.border             = 'none';
       fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)' + ring;
       fab.style.display            = 'flex';
