@@ -715,7 +715,7 @@
     fabWrap.style.height = '66px';
     /* Turn the transparent fab into the visual button */
     if (_fabLogoUrl) {
-      /* Logo mode: transparent container, image fills it */
+      /* Logo mode: static circle — no animation, keeps image crisp and colours true */
       Object.assign(fab.style, {
         width: '66px', height: '66px',
         borderRadius: '50%',
@@ -724,7 +724,8 @@
         display: 'block',
         padding: '0',
         overflow: 'hidden',
-        animation: 'ea-logo-heartbeat 3.2s ease-in-out infinite',
+        boxShadow: '0 6px 24px rgba(0,0,0,0.45)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       });
     } else {
       Object.assign(fab.style, {
