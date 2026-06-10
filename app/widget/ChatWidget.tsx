@@ -321,21 +321,25 @@ export default function ChatWidget({ clientId, config }: Props) {
           }}>
             {config.name}
           </p>
-          <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>Virtual Assistant</p>
+          {(config.agentTitle ?? 'Virtual Assistant') && (
+            <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>{config.agentTitle ?? 'Virtual Assistant'}</p>
+          )}
         </div>
 
         {/* Online indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          <span className="vaughan-online" style={{
-            display: 'block',
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: '#4ade80',
-            boxShadow: '0 0 10px 4px rgba(74,222,128,0.6)',
-          }} />
-          <span style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>Online</span>
-        </div>
+        {config.showOnlineIndicator !== false && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            <span className="vaughan-online" style={{
+              display: 'block',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#4ade80',
+              boxShadow: '0 0 10px 4px rgba(74,222,128,0.6)',
+            }} />
+            <span style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>Online</span>
+          </div>
+        )}
 
         {/* Close button — always visible so users can dismiss the widget */}
         <button

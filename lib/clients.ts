@@ -12,6 +12,8 @@ export interface ClientConfig {
   teaserPersist?: boolean; // desktop: keep teaser bubble permanently visible
   agentWhatsApp?: string;  // international format e.g. +447911123456
   logoUrl?: string;        // shown in chat header avatar and classic FAB button
+  agentTitle?: string;     // subtitle in chat header — defaults to 'Virtual Assistant'
+  showOnlineIndicator?: boolean; // show green dot + Online — defaults to true
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -203,6 +205,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
+    teaserText: 'Chat to us',
     teaserPersist: true,
     agentWhatsApp: '+447730569891',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
@@ -367,9 +370,10 @@ Always try to collect name, email and phone before closing. If the user declines
     agentEmail: 'enquiries@tmea.biz',
     notificationEmail: 'marcwrichards@gmail.com',
     brandColour: '#c47e5a',
-    teaserText: 'Chat to us',
     widgetStyle: 'classic',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/tailor-made-seal.png',
+    agentTitle: 'Property Consultant',
+    showOnlineIndicator: false,
   },
 
 };

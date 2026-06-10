@@ -320,15 +320,16 @@
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
     } else if (_fabLogoUrl) {
-      /* Logo mode: background-image fills the circle — no child img element.
-         backgroundColor matches the logo's own bg so any canvas margin is invisible. */
+      /* Logo mode: background-image fills the circle.
+         CSS border gives a clean brand ring — no inset shadow artifacts. */
       fab.innerHTML                = '';
       fab.style.backgroundColor    = '#0b3246';
       fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
       fab.style.backgroundSize     = 'cover';
       fab.style.backgroundPosition = 'center';
-      fab.style.border             = 'none';
-      fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)' + ring;
+      fab.style.boxSizing          = 'border-box';
+      fab.style.border             = '3px solid ' + (_fabBrandColour || '#c47e5a');
+      fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)';
       fab.style.display            = 'flex';
       fab.style.alignItems         = 'center';
       fab.style.justifyContent     = 'center';
@@ -392,9 +393,13 @@
     if (isOpen) return;
     if (_isClassic) {
       fab.style.transform = '';
-      fab.style.boxShadow = '';  /* animation owns box-shadow when running */
-      fab.style.animationPlayState = 'running';
-      if (!_fabLogoUrl) fab.style.background = '#151515';
+      if (_fabLogoUrl) {
+        fab.style.boxShadow = '0 6px 24px rgba(0,0,0,0.45)';
+      } else {
+        fab.style.boxShadow = '';  /* animation owns box-shadow when running */
+        fab.style.animationPlayState = 'running';
+        fab.style.background = '#151515';
+      }
       return;
     }
     _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
@@ -803,7 +808,7 @@
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
-        initTeaser(teaserArg || d.teaserText || 'Chat to us', d.teaserPersist);
+        initTeaser(teaserArg || d.teaserText || null, d.teaserPersist);
       })
       .catch(function () {
         applyFabPosition('bottom-right');
