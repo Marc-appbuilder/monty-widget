@@ -33,6 +33,7 @@
   var _isChromeIOS   = /CriOS/i.test(navigator.userAgent);
   var _fabLogoUrl      = '';   // set when config provides a logoUrl for classic FAB
   var _fabBrandColour  = '';   // brand colour used for the logo FAB inset ring
+  var _fabLogoDiv      = null; // div wrapper used to cleanly clip the logo to a circle
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -302,13 +303,11 @@
   /* Classic mode: swap logo/chat-bubble ↔ × icon */
   function _setClassicIcon(open) {
     if (!_isClassic) return;
-    var ring = _fabBrandColour ? ', inset 0 0 0 2.5px ' + _fabBrandColour : '';
     if (open) {
-      /* × on dark bg — clear logo background-image */
-      fab.style.backgroundImage    = '';
-      fab.style.backgroundSize     = '';
-      fab.style.backgroundPosition = '';
+      /* × state — hide logo div so we can show the × on a dark fab */
+      if (_fabLogoDiv) _fabLogoDiv.style.display = 'none';
       fab.style.background         = '#151515';
+      fab.style.backgroundImage    = '';
       fab.style.border             = '1px solid rgba(255,255,255,0.06)';
       fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)';
       fab.style.display            = 'flex';
@@ -319,19 +318,14 @@
         '<line x1="3" y1="3" x2="17" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
-    } else if (_fabLogoUrl) {
-      /* Logo mode: logo as background-image fills the circle */
-      fab.innerHTML                = '';
-      fab.style.backgroundColor    = '#0b3246';
-      fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
-      fab.style.backgroundSize     = 'cover';
-      fab.style.backgroundPosition = 'center';
-      fab.style.boxSizing          = '';
-      fab.style.border             = 'none';
-      fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)';
-      fab.style.display            = 'flex';
-      fab.style.alignItems         = 'center';
-      fab.style.justifyContent     = 'center';
+    } else if (_fabLogoDiv) {
+      /* Logo mode — visual lives in _fabLogoDiv (overflow:hidden clips img cleanly, no artifacts) */
+      _fabLogoDiv.style.display = 'block';
+      fab.innerHTML              = '';
+      fab.style.background       = 'transparent';
+      fab.style.backgroundImage  = '';
+      fab.style.border           = 'none';
+      fab.style.boxShadow        = '';
     } else {
       /* Default: chat bubble icon */
       fab.style.backgroundImage    = '';
@@ -366,9 +360,9 @@
     _isHoveringFab = true;
     if (isOpen) return;
     if (_isClassic) {
-      if (_fabLogoUrl) {
-        fab.style.filter    = 'brightness(1.08)';
-        fab.style.boxShadow = '0 8px 28px rgba(0,0,0,0.55)';
+      if (_fabLogoDiv) {
+        _fabLogoDiv.style.filter    = 'brightness(1.08)';
+        _fabLogoDiv.style.boxShadow = '0 8px 28px rgba(0,0,0,0.55)';
       } else {
         fab.style.animationPlayState = 'paused';
         fab.style.transform  = 'scale(1.06)';
@@ -393,9 +387,9 @@
     _isHoveringFab = false;
     if (isOpen) return;
     if (_isClassic) {
-      if (_fabLogoUrl) {
-        fab.style.filter    = '';
-        fab.style.boxShadow = '0 6px 24px rgba(0,0,0,0.45)';
+      if (_fabLogoDiv) {
+        _fabLogoDiv.style.filter    = '';
+        _fabLogoDiv.style.boxShadow = '0 6px 24px rgba(0,0,0,0.45)';
       } else {
         fab.style.transform          = '';
         fab.style.boxShadow          = '';
@@ -734,16 +728,52 @@
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
     /* Size fabWrap to the button */
-    fabWrap.style.width  = '80px';
-    fabWrap.style.height = '80px';
-    /* Base button styles — logo vs icon mode diverge in _setClassicIcon */
+    fabWrap.style.width    = '80px';
+    fabWrap.style.height   = '80px';
+    fabWrap.style.position = 'fixed'; /* ensure positioning context for absolute children */
+
+    if (_fabLogoUrl) {
+      /* Create a clipping layer: div with overflow:hidden clips the img to a perfect circle.
+         This avoids background-image anti-aliasing artifacts at the clip edge. */
+      _fabLogoDiv = document.createElement('div');
+      Object.assign(_fabLogoDiv.style, {
+        position:        'absolute',
+        top:             '0',
+        left:            '0',
+        width:           '100%',
+        height:          '100%',
+        borderRadius:    '50%',
+        overflow:        'hidden',
+        backgroundColor: '#0b3246',
+        boxShadow:       '0 6px 24px rgba(0,0,0,0.45)',
+        pointerEvents:   'none',
+        transition:      'filter 0.15s ease, box-shadow 0.15s ease',
+      });
+      var logoImg = document.createElement('img');
+      logoImg.src = _fabLogoUrl;
+      logoImg.alt = '';
+      Object.assign(logoImg.style, {
+        width:     '100%',
+        height:    '100%',
+        objectFit: 'cover',
+        display:   'block',
+      });
+      _fabLogoDiv.appendChild(logoImg);
+      fabWrap.insertBefore(_fabLogoDiv, fab);
+    }
+
+    /* fab becomes the click target — absolute to sit on top of _fabLogoDiv */
     Object.assign(fab.style, {
-      width: '80px', height: '80px',
+      position:     'absolute',
+      top:          '0',
+      left:         '0',
+      width:        '100%',
+      height:       '100%',
       borderRadius: '50%',
-      padding: '0',
-      cursor: 'pointer',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      animation: _fabLogoUrl ? 'none' : 'ea-heartbeat 3.2s ease-in-out infinite',
+      padding:      '0',
+      cursor:       'pointer',
+      transition:   'transform 0.2s ease, box-shadow 0.2s ease',
+      animation:    _fabLogoUrl ? 'none' : 'ea-heartbeat 3.2s ease-in-out infinite',
     });
     _setClassicIcon(false);
     /* Teaser sits above the button */
