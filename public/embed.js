@@ -320,15 +320,15 @@
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
     } else if (_fabLogoUrl) {
-      /* Logo mode: background-image fills the circle.
-         CSS border gives a clean brand ring — no inset shadow artifacts. */
+      /* Logo mode: logo fills circle. 95% size shows the PNG's own bronze ring
+         against the teal background-color — no CSS border needed. */
       fab.innerHTML                = '';
       fab.style.backgroundColor    = '#0b3246';
       fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
-      fab.style.backgroundSize     = 'cover';
+      fab.style.backgroundSize     = '95%';
       fab.style.backgroundPosition = 'center';
-      fab.style.boxSizing          = 'border-box';
-      fab.style.border             = '3px solid ' + (_fabBrandColour || '#c47e5a');
+      fab.style.boxSizing          = '';
+      fab.style.border             = 'none';
       fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)';
       fab.style.display            = 'flex';
       fab.style.alignItems         = 'center';
@@ -367,10 +367,12 @@
     _isHoveringFab = true;
     if (isOpen) return;
     if (_isClassic) {
-      /* Pause heartbeat, hold at slightly larger scale */
-      fab.style.animationPlayState = 'paused';
-      fab.style.transform = 'scale(1.06)';
-      if (!_fabLogoUrl) {
+      if (_fabLogoUrl) {
+        fab.style.filter    = 'brightness(1.08)';
+        fab.style.boxShadow = '0 8px 28px rgba(0,0,0,0.55)';
+      } else {
+        fab.style.animationPlayState = 'paused';
+        fab.style.transform  = 'scale(1.06)';
         fab.style.background = '#2a2a2a';
         fab.style.boxShadow  = '0 6px 24px rgba(0,0,0,0.45)';
       }
@@ -392,13 +394,14 @@
     _isHoveringFab = false;
     if (isOpen) return;
     if (_isClassic) {
-      fab.style.transform = '';
       if (_fabLogoUrl) {
+        fab.style.filter    = '';
         fab.style.boxShadow = '0 6px 24px rgba(0,0,0,0.45)';
       } else {
-        fab.style.boxShadow = '';  /* animation owns box-shadow when running */
+        fab.style.transform          = '';
+        fab.style.boxShadow          = '';
         fab.style.animationPlayState = 'running';
-        fab.style.background = '#151515';
+        fab.style.background         = '#151515';
       }
       return;
     }
