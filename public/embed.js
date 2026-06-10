@@ -320,12 +320,11 @@
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
     } else if (_fabLogoUrl) {
-      /* Logo mode: logo fills circle. 95% size shows the PNG's own bronze ring
-         against the teal background-color — no CSS border needed. */
+      /* Logo mode: logo as background-image fills the circle */
       fab.innerHTML                = '';
       fab.style.backgroundColor    = '#0b3246';
       fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
-      fab.style.backgroundSize     = '95%';
+      fab.style.backgroundSize     = 'cover';
       fab.style.backgroundPosition = 'center';
       fab.style.boxSizing          = '';
       fab.style.border             = 'none';
