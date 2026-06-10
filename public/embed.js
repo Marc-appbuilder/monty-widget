@@ -361,8 +361,9 @@
     if (isOpen) return;
     if (_isClassic) {
       if (_fabLogoDiv) {
+        var _ringH = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
         _fabLogoDiv.style.filter    = 'brightness(1.08)';
-        _fabLogoDiv.style.boxShadow = '0 8px 28px rgba(0,0,0,0.55)';
+        _fabLogoDiv.style.boxShadow = _ringH + '0 8px 28px rgba(0,0,0,0.55)';
       } else {
         fab.style.animationPlayState = 'paused';
         fab.style.transform  = 'scale(1.06)';
@@ -388,8 +389,9 @@
     if (isOpen) return;
     if (_isClassic) {
       if (_fabLogoDiv) {
+        var _ringO = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
         _fabLogoDiv.style.filter    = '';
-        _fabLogoDiv.style.boxShadow = '0 6px 24px rgba(0,0,0,0.45)';
+        _fabLogoDiv.style.boxShadow = _ringO + '0 6px 24px rgba(0,0,0,0.45)';
       } else {
         fab.style.transform          = '';
         fab.style.boxShadow          = '';
@@ -736,6 +738,7 @@
       /* Create a clipping layer: div with overflow:hidden clips the img to a perfect circle.
          This avoids background-image anti-aliasing artifacts at the clip edge. */
       _fabLogoDiv = document.createElement('div');
+      var _ring = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
       Object.assign(_fabLogoDiv.style, {
         position:        'absolute',
         top:             '0',
@@ -745,16 +748,20 @@
         borderRadius:    '50%',
         overflow:        'hidden',
         backgroundColor: '#0b3246',
-        boxShadow:       '0 6px 24px rgba(0,0,0,0.45)',
+        boxShadow:       _ring + '0 6px 24px rgba(0,0,0,0.45)',
         pointerEvents:   'none',
         transition:      'filter 0.15s ease, box-shadow 0.15s ease',
       });
+      /* Zoom 112% and offset -6% to crop any white canvas margin from the PNG */
       var logoImg = document.createElement('img');
       logoImg.src = _fabLogoUrl;
       logoImg.alt = '';
       Object.assign(logoImg.style, {
-        width:     '100%',
-        height:    '100%',
+        position:  'absolute',
+        top:       '-6%',
+        left:      '-6%',
+        width:     '112%',
+        height:    '112%',
         objectFit: 'cover',
         display:   'block',
       });
