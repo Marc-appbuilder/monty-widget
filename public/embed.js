@@ -31,7 +31,8 @@
   var _isClassic     = false;
   var _teaserPersist = false;  // desktop-only: teaser stays visible permanently
   var _isChromeIOS   = /CriOS/i.test(navigator.userAgent);
-  var _fabLogoUrl    = '';     // set when config provides a logoUrl for classic FAB
+  var _fabLogoUrl      = '';   // set when config provides a logoUrl for classic FAB
+  var _fabBrandColour  = '';   // brand colour used for the logo FAB inset ring
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -301,33 +302,46 @@
   /* Classic mode: swap logo/chat-bubble ↔ × icon */
   function _setClassicIcon(open) {
     if (!_isClassic) return;
+    var ring = _fabBrandColour ? ', inset 0 0 0 2.5px ' + _fabBrandColour : '';
     if (open) {
-      /* Always show × on dark bg when widget is open */
-      fab.style.background = '#151515';
-      fab.style.border     = '1px solid rgba(255,255,255,0.06)';
-      fab.style.display    = 'flex';
-      fab.style.alignItems = 'center';
-      fab.style.justifyContent = 'center';
+      /* × on dark bg — clear logo background-image */
+      fab.style.backgroundImage    = '';
+      fab.style.backgroundSize     = '';
+      fab.style.backgroundPosition = '';
+      fab.style.background         = '#151515';
+      fab.style.border             = '1px solid rgba(255,255,255,0.06)';
+      fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)';
+      fab.style.display            = 'flex';
+      fab.style.alignItems         = 'center';
+      fab.style.justifyContent     = 'center';
       fab.innerHTML =
         '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
         '<line x1="3" y1="3" x2="17" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
     } else if (_fabLogoUrl) {
-      /* Logo mode: show brand logo filling the circular button */
-      fab.style.background     = 'transparent';
-      fab.style.border         = 'none';
-      fab.style.display        = 'block';
-      fab.style.alignItems     = '';
-      fab.style.justifyContent = '';
-      fab.innerHTML = '<img src="' + _fabLogoUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;" alt=""/>';
+      /* Logo mode: background-image fills the circle — no child img element */
+      fab.innerHTML                = '';
+      fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
+      fab.style.backgroundSize     = 'cover';
+      fab.style.backgroundPosition = 'center';
+      fab.style.background         = '';
+      fab.style.border             = 'none';
+      fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)' + ring;
+      fab.style.display            = 'flex';
+      fab.style.alignItems         = 'center';
+      fab.style.justifyContent     = 'center';
     } else {
       /* Default: chat bubble icon */
-      fab.style.background = '#151515';
-      fab.style.border     = '1px solid rgba(255,255,255,0.06)';
-      fab.style.display    = 'flex';
-      fab.style.alignItems = 'center';
-      fab.style.justifyContent = 'center';
+      fab.style.backgroundImage    = '';
+      fab.style.backgroundSize     = '';
+      fab.style.backgroundPosition = '';
+      fab.style.background         = '#151515';
+      fab.style.border             = '1px solid rgba(255,255,255,0.06)';
+      fab.style.boxShadow          = '';
+      fab.style.display            = 'flex';
+      fab.style.alignItems         = 'center';
+      fab.style.justifyContent     = 'center';
       fab.innerHTML =
         '<svg width="26" height="26" viewBox="0 0 28 28" fill="none">' +
         '<path d="M6 2H22Q26 2 26 6V17Q26 21 22 21H11L5 27L6 21Q2 21 2 17V6Q2 2 6 2Z" fill="rgba(255,255,255,0.88)"/>' +
@@ -705,42 +719,24 @@
   }
 
   /* ── 8a. Classic FAB — round button, applied after config fetch ── */
-  function buildClassicFab(logoUrl) {
-    _fabLogoUrl = logoUrl || '';
+  function buildClassicFab(logoUrl, brandColour) {
+    _fabLogoUrl     = logoUrl     || '';
+    _fabBrandColour = brandColour || '';
     /* Remove V arms — they were appended before we knew the style */
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
     /* Size fabWrap to the button */
     fabWrap.style.width  = '66px';
     fabWrap.style.height = '66px';
-    /* Turn the transparent fab into the visual button */
-    if (_fabLogoUrl) {
-      /* Logo mode: static circle — no animation, keeps image crisp and colours true */
-      Object.assign(fab.style, {
-        width: '66px', height: '66px',
-        borderRadius: '50%',
-        background: 'transparent',
-        border: 'none',
-        display: 'block',
-        padding: '0',
-        overflow: 'hidden',
-        boxShadow: '0 6px 24px rgba(0,0,0,0.45)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      });
-    } else {
-      Object.assign(fab.style, {
-        width: '66px', height: '66px',
-        borderRadius: '50%',
-        background: '#151515',
-        border: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0',
-        transition: 'background 0.2s ease',
-        animation: 'ea-heartbeat 3.2s ease-in-out infinite',
-      });
-    }
+    /* Base button styles — logo vs icon mode diverge in _setClassicIcon */
+    Object.assign(fab.style, {
+      width: '66px', height: '66px',
+      borderRadius: '50%',
+      padding: '0',
+      cursor: 'pointer',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      animation: _fabLogoUrl ? 'none' : 'ea-heartbeat 3.2s ease-in-out infinite',
+    });
     _setClassicIcon(false);
     /* Teaser sits above the 66px button */
     teaser.style.bottom = '82px';
@@ -802,7 +798,7 @@
       .then(function (d) {
         _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic   = _widgetStyle === 'classic';
-        if (_isClassic) buildClassicFab(d.logoUrl || '');
+        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '');
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
