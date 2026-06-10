@@ -44,14 +44,6 @@ function renderWithLinks(text: string) {
   return nodes;
 }
 
-function contrastColour(hex: string): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.55 ? '#111111' : '#ffffff';
-}
-
 function hexToRgb(hex: string) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -89,7 +81,6 @@ function TypingDots({ colour }: { colour: string }) {
 
 export default function ChatWidget({ clientId, config }: Props) {
   const brand = config.brandColour;
-  const fg = contrastColour(brand);
   const rgb = hexToRgb(brand);
   const brandLight = lighten(brand, 40);
 
@@ -285,10 +276,10 @@ export default function ChatWidget({ clientId, config }: Props) {
         }} />
 
         {/* Avatar */}
-        {clientId === 'avenue-estates' ? (
+        {config.logoUrl ? (
           <img
-            src="https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg"
-            alt="Avenue Estates"
+            src={config.logoUrl}
+            alt={config.name}
             style={{
               width: '40px',
               height: '40px',

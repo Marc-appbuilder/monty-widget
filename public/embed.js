@@ -31,6 +31,7 @@
   var _isClassic     = false;
   var _teaserPersist = false;  // desktop-only: teaser stays visible permanently
   var _isChromeIOS   = /CriOS/i.test(navigator.userAgent);
+  var _fabLogoUrl    = '';     // set when config provides a logoUrl for classic FAB
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -289,16 +290,36 @@
     fabArmRight.style.transform = 'rotate(' + a + 'deg)';
   }
 
-  /* Classic mode: swap chat-bubble ↔ × icon — white icons, no colour */
+  /* Classic mode: swap logo/chat-bubble ↔ × icon */
   function _setClassicIcon(open) {
     if (!_isClassic) return;
     if (open) {
+      /* Always show × on dark bg when widget is open */
+      fab.style.background = '#151515';
+      fab.style.border     = '1px solid rgba(255,255,255,0.06)';
+      fab.style.display    = 'flex';
+      fab.style.alignItems = 'center';
+      fab.style.justifyContent = 'center';
       fab.innerHTML =
         '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
         '<line x1="3" y1="3" x2="17" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
+    } else if (_fabLogoUrl) {
+      /* Logo mode: show brand logo filling the circular button */
+      fab.style.background     = 'transparent';
+      fab.style.border         = 'none';
+      fab.style.display        = 'block';
+      fab.style.alignItems     = '';
+      fab.style.justifyContent = '';
+      fab.innerHTML = '<img src="' + _fabLogoUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;" alt=""/>';
     } else {
+      /* Default: chat bubble icon */
+      fab.style.background = '#151515';
+      fab.style.border     = '1px solid rgba(255,255,255,0.06)';
+      fab.style.display    = 'flex';
+      fab.style.alignItems = 'center';
+      fab.style.justifyContent = 'center';
       fab.innerHTML =
         '<svg width="26" height="26" viewBox="0 0 28 28" fill="none">' +
         '<path d="M6 2H22Q26 2 26 6V17Q26 21 22 21H11L5 27L6 21Q2 21 2 17V6Q2 2 6 2Z" fill="rgba(255,255,255,0.88)"/>' +
@@ -324,9 +345,11 @@
     if (_isClassic) {
       /* Pause heartbeat, hold at slightly larger scale */
       fab.style.animationPlayState = 'paused';
-      fab.style.transform  = 'scale(1.06)';
-      fab.style.background = '#2a2a2a';
-      fab.style.boxShadow  = '0 6px 24px rgba(0,0,0,0.45)';
+      fab.style.transform = 'scale(1.06)';
+      if (!_fabLogoUrl) {
+        fab.style.background = '#2a2a2a';
+        fab.style.boxShadow  = '0 6px 24px rgba(0,0,0,0.45)';
+      }
       return;
     }
     _setGlow('hover');
@@ -345,10 +368,10 @@
     _isHoveringFab = false;
     if (isOpen) return;
     if (_isClassic) {
-      fab.style.transform   = '';
-      fab.style.boxShadow   = '';  /* animation owns box-shadow when running */
+      fab.style.transform = '';
+      fab.style.boxShadow = '';  /* animation owns box-shadow when running */
       fab.style.animationPlayState = 'running';
-      fab.style.background  = '#151515';
+      if (!_fabLogoUrl) fab.style.background = '#151515';
       return;
     }
     _setArmsResting(); /* back to _teaserArmsAngle (8° if teaser up, 0° if not) */
@@ -674,7 +697,8 @@
   }
 
   /* ── 8a. Classic FAB — round button, applied after config fetch ── */
-  function buildClassicFab() {
+  function buildClassicFab(logoUrl) {
+    _fabLogoUrl = logoUrl || '';
     /* Remove V arms — they were appended before we knew the style */
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
@@ -682,18 +706,32 @@
     fabWrap.style.width  = '66px';
     fabWrap.style.height = '66px';
     /* Turn the transparent fab into the visual button */
-    Object.assign(fab.style, {
-      width: '66px', height: '66px',
-      borderRadius: '50%',
-      background: '#151515',
-      border: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0',
-      transition: 'background 0.2s ease',
-      animation: 'ea-heartbeat 3.2s ease-in-out infinite',
-    });
+    if (_fabLogoUrl) {
+      /* Logo mode: transparent container, image fills it */
+      Object.assign(fab.style, {
+        width: '66px', height: '66px',
+        borderRadius: '50%',
+        background: 'transparent',
+        border: 'none',
+        display: 'block',
+        padding: '0',
+        overflow: 'hidden',
+        animation: 'ea-heartbeat 3.2s ease-in-out infinite',
+      });
+    } else {
+      Object.assign(fab.style, {
+        width: '66px', height: '66px',
+        borderRadius: '50%',
+        background: '#151515',
+        border: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0',
+        transition: 'background 0.2s ease',
+        animation: 'ea-heartbeat 3.2s ease-in-out infinite',
+      });
+    }
     _setClassicIcon(false);
     /* Teaser sits above the 66px button */
     teaser.style.bottom = '82px';
@@ -755,7 +793,7 @@
       .then(function (d) {
         _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic   = _widgetStyle === 'classic';
-        if (_isClassic) buildClassicFab();
+        if (_isClassic) buildClassicFab(d.logoUrl || '');
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();

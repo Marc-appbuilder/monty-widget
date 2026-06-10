@@ -24,5 +24,6 @@ export async function GET(
     widgetStyle:    data?.widget_style     ?? staticConfig.widgetStyle     ?? 'classic',
     widgetTheme:    data?.widget_theme     ?? staticConfig.widgetTheme     ?? 'dark',
     teaserPersist:  data?.teaser_persist   ?? staticConfig.teaserPersist   ?? false,
+    logoUrl:        staticConfig.logoUrl   ?? null,
   });
 }
