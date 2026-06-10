@@ -320,9 +320,10 @@
         '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
         '</svg>';
     } else if (_fabLogoUrl) {
-      /* Logo mode: background-image fills the circle — no child img element */
+      /* Logo mode: background-image fills the circle — no child img element.
+         backgroundColor matches the logo's own bg so any canvas margin is invisible. */
       fab.innerHTML                = '';
-      fab.style.backgroundColor    = 'transparent';
+      fab.style.backgroundColor    = '#0b3246';
       fab.style.backgroundImage    = 'url(' + _fabLogoUrl + ')';
       fab.style.backgroundSize     = 'cover';
       fab.style.backgroundPosition = 'center';
