@@ -68,7 +68,15 @@
       '28%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
       '40%{transform:scale(1.03);box-shadow:0 9px 26px rgba(0,0,0,0.30),0 0 12px rgba(255,255,255,0.09)}' +
       '54%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
-      '100%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}}';
+      '100%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}}' +
+    /* Logo FAB heartbeat — no white glow so brand colours stay true */
+    '@keyframes ea-logo-heartbeat{' +
+      '0%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}' +
+      '14%{transform:scale(1.06);box-shadow:0 12px 36px rgba(0,0,0,0.55)}' +
+      '28%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}' +
+      '40%{transform:scale(1.04);box-shadow:0 10px 32px rgba(0,0,0,0.50)}' +
+      '54%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}' +
+      '100%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}}';
   document.head.appendChild(styleEl);
 
   /* ── 5. FAB wrapper ─────────────────────────────────────────────────────── */
@@ -312,7 +320,7 @@
       fab.style.display        = 'block';
       fab.style.alignItems     = '';
       fab.style.justifyContent = '';
-      fab.innerHTML = '<img src="' + _fabLogoUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;" alt=""/>';
+      fab.innerHTML = '<img src="' + _fabLogoUrl + '" style="width:130%;height:130%;margin:-15%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;" alt=""/>';
     } else {
       /* Default: chat bubble icon */
       fab.style.background = '#151515';
@@ -716,7 +724,7 @@
         display: 'block',
         padding: '0',
         overflow: 'hidden',
-        animation: 'ea-heartbeat 3.2s ease-in-out infinite',
+        animation: 'ea-logo-heartbeat 3.2s ease-in-out infinite',
       });
     } else {
       Object.assign(fab.style, {
