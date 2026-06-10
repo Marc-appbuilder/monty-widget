@@ -752,16 +752,12 @@
         pointerEvents:   'none',
         transition:      'filter 0.15s ease, box-shadow 0.15s ease',
       });
-      /* Zoom 112% and offset -6% to crop any white canvas margin from the PNG */
       var logoImg = document.createElement('img');
       logoImg.src = _fabLogoUrl;
       logoImg.alt = '';
       Object.assign(logoImg.style, {
-        position:  'absolute',
-        top:       '-6%',
-        left:      '-6%',
-        width:     '112%',
-        height:    '112%',
+        width:     '100%',
+        height:    '100%',
         objectFit: 'cover',
         display:   'block',
       });
