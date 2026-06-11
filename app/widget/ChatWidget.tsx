@@ -409,7 +409,9 @@ export default function ChatWidget({ clientId, config }: Props) {
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
-        background: 'linear-gradient(180deg, #0d0f14 0%, #0f1219 100%)',
+        background: config.headerImageUrl
+          ? 'linear-gradient(180deg, #0c1f2a 0%, #0d0f14 40%)'
+          : 'linear-gradient(180deg, #0d0f14 0%, #0f1219 100%)',
       }}>
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
