@@ -202,7 +202,7 @@ export default function ChatWidget({ clientId, config }: Props) {
       height: '100dvh',  /* dvh shrinks when the mobile keyboard opens */
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       fontSize: '15px',
-      background: '#0d0f14',
+      background: config.headerImageUrl ? '#09141c' : '#0d0f14', /* revert: '#0d0f14' for all */
       WebkitFontSmoothing: 'antialiased',
     }}>
 
@@ -410,7 +410,7 @@ export default function ChatWidget({ clientId, config }: Props) {
         flexDirection: 'column',
         gap: '16px',
         background: config.headerImageUrl
-          ? 'linear-gradient(180deg, #0c1f2a 0%, #0d0f14 40%)'
+          ? 'linear-gradient(180deg, #0c1f2a 0%, #09141c 100%)' /* revert: '#0c1f2a 0%, #0d0f14 40%' */
           : 'linear-gradient(180deg, #0d0f14 0%, #0f1219 100%)',
       }}>
         {messages.map((msg) => {
@@ -442,7 +442,7 @@ export default function ChatWidget({ clientId, config }: Props) {
                   color: '#ffffff',
                   boxShadow: `0 4px 24px rgba(${rgb}, 0.5), 0 0 0 1px rgba(${rgb}, 0.3)`,
                 } : {
-                  background: '#1a1d26',
+                  background: config.headerImageUrl ? '#0e2232' : '#1a1d26', /* revert: '#1a1d26' for all */
                   color: '#e8eaf0',
                   boxShadow: '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)',
                 }),
@@ -466,7 +466,7 @@ export default function ChatWidget({ clientId, config }: Props) {
         display: 'flex',
         alignItems: 'flex-end',
         gap: '10px',
-        background: '#12151c',
+        background: config.headerImageUrl ? '#071019' : '#12151c', /* revert: '#12151c' for all */
         borderTop: '1px solid rgba(255,255,255,0.06)',
       }}>
         <textarea
@@ -488,7 +488,7 @@ export default function ChatWidget({ clientId, config }: Props) {
             minHeight: '50px',
             maxHeight: '120px',
             overflowY: 'auto',
-            background: '#1a1d26',
+            background: config.headerImageUrl ? '#0e2232' : '#1a1d26', /* revert: '#1a1d26' for all */
             color: '#e8eaf0',
             fontFamily: 'inherit',
             opacity: streaming ? 0.5 : 1,
@@ -530,7 +530,7 @@ export default function ChatWidget({ clientId, config }: Props) {
         textAlign: 'center',
         padding: '5px 12px 7px',
         flexShrink: 0,
-        background: '#12151c',
+        background: config.headerImageUrl ? '#071019' : '#12151c', /* revert: '#12151c' for all */
         borderTop: '1px solid rgba(255,255,255,0.04)',
       }}>
         <p style={{ margin: '0 0 3px', fontSize: '9px', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.01em', lineHeight: 1.4 }}>
