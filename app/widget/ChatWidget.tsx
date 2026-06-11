@@ -252,119 +252,154 @@ export default function ChatWidget({ clientId, config }: Props) {
       `}</style>
 
       {/* ── Header ── */}
-      <header style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '16px 18px',
-        flexShrink: 0,
-        background: `linear-gradient(135deg, #0a0c10 0%, #111520 40%, rgba(${rgb}, 0.25) 100%)`,
-        borderBottom: `1px solid rgba(${rgb}, 0.2)`,
-        boxShadow: `0 1px 0 rgba(${rgb}, 0.15), 0 8px 32px rgba(0,0,0,0.5)`,
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        {/* Glow accent line at top */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '2px',
-          background: `linear-gradient(90deg, transparent, ${brand}, ${brandLight}, transparent)`,
-          opacity: 0.9,
-        }} />
-
-        {/* Avatar */}
-        {config.logoUrl ? (
+      {config.headerImageUrl ? (
+        /* Banner header — full-width brand image, close button overlaid */
+        <header style={{ position: 'relative', flexShrink: 0, lineHeight: 0 }}>
           <img
-            src={config.logoUrl}
+            src={config.headerImageUrl}
             alt={config.name}
+            style={{ width: '100%', display: 'block' }}
+          />
+          <button
+            onClick={() => window.parent.postMessage('vaughan:close', '*')}
+            aria-label="Close chat"
             style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(0,0,0,0.35)',
+              color: 'rgba(255,255,255,0.85)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </header>
+      ) : (
+        /* Standard header — avatar + name + subtitle. Remove headerImageUrl from config to revert TM to this. */
+        <header style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '16px 18px',
+          flexShrink: 0,
+          background: `linear-gradient(135deg, #0a0c10 0%, #111520 40%, rgba(${rgb}, 0.25) 100%)`,
+          borderBottom: `1px solid rgba(${rgb}, 0.2)`,
+          boxShadow: `0 1px 0 rgba(${rgb}, 0.15), 0 8px 32px rgba(0,0,0,0.5)`,
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          {/* Glow accent line at top */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, transparent, ${brand}, ${brandLight}, transparent)`,
+            opacity: 0.9,
+          }} />
+
+          {/* Avatar */}
+          {config.logoUrl ? (
+            <img
+              src={config.logoUrl}
+              alt={config.name}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                flexShrink: 0,
+                boxShadow: `0 0 0 2px rgba(${rgb}, 0.3), 0 0 20px rgba(${rgb}, 0.4)`,
+              }}
+            />
+          ) : (
+            <div style={{
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              objectFit: 'cover',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
-              boxShadow: `0 0 0 2px rgba(${rgb}, 0.3), 0 0 20px rgba(${rgb}, 0.4)`,
-            }}
-          />
-        ) : (
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            background: '#0a0a0a',
-            boxShadow: `0 0 0 2px rgba(${rgb}, 0.3), 0 0 20px rgba(${rgb}, 0.2)`,
-          }}>
-            <svg viewBox="0 0 88 76" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="19">
-              <line x1="44" y1="72" x2="10" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
-              <line x1="44" y1="72" x2="78" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
-            </svg>
-          </div>
-        )}
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            margin: 0,
-            fontWeight: 700,
-            fontSize: '14px',
-            color: '#ffffff',
-            lineHeight: 1.3,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
-            {config.name}
-          </p>
-          {(config.agentTitle ?? 'Virtual Assistant') && (
-            <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>{config.agentTitle ?? 'Virtual Assistant'}</p>
+              background: '#0a0a0a',
+              boxShadow: `0 0 0 2px rgba(${rgb}, 0.3), 0 0 20px rgba(${rgb}, 0.2)`,
+            }}>
+              <svg viewBox="0 0 88 76" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="19">
+                <line x1="44" y1="72" x2="10" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
+                <line x1="44" y1="72" x2="78" y2="8" stroke="#AAFF00" strokeWidth="16" strokeLinecap="round"/>
+              </svg>
+            </div>
           )}
-        </div>
 
-        {/* Online indicator */}
-        {config.showOnlineIndicator !== false && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <span className="vaughan-online" style={{
-              display: 'block',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: '#4ade80',
-              boxShadow: '0 0 10px 4px rgba(74,222,128,0.6)',
-            }} />
-            <span style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>Online</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              margin: 0,
+              fontWeight: 700,
+              fontSize: '14px',
+              color: '#ffffff',
+              lineHeight: 1.3,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              {config.name}
+            </p>
+            {(config.agentTitle ?? 'Virtual Assistant') && (
+              <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>{config.agentTitle ?? 'Virtual Assistant'}</p>
+            )}
           </div>
-        )}
 
-        {/* Close button — always visible so users can dismiss the widget */}
-        <button
-          onClick={() => window.parent.postMessage('vaughan:close', '*')}
-          aria-label="Close chat"
-          style={{
-            flexShrink: 0,
-            marginLeft: '4px',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            border: 'none',
-            background: 'rgba(255,255,255,0.08)',
-            color: 'rgba(255,255,255,0.6)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </header>
+          {/* Online indicator */}
+          {config.showOnlineIndicator !== false && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+              <span className="vaughan-online" style={{
+                display: 'block',
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#4ade80',
+                boxShadow: '0 0 10px 4px rgba(74,222,128,0.6)',
+              }} />
+              <span style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>Online</span>
+            </div>
+          )}
+
+          {/* Close button */}
+          <button
+            onClick={() => window.parent.postMessage('vaughan:close', '*')}
+            aria-label="Close chat"
+            style={{
+              flexShrink: 0,
+              marginLeft: '4px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(255,255,255,0.08)',
+              color: 'rgba(255,255,255,0.6)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </header>
+      )}
 
       {/* ── Messages ── */}
       <div style={{

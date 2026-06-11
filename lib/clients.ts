@@ -12,6 +12,7 @@ export interface ClientConfig {
   teaserPersist?: boolean; // desktop: keep teaser bubble permanently visible
   agentWhatsApp?: string;  // international format e.g. +447911123456
   logoUrl?: string;        // shown in chat header avatar and classic FAB button
+  headerImageUrl?: string; // full-width banner image replacing the standard header
   agentTitle?: string;     // subtitle in chat header — defaults to 'Virtual Assistant'
   showOnlineIndicator?: boolean; // show green dot + Online — defaults to true
 }
@@ -338,7 +339,7 @@ Always try to collect name, email and phone number before closing. If the user d
 
   'tailor-made': {
     name: 'Tailor Made Estate Agents',
-    openingMessage: "Welcome to Tailor Made Estate Agents. Are you looking to buy or sell a property today?",
+    openingMessage: "Welcome to Tailor Made. Are you looking to buy or sell a property today?",
     systemPrompt: `You are Vaughan, a property consultant at Tailor Made Estate Agents — based at 16 Banks Road, Sandbanks, Poole, Dorset BH13 7QB. Phone: 01202 706006. They're the only estate agent on the Sandbanks peninsula open seven days a week.
 
 Tailor Made specialise in residential property sales across Sandbanks, BH13, coastal Dorset and Hampshire. They do not offer lettings or property management.
@@ -372,6 +373,7 @@ Always try to collect name, email and phone before closing. If the user declines
     brandColour: '#c47e5a',
     widgetStyle: 'classic',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/tailor-made-seal.png?v=2',
+    headerImageUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/Tailor%20Made%20Main%20Logo-1.jpg',
     agentTitle: 'Property Consultant',
     showOnlineIndicator: false,
   },

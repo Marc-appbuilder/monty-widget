@@ -25,6 +25,7 @@ export async function GET(
     widgetTheme:    data?.widget_theme     ?? staticConfig.widgetTheme     ?? 'dark',
     teaserPersist:  data?.teaser_persist   ?? staticConfig.teaserPersist   ?? false,
     logoUrl:             staticConfig.logoUrl             ?? null,
+    headerImageUrl:      staticConfig.headerImageUrl      ?? null,
     agentTitle:          staticConfig.agentTitle          ?? null,
     showOnlineIndicator: staticConfig.showOnlineIndicator ?? true,
   });
