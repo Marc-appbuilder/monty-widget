@@ -362,9 +362,8 @@
     if (isOpen) return;
     if (_isClassic) {
       if (_fabLogoDiv) {
-        var _ringH = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
         _fabLogoDiv.style.transform = 'scale(1.05)';
-        _fabLogoDiv.style.boxShadow = _ringH + '0 14px 36px rgba(0,0,0,0.5)';
+        _fabLogoDiv.style.boxShadow = '0 14px 36px rgba(0,0,0,0.5)';
         if (_fabLogoImg) _fabLogoImg.style.filter = 'brightness(1.2)';
       } else {
         fab.style.animationPlayState = 'paused';
@@ -391,9 +390,8 @@
     if (isOpen) return;
     if (_isClassic) {
       if (_fabLogoDiv) {
-        var _ringO = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
         _fabLogoDiv.style.transform = '';
-        _fabLogoDiv.style.boxShadow = _ringO + '0 6px 24px rgba(0,0,0,0.45)';
+        _fabLogoDiv.style.boxShadow = '0 6px 24px rgba(0,0,0,0.45)';
         if (_fabLogoImg) _fabLogoImg.style.filter = '';
       } else {
         fab.style.transform          = '';
@@ -741,7 +739,6 @@
       /* Create a clipping layer: div with overflow:hidden clips the img to a perfect circle.
          This avoids background-image anti-aliasing artifacts at the clip edge. */
       _fabLogoDiv = document.createElement('div');
-      var _ring = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
       Object.assign(_fabLogoDiv.style, {
         position:        'absolute',
         top:             '0',
@@ -751,7 +748,7 @@
         borderRadius:    '50%',
         overflow:        'hidden',
         backgroundColor: '#0b3246',
-        boxShadow:       _ring + '0 6px 24px rgba(0,0,0,0.45)',
+        boxShadow:       '0 6px 24px rgba(0,0,0,0.45)',
         pointerEvents:   'none',
         transformOrigin: 'center',
         transition:      'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
