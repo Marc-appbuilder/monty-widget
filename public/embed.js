@@ -362,8 +362,9 @@
     if (_isClassic) {
       if (_fabLogoDiv) {
         var _ringH = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
-        _fabLogoDiv.style.filter    = 'brightness(1.08)';
-        _fabLogoDiv.style.boxShadow = _ringH + '0 8px 28px rgba(0,0,0,0.55)';
+        _fabLogoDiv.style.transform  = 'scale(1.05)';
+        _fabLogoDiv.style.filter     = 'brightness(1.05)';
+        _fabLogoDiv.style.boxShadow  = _ringH + '0 14px 36px rgba(0,0,0,0.5)';
       } else {
         fab.style.animationPlayState = 'paused';
         fab.style.transform  = 'scale(1.06)';
@@ -390,8 +391,9 @@
     if (_isClassic) {
       if (_fabLogoDiv) {
         var _ringO = _fabBrandColour ? '0 0 0 3px ' + _fabBrandColour + ', ' : '';
-        _fabLogoDiv.style.filter    = '';
-        _fabLogoDiv.style.boxShadow = _ringO + '0 6px 24px rgba(0,0,0,0.45)';
+        _fabLogoDiv.style.transform  = '';
+        _fabLogoDiv.style.filter     = '';
+        _fabLogoDiv.style.boxShadow  = _ringO + '0 6px 24px rgba(0,0,0,0.45)';
       } else {
         fab.style.transform          = '';
         fab.style.boxShadow          = '';
@@ -750,7 +752,8 @@
         backgroundColor: '#0b3246',
         boxShadow:       _ring + '0 6px 24px rgba(0,0,0,0.45)',
         pointerEvents:   'none',
-        transition:      'filter 0.15s ease, box-shadow 0.15s ease',
+        transformOrigin: 'center',
+        transition:      'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       });
       var logoImg = document.createElement('img');
       logoImg.src = _fabLogoUrl;
