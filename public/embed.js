@@ -364,7 +364,7 @@
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = 'scale(1.03)';
         _fabLogoDiv.style.boxShadow = '0 0 0 2px #c77c56, 0 12px 28px rgba(199,124,86,0.45)';
-        if (_fabLogoImg) _fabLogoImg.style.filter = 'brightness(1.08)';
+        if (_fabLogoImg) _fabLogoImg.style.filter = '';
       } else {
         fab.style.animationPlayState = 'paused';
         fab.style.transform  = 'scale(1.06)';
