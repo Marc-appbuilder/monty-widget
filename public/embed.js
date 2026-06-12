@@ -363,7 +363,7 @@
     if (_isClassic) {
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = 'scale(1.05)';
-        _fabLogoDiv.style.boxShadow = '0 0 0 3px #c77c56, 0 14px 36px rgba(0,0,0,0.7)';
+        _fabLogoDiv.style.boxShadow = '0 0 0 2px #c77c56, 0 14px 36px rgba(0,0,0,0.7)';
         if (_fabLogoImg) _fabLogoImg.style.filter = 'brightness(1.2)';
       } else {
         fab.style.animationPlayState = 'paused';
@@ -391,7 +391,7 @@
     if (_isClassic) {
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = '';
-        _fabLogoDiv.style.boxShadow = '0 0 0 3px #c77c56, 0 8px 28px rgba(0,0,0,0.6)';
+        _fabLogoDiv.style.boxShadow = '0 0 0 2px #c77c56, 0 8px 28px rgba(0,0,0,0.6)';
         if (_fabLogoImg) _fabLogoImg.style.filter = '';
       } else {
         fab.style.transform          = '';
@@ -748,7 +748,7 @@
         borderRadius:    '50%',
         overflow:        'hidden',
         backgroundColor: '#0b3246',
-        boxShadow:       '0 0 0 3px #c77c56, 0 8px 28px rgba(0,0,0,0.6)',
+        boxShadow:       '0 0 0 2px #c77c56, 0 8px 28px rgba(0,0,0,0.6)',
         pointerEvents:   'none',
         transformOrigin: 'center',
         transition:      'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
