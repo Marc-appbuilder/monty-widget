@@ -79,7 +79,9 @@
       '28%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}' +
       '40%{transform:scale(1.04);box-shadow:0 10px 32px rgba(0,0,0,0.50)}' +
       '54%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}' +
-      '100%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}}';
+      '100%{transform:scale(1);box-shadow:0 8px 28px rgba(0,0,0,0.45)}}' +
+    '.ea-fab-btn{-webkit-appearance:none;appearance:none;background:transparent!important;border:none}' +
+    '.ea-fab-btn:hover,.ea-fab-btn:focus,.ea-fab-btn:active{background:transparent!important;outline:none}';
   document.head.appendChild(styleEl);
 
   /* ── 5. FAB wrapper ─────────────────────────────────────────────────────── */
@@ -274,6 +276,7 @@
   /* Transparent click target covers the full V area */
   var fab = document.createElement('button');
   fab.setAttribute('aria-label', 'Open chat');
+  fab.classList.add('ea-fab-btn');
   Object.assign(fab.style, {
     position:  'absolute',
     top:       '0',
@@ -364,7 +367,6 @@
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = 'scale(1.03)';
         _fabLogoDiv.style.boxShadow = '0 0 0 2px #c77c56, 0 12px 28px rgba(199,124,86,0.45)';
-        if (_fabLogoImg) _fabLogoImg.style.filter = '';
       } else {
         fab.style.animationPlayState = 'paused';
         fab.style.transform  = 'scale(1.06)';
@@ -392,7 +394,6 @@
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = '';
         _fabLogoDiv.style.boxShadow = '0 0 0 2px #c77c56, 0 8px 24px rgba(199,124,86,0.3)';
-        if (_fabLogoImg) _fabLogoImg.style.filter = '';
       } else {
         fab.style.transform          = '';
         fab.style.boxShadow          = '';
