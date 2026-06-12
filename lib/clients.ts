@@ -370,7 +370,7 @@ Phone validation: when a user provides a phone number, check it contains between
 Always try to collect name, email and phone before closing. If the user declines one, move on and close with whatever you have — never block on a missing field. Never invent prices, availability or property details.`,
     agentEmail: 'enquiries@tmea.biz',
     notificationEmail: 'marcwrichards@gmail.com',
-    brandColour: '#c47e5a',
+    brandColour: '#c77c56',
     widgetStyle: 'classic',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/2-removebg-preview.png',
     headerImageUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/Tailor%20Made%20Main%20Logo-1.jpg',
