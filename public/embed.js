@@ -357,7 +357,7 @@
     }
   }
 
-  fab.addEventListener('mouseover', function () {
+  fab.addEventListener('mouseenter', function () {
     _isHoveringFab = true;
     if (isOpen) return;
     if (_isClassic) {
@@ -385,7 +385,7 @@
       _setArmsResting(5);  /* no teaser — subtle spread to signal interactivity */
     }
   });
-  fab.addEventListener('mouseout', function () {
+  fab.addEventListener('mouseleave', function () {
     _isHoveringFab = false;
     if (isOpen) return;
     if (_isClassic) {
