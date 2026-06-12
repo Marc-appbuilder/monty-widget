@@ -372,7 +372,7 @@ Always try to collect name, email and phone before closing. If the user declines
     notificationEmail: 'marcwrichards@gmail.com',
     brandColour: '#c77c56',
     widgetStyle: 'classic',
-    logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/2-removebg-preview.png',
+    logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/TT3.png',
     headerImageUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/Tailor%20Made%20Main%20Logo-1.jpg',
     agentTitle: 'Property Consultant',
     showOnlineIndicator: false,
