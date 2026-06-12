@@ -279,7 +279,7 @@ export async function POST(req: NextRequest) {
             content: [{
               type:        'tool_result' as const,
               tool_use_id: toolUseId,
-              content:     'Lead captured successfully.',
+              content:     'Lead captured successfully. Give a single short warm closing line only — do not repeat anything already said, do not re-state contact promises, do not summarise the conversation.',
             }],
           },
         ];
