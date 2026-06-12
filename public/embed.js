@@ -757,13 +757,11 @@
       _fabLogoImg.src = _fabLogoUrl;
       _fabLogoImg.alt = '';
       Object.assign(_fabLogoImg.style, {
-        width:           '130%',
-        height:          '130%',
-        marginLeft:      '-15%',
-        marginTop:       '-15%',
-        objectFit:       'cover',
-        display:         'block',
-        transition:      'filter 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        width:      '100%',
+        height:     '100%',
+        objectFit:  'cover',
+        display:    'block',
+        transition: 'filter 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       });
       _fabLogoDiv.appendChild(_fabLogoImg);
       fabWrap.insertBefore(_fabLogoDiv, fab);
