@@ -99,18 +99,24 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
 
 async function sendLeadEmail(lead: LeadPayload, clientId: string) {
   const config = getClient(clientId);
-  const { data, error } = await getResend().emails.send({
-    from: 'Vaughan <leads@vaughanai.co>',
-    to: config.notificationEmail,
-    ...(lead.email ? { replyTo: lead.email } : {}),
-    subject: `New lead — ${config.name}`,
-    html: buildHtml(lead, config.name, config.brandColour),
-  });
-  if (error) {
-    console.error('[lead] resend error:', JSON.stringify(error));
-    throw error;
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const { data, error } = await getResend().emails.send({
+      from: 'Vaughan <leads@vaughanai.co>',
+      to: config.notificationEmail,
+      ...(lead.email ? { replyTo: lead.email } : {}),
+      subject: `New lead — ${config.name}`,
+      html: buildHtml(lead, config.name, config.brandColour),
+    });
+    if (!error) {
+      console.log(`[lead] email sent (attempt ${attempt}):`, data?.id, '→', config.notificationEmail);
+      return;
+    }
+    lastError = error;
+    console.error(`[lead] resend attempt ${attempt} failed:`, JSON.stringify(error));
+    if (attempt < 3) await new Promise(r => setTimeout(r, 1000));
   }
-  console.log('[lead] email sent:', data?.id, '→', config.notificationEmail);
+  throw lastError;
 }
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
