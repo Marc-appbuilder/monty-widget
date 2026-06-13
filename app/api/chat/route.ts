@@ -183,12 +183,10 @@ export async function POST(req: NextRequest) {
           tools:      [captureLeadTool],
         });
 
-        // Buffer first-pass text — only send it if the tool is NOT called.
-        // If the tool fires, discard it so the second pass is the only response.
+        // Collect tool call input while streaming text
         let toolUseId    = '';
         let toolRawInput = '';
         let toolCalled   = false;
-        let firstPassBuf = '';
 
         for await (const event of firstStream) {
           if (event.type === 'content_block_start' && event.content_block.type === 'tool_use') {
@@ -198,12 +196,8 @@ export async function POST(req: NextRequest) {
           } else if (event.type === 'content_block_delta' && event.delta.type === 'input_json_delta') {
             toolRawInput += event.delta.partial_json;
           } else if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-            firstPassBuf += event.delta.text;
+            enqueue(event.delta.text);
           }
-        }
-
-        if (!toolCalled) {
-          enqueue(firstPassBuf);
         }
 
         if (!toolCalled) {
