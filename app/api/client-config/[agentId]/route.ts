@@ -28,5 +28,6 @@ export async function GET(
     headerImageUrl:      staticConfig.headerImageUrl      ?? null,
     agentTitle:          staticConfig.agentTitle          ?? null,
     showOnlineIndicator: staticConfig.showOnlineIndicator ?? true,
+    logoPulse:           staticConfig.logoPulse           ?? false,
   });
 }

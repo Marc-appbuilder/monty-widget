@@ -35,6 +35,7 @@
   var _fabBrandColour  = '';   // brand colour used for the logo FAB inset ring
   var _fabLogoDiv      = null; // div wrapper used to cleanly clip the logo to a circle
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
+  var _fabLogoPulse    = false;
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -367,6 +368,7 @@
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = 'scale(1.03)';
         _fabLogoDiv.style.boxShadow = '0 0 0 2px ' + _fabBrandColour + ', 0 12px 28px rgba(0,0,0,0.35)';
+        _fabLogoDiv.style.animationPlayState = 'paused';
       } else {
         fab.style.animationPlayState = 'paused';
         fab.style.transform  = 'scale(1.06)';
@@ -394,6 +396,7 @@
       if (_fabLogoDiv) {
         _fabLogoDiv.style.transform = '';
         _fabLogoDiv.style.boxShadow = '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)';
+        _fabLogoDiv.style.animationPlayState = 'running';
       } else {
         fab.style.transform          = '';
         fab.style.boxShadow          = '';
@@ -725,9 +728,10 @@
   }
 
   /* ── 8a. Classic FAB — round button, applied after config fetch ── */
-  function buildClassicFab(logoUrl, brandColour) {
+  function buildClassicFab(logoUrl, brandColour, logoPulse) {
     _fabLogoUrl     = logoUrl     || '';
     _fabBrandColour = brandColour || '';
+    _fabLogoPulse   = !!logoPulse;
     /* Remove V arms — they were appended before we knew the style */
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
@@ -766,6 +770,16 @@
       });
       _fabLogoDiv.appendChild(_fabLogoImg);
       fabWrap.insertBefore(_fabLogoDiv, fab);
+
+      if (_fabLogoPulse) {
+        var pulseStyle = document.createElement('style');
+        pulseStyle.textContent =
+          '@keyframes ea-logo-pulse{' +
+          '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabBrandColour + '}' +
+          '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 18px 6px ' + _fabBrandColour + '66}}';
+        document.head.appendChild(pulseStyle);
+        _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
+      }
     }
 
     /* fab becomes the click target — absolute to sit on top of _fabLogoDiv */
@@ -842,7 +856,7 @@
       .then(function (d) {
         _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic   = _widgetStyle === 'classic';
-        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '');
+        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false);
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
