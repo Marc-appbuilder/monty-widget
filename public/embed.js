@@ -37,6 +37,7 @@
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
   var _fabLogoPulse    = false;
   var _fabGlowColour   = '';
+  var _teaserOnce      = false;
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -503,7 +504,7 @@
   }
 
   function _scheduleCycle() {
-    var visibleMs = 3000;   /* bubble visible for 3 s */
+    var visibleMs = 4500;   /* bubble visible for 4.5 s */
     var repeatMs  = 10000;  /* 10 s gap before next show */
 
     if (_teaserDismissed) return;
@@ -523,7 +524,9 @@
         return;
       }
       _hideTeaser(function () {
-        if (!_teaserDismissed) {
+        if (_teaserOnce) {
+          _teaserDismissed = true; /* show once — never cycle again */
+        } else if (!_teaserDismissed) {
           _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
         }
       });
@@ -531,9 +534,10 @@
     _teaserAutoTimer = setTimeout(tryHide, visibleMs);
   }
 
-  function initTeaser(text, persist) {
+  function initTeaser(text, persist, once) {
     if (!text) return;
     _teaserPersist = !!(persist && !isMobile());
+    _teaserOnce    = !!once;
     /* Support comma-separated list for prompt rotation */
     _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
@@ -860,7 +864,7 @@
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
-        initTeaser(teaserArg || d.teaserText || null, d.teaserPersist);
+        initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false);
       })
       .catch(function () {
         applyFabPosition('bottom-right');

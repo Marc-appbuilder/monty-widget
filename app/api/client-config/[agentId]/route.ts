@@ -30,5 +30,6 @@ export async function GET(
     showOnlineIndicator: staticConfig.showOnlineIndicator ?? true,
     logoPulse:           staticConfig.logoPulse           ?? false,
     logoGlowColour:      staticConfig.logoGlowColour      ?? null,
+    teaserOnce:          staticConfig.teaserOnce          ?? false,
   });
 }

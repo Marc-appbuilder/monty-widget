@@ -17,6 +17,7 @@ export interface ClientConfig {
   showOnlineIndicator?: boolean; // show green dot + Online — defaults to true
   logoPulse?: boolean;           // pulsing glow animation on logo FAB
   logoGlowColour?: string;       // colour for the FAB pulse glow — defaults to brandColour
+  teaserOnce?: boolean;          // show teaser once per session then never again
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -208,8 +209,9 @@ Always try to collect name, email and phone number. If the user declines one, mo
     brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
-    teaserText: 'Speak with us',
-    teaserPersist: true,
+    teaserText: 'Thinking of selling or letting?',
+    teaserPersist: false,
+    teaserOnce: true,
     agentWhatsApp: '+447730569891',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: false,
