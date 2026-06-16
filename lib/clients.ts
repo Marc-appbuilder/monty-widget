@@ -212,8 +212,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     teaserPersist: true,
     agentWhatsApp: '+447730569891',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
-    logoPulse: true,
-    logoGlowColour: '#c90e0e',
+    logoPulse: false,
   },
 
   'vaughanai': {
