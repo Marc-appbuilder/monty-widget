@@ -446,7 +446,7 @@
     background:    'rgba(17,17,17,0.93)',
     color:         '#F5F7F4',
     borderRadius:  '13px',
-    boxShadow:     '0 0 20px rgba(170,255,0,0.08)',
+    boxShadow:     '0 4px 16px rgba(0,0,0,0.18)',
     padding:       '11px 22px',
     fontSize:      '14px',
     fontFamily:    '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',

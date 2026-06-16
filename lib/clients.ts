@@ -208,11 +208,12 @@ Always try to collect name, email and phone number. If the user declines one, mo
     brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
-    teaserText: 'Chat to us',
+    teaserText: 'Speak with us',
     teaserPersist: true,
     agentWhatsApp: '+447730569891',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: false,
+    showOnlineIndicator: false,
   },
 
   'vaughanai': {
