@@ -29,5 +29,6 @@ export async function GET(
     agentTitle:          staticConfig.agentTitle          ?? null,
     showOnlineIndicator: staticConfig.showOnlineIndicator ?? true,
     logoPulse:           staticConfig.logoPulse           ?? false,
+    logoGlowColour:      staticConfig.logoGlowColour      ?? null,
   });
 }

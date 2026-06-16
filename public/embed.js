@@ -36,6 +36,7 @@
   var _fabLogoDiv      = null; // div wrapper used to cleanly clip the logo to a circle
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
   var _fabLogoPulse    = false;
+  var _fabGlowColour   = '';
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
   if (window.__vaughanLoaded) return;
@@ -728,10 +729,11 @@
   }
 
   /* ── 8a. Classic FAB — round button, applied after config fetch ── */
-  function buildClassicFab(logoUrl, brandColour, logoPulse) {
-    _fabLogoUrl     = logoUrl     || '';
-    _fabBrandColour = brandColour || '';
+  function buildClassicFab(logoUrl, brandColour, logoPulse, logoGlowColour) {
+    _fabLogoUrl     = logoUrl       || '';
+    _fabBrandColour = brandColour   || '';
     _fabLogoPulse   = !!logoPulse;
+    _fabGlowColour  = logoGlowColour || brandColour || '';
     /* Remove V arms — they were appended before we knew the style */
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
@@ -775,8 +777,8 @@
         var pulseStyle = document.createElement('style');
         pulseStyle.textContent =
           '@keyframes ea-logo-pulse{' +
-          '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabBrandColour + '}' +
-          '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 18px 6px ' + _fabBrandColour + '66}}';
+          '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabGlowColour + '}' +
+          '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 18px 6px ' + _fabGlowColour + '66}}';
         document.head.appendChild(pulseStyle);
         _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
       }
@@ -856,7 +858,7 @@
       .then(function (d) {
         _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic   = _widgetStyle === 'classic';
-        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false);
+        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '');
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();

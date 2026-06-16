@@ -16,6 +16,7 @@ export interface ClientConfig {
   agentTitle?: string;     // subtitle in chat header — defaults to 'Virtual Assistant'
   showOnlineIndicator?: boolean; // show green dot + Online — defaults to true
   logoPulse?: boolean;           // pulsing glow animation on logo FAB
+  logoGlowColour?: string;       // colour for the FAB pulse glow — defaults to brandColour
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -204,7 +205,7 @@ Phone validation: when a user provides a phone number, check it contains between
 Always try to collect name, email and phone number. If the user declines one, move on and close with whatever you have — never block on a missing field. Never invent prices, availability or property details.`,
     agentEmail: 'savas@avenue-estates.co.uk',
     notificationEmail: 'savas@avenue-estates.co.uk',
-    brandColour: '#c90e0e',
+    brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
     teaserText: 'Chat to us',
@@ -212,6 +213,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     agentWhatsApp: '+447730569891',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: true,
+    logoGlowColour: '#c90e0e',
   },
 
   'vaughanai': {
