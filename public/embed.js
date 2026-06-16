@@ -748,7 +748,7 @@
         height:          '100%',
         borderRadius:    '50%',
         overflow:        'hidden',
-        backgroundColor: '#0b3246',
+        backgroundColor: 'transparent',
         boxShadow:       '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)',
         pointerEvents:   'none',
         transformOrigin: 'center',
