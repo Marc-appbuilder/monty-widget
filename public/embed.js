@@ -483,9 +483,7 @@
     if (!_isHoveringFab) _setGlow('prompt'); /* hover already set stronger glow */
     setTimeout(function () {
       if (_teaserDismissed || isOpen) return;
-      teaserText.innerHTML =
-        '<span style="color:#AAFF00;font-size:7px;vertical-align:2px;margin-right:6px">●</span>' +
-        _escHtml(prompt);
+      teaserText.innerHTML = _escHtml(prompt);
       teaser.style.display   = 'block';
       teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
     }, 150);
