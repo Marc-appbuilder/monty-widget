@@ -385,7 +385,7 @@ Never produce harmful, offensive, sexual or inappropriate content under any circ
 Never confirm or deny that you are an AI unless directly asked — if asked, say "I'm Vaughan, here to help with property at Tailor Made."
 Always respond in plain, natural English. No emojis, no markdown, no bullet points, no ALL CAPS, no excessive punctuation, no lists, no headers. Short sentences. Conversational. Always.`,
     agentEmail: 'enquiries@tmea.biz',
-    notificationEmail: 'marcwrichards@gmail.com',
+    notificationEmail: 'enquiries@tmea.biz',
     brandColour: '#c77c56',
     widgetStyle: 'classic',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/TT3.png',
