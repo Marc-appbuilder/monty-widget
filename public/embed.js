@@ -37,6 +37,7 @@
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
   var _fabLogoPulse    = false;
   var _fabGlowColour   = '';
+  var _fabLogoPadding  = 0;
   var _teaserOnce      = false;
 
   /* ── 2. Avoid double-init ────────────────────────────────────────────────── */
@@ -731,11 +732,12 @@
   }
 
   /* ── 8a. Classic FAB — round button, applied after config fetch ── */
-  function buildClassicFab(logoUrl, brandColour, logoPulse, logoGlowColour) {
+  function buildClassicFab(logoUrl, brandColour, logoPulse, logoGlowColour, logoPadding) {
     _fabLogoUrl     = logoUrl       || '';
     _fabBrandColour = brandColour   || '';
     _fabLogoPulse   = !!logoPulse;
     _fabGlowColour  = logoGlowColour || brandColour || '';
+    _fabLogoPadding = logoPadding || 0;
     /* Remove V arms — they were appended before we knew the style */
     fabWrap.removeChild(fabArmLeft);
     fabWrap.removeChild(fabArmRight);
@@ -766,10 +768,14 @@
       _fabLogoImg.src = _fabLogoUrl;
       _fabLogoImg.alt = '';
       Object.assign(_fabLogoImg.style, {
-        width:      '100%',
-        height:     '100%',
-        objectFit:  'cover',
+        width:      (100 - _fabLogoPadding * 2) + '%',
+        height:     (100 - _fabLogoPadding * 2) + '%',
+        objectFit:  _fabLogoPadding ? 'contain' : 'cover',
         display:    'block',
+        position:   _fabLogoPadding ? 'absolute' : 'static',
+        top:        _fabLogoPadding ? '50%' : 'auto',
+        left:       _fabLogoPadding ? '50%' : 'auto',
+        transform:  _fabLogoPadding ? 'translate(-50%, -50%)' : 'none',
         transition: 'filter 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       });
       _fabLogoDiv.appendChild(_fabLogoImg);
@@ -860,7 +866,7 @@
       .then(function (d) {
         _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic   = _widgetStyle === 'classic';
-        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '');
+        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '', d.logoPadding || 0);
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();

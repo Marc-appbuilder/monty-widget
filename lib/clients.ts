@@ -18,6 +18,7 @@ export interface ClientConfig {
   logoPulse?: boolean;           // pulsing glow animation on logo FAB
   logoGlowColour?: string;       // colour for the FAB pulse glow — defaults to brandColour
   teaserOnce?: boolean;          // show teaser once per session then never again
+  logoPadding?: number;          // % padding around logo inside FAB circle — default 0 (fills edge to edge)
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -443,6 +444,7 @@ Always try to collect name, email and phone number before closing. If the user d
     brandColour: '#00C8B7',
     widgetStyle: 'classic',
     logoUrl: 'https://cdn.prod.website-files.com/61be0b8f5a9b493b8154aee8/61be0b8f5a9b49464754af03_Logo%20Mark.svg',
+    logoPadding: 20,
   },
 
 };

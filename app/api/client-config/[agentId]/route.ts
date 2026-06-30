@@ -31,5 +31,6 @@ export async function GET(
     logoPulse:           staticConfig.logoPulse           ?? false,
     logoGlowColour:      staticConfig.logoGlowColour      ?? null,
     teaserOnce:          staticConfig.teaserOnce          ?? false,
+    logoPadding:         staticConfig.logoPadding          ?? 0,
   });
 }
