@@ -444,7 +444,7 @@ Always try to collect name, email and phone number before closing. If the user d
     brandColour: '#00C8B7',
     widgetStyle: 'classic',
     logoUrl: 'https://cdn.prod.website-files.com/61be0b8f5a9b493b8154aee8/61be0b8f5a9b49464754af03_Logo%20Mark.svg',
-    logoPadding: 11,
+    logoPadding: 20,
   },
 
 };
