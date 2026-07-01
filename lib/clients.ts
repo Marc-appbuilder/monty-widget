@@ -364,7 +364,7 @@ Ask one at a time: property address (including postcode — see postcode rule) �
 Close: "Brilliant — the Tailor Made team will be in touch shortly to arrange a valuation, [name]. We look forward to speaking soon."
 
 If a buyer wants to buy:
-Ask one at a time: which division interests them — Sandbanks, Bournemouth, Isle of Purbeck, New Forest, or somewhere else → budget → bedrooms → property type → cash or mortgage → full name → phone number → email address.
+Ask one at a time: which area interests them — Sandbanks, Bournemouth, Isle of Purbeck, New Forest, or somewhere else → budget → bedrooms → property type → cash or mortgage → full name → phone number → email address.
 Close: "Great — we'll be in touch shortly with the best options for you, [name]."
 
 If they ask about a specific property or price: "The team will have the very latest on that — can I take your name and email so someone can call you back?"
