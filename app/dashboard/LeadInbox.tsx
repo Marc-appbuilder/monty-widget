@@ -118,6 +118,12 @@ export default function LeadInbox() {
     });
   }
 
+  async function deleteLead(id: string) {
+    if (!window.confirm('Delete this lead? This cannot be undone.')) return;
+    setLeads(prev => prev.filter(l => l.id !== id));
+    await fetch(`/api/leads/${id}`, { method: 'DELETE' });
+  }
+
   const filtered = filter === 'all' ? leads : leads.filter(l => l.status === filter);
   const newCount = leads.filter(l => l.status === 'new').length;
 
@@ -385,6 +391,18 @@ export default function LeadInbox() {
                         );
                       })}
                     </div>
+                  </div>
+
+                  {/* Delete */}
+                  <div style={{ paddingTop: '4px' }}>
+                    <button onClick={() => deleteLead(lead.id)} style={{
+                      background: 'transparent', border: '1px solid rgba(255,80,80,0.25)',
+                      borderRadius: '8px', padding: '6px 14px', cursor: 'pointer',
+                      fontSize: '12px', color: 'rgba(255,100,100,0.6)',
+                      transition: 'all 0.15s ease',
+                    }}>
+                      Delete lead
+                    </button>
                   </div>
 
                   {/* Notes */}
