@@ -136,7 +136,7 @@ export default function LoginPage() {
               Sign in
             </h1>
             <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-              Enter your email and we&apos;ll send you a 6-digit code.
+              Enter your email and we&apos;ll send you a sign-in code.
             </p>
 
             <form onSubmit={sendOtp} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -161,16 +161,16 @@ export default function LoginPage() {
               Enter your code
             </h1>
             <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-              We sent a 6-digit code to <strong style={{ color: '#ffffff' }}>{email}</strong>. Check your inbox.
+              We sent a sign-in code to <strong style={{ color: '#ffffff' }}>{email}</strong>. Check your inbox.
             </p>
 
             <form onSubmit={verifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <input
                 type="text"
                 inputMode="numeric"
-                placeholder="123456"
+                placeholder="12345678"
                 value={code}
-                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
                 required
                 autoFocus
                 style={{ ...inputStyle, fontSize: '24px', letterSpacing: '0.2em', textAlign: 'center' }}
