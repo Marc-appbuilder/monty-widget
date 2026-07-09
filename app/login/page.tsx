@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 
 const supabase = createBrowserClient(
@@ -8,37 +9,73 @@ const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
+const inputStyle: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.12)',
+  borderRadius: '10px',
+  padding: '13px 16px',
+  color: '#ffffff',
+  fontSize: '15px',
+  outline: 'none',
+  width: '100%',
+  boxSizing: 'border-box',
+  fontFamily: 'inherit',
+};
+
+const btnStyle = (disabled: boolean): React.CSSProperties => ({
+  background: disabled ? 'rgba(170,255,0,0.35)' : '#AAFF00',
+  color: '#0a0a0a',
+  border: 'none',
+  borderRadius: '10px',
+  padding: '14px',
+  fontSize: '15px',
+  fontWeight: 700,
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  transition: 'opacity 0.15s',
+  fontFamily: 'inherit',
+  letterSpacing: '-0.01em',
+  width: '100%',
+});
+
 export default function LoginPage() {
-  const [email, setEmail]     = useState('');
-  const [sent, setSent]       = useState(false);
+  const router = useRouter();
+  const [email, setEmail]   = useState('');
+  const [code, setCode]     = useState('');
+  const [step, setStep]     = useState<'email' | 'code'>('email');
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError]   = useState('');
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('error') === 'auth') {
-      setError('For security reasons, please open this link in the same browser you requested it from, then try again.');
-    }
-  }, []);
-
-  async function handleSubmit(e: React.FormEvent) {
+  async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error } = await supabase.auth.signInWithOtp({ email });
 
+    setLoading(false);
     if (error) {
       setError(error.message);
-      setLoading(false);
     } else {
-      setSent(true);
-      setLoading(false);
+      setStep('code');
+    }
+  }
+
+  async function verifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: code.trim(),
+      type: 'email',
+    });
+
+    setLoading(false);
+    if (error) {
+      setError('Invalid or expired code — please try again.');
+    } else {
+      router.push('/dashboard');
     }
   }
 
@@ -56,7 +93,6 @@ export default function LoginPage() {
     }}>
       <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400&display=swap" rel="stylesheet"/>
 
-      {/* Logo / wordmark */}
       <div style={{ marginBottom: '48px', textAlign: 'center' }}>
         <div style={{
           display: 'inline-flex',
@@ -86,7 +122,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Card */}
       <div style={{
         width: '100%',
         maxWidth: '380px',
@@ -95,27 +130,16 @@ export default function LoginPage() {
         borderRadius: '16px',
         padding: '32px 28px',
       }}>
-        {!sent ? (
+        {step === 'email' ? (
           <>
-            <h1 style={{
-              margin: '0 0 6px',
-              fontSize: '18px',
-              fontWeight: 700,
-              color: '#ffffff',
-              letterSpacing: '-0.02em',
-            }}>
+            <h1 style={{ margin: '0 0 6px', fontSize: '18px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
               Sign in
             </h1>
-            <p style={{
-              margin: '0 0 24px',
-              fontSize: '14px',
-              color: 'rgba(255,255,255,0.4)',
-              lineHeight: 1.6,
-            }}>
-              Enter your email and we&apos;ll send you a magic link.
+            <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+              Enter your email and we&apos;ll send you a 6-digit code.
             </p>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <form onSubmit={sendOtp} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <input
                 type="email"
                 placeholder="you@agency.co.uk"
@@ -123,78 +147,59 @@ export default function LoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 autoFocus
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: '10px',
-                  padding: '13px 16px',
-                  color: '#ffffff',
-                  fontSize: '15px',
-                  outline: 'none',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  fontFamily: 'inherit',
-                }}
+                style={inputStyle}
               />
-
-              {error && (
-                <p style={{ margin: 0, fontSize: '13px', color: '#f87171' }}>{error}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading || !email}
-                style={{
-                  background: loading || !email ? 'rgba(170,255,0,0.35)' : '#AAFF00',
-                  color: '#0a0a0a',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '14px',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  cursor: loading || !email ? 'not-allowed' : 'pointer',
-                  transition: 'opacity 0.15s',
-                  fontFamily: 'inherit',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {loading ? 'Sending…' : 'Send magic link'}
+              {error && <p style={{ margin: 0, fontSize: '13px', color: '#f87171' }}>{error}</p>}
+              <button type="submit" disabled={loading || !email} style={btnStyle(loading || !email)}>
+                {loading ? 'Sending…' : 'Send code'}
               </button>
             </form>
           </>
         ) : (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '16px' }}>✉️</div>
-            <h2 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
-              Check your inbox
-            </h2>
-            <p style={{ margin: '0 0 20px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-              We sent a magic link to <strong style={{ color: '#ffffff' }}>{email}</strong>. Click it to sign in.
+          <>
+            <h1 style={{ margin: '0 0 6px', fontSize: '18px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
+              Enter your code
+            </h1>
+            <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+              We sent a 6-digit code to <strong style={{ color: '#ffffff' }}>{email}</strong>. Check your inbox.
             </p>
-            <button
-              onClick={() => { setSent(false); setEmail(''); }}
-              style={{
-                background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '10px',
-                padding: '10px 20px',
-                color: 'rgba(255,255,255,0.4)',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              Use a different email
-            </button>
-          </div>
+
+            <form onSubmit={verifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="123456"
+                value={code}
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                required
+                autoFocus
+                style={{ ...inputStyle, fontSize: '24px', letterSpacing: '0.2em', textAlign: 'center' }}
+              />
+              {error && <p style={{ margin: 0, fontSize: '13px', color: '#f87171' }}>{error}</p>}
+              <button type="submit" disabled={loading || code.length < 6} style={btnStyle(loading || code.length < 6)}>
+                {loading ? 'Verifying…' : 'Sign in'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setStep('email'); setCode(''); setError(''); }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.3)',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  padding: '4px',
+                }}
+              >
+                ← Use a different email
+              </button>
+            </form>
+          </>
         )}
       </div>
 
-      <p style={{
-        marginTop: '32px',
-        fontSize: '12px',
-        color: 'rgba(255,255,255,0.18)',
-      }}>
+      <p style={{ marginTop: '32px', fontSize: '12px', color: 'rgba(255,255,255,0.18)' }}>
         © 2026 VaughanAI
       </p>
     </div>
