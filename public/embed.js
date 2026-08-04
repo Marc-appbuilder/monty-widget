@@ -485,46 +485,69 @@
   });
 
   /* ── Peek panel ─────────────────────────────────────────────────────────── */
+  var _peekBg     = '#0e1621'; /* dark navy — updated per client in _showPeek */
+  var _peekAccent = '#c77c56'; /* brand accent — updated per client in _showPeek */
+
   var peekPanel = document.createElement('div');
   peekPanel.className = 'ea-peek-panel';
   Object.assign(peekPanel.style, {
     position:     'absolute',
     top:          '50%',
-    right:        '96px',
+    right:        '80px',   /* flush with classic FAB edge — no gap, set precisely in _showPeek */
     display:      'none',
-    width:        '220px',
-    background:   '#fafaf8',
-    color:        '#1a1a1a',
-    borderRadius: '16px',
-    border:       '1px solid rgba(0,0,0,0.06)',
-    boxShadow:    '0 2px 20px rgba(0,0,0,0.11)',
-    padding:      '14px 36px 14px 48px',
+    width:        '210px',
+    background:   _peekBg,
+    borderRadius: '14px 2px 2px 14px',
+    border:       '1px solid rgba(255,255,255,0.07)',
+    boxShadow:    '0 8px 24px rgba(0,0,0,0.35)',
+    padding:      '13px 30px 13px 44px',
     fontFamily:   '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
-    fontSize:     '13.5px',
-    fontWeight:   '500',
-    letterSpacing:'0.005em',
-    lineHeight:   '1.45',
+    fontSize:     '13px',
+    fontWeight:   '400',
+    letterSpacing:'0.025em',
+    lineHeight:   '1.5',
     cursor:       'pointer',
     userSelect:   'none',
     zIndex:       '3',
     boxSizing:    'border-box',
-    minHeight:    '48px',
+    minHeight:    '46px',
   });
 
-  /* Brand-coloured avatar dot */
-  var peekAvatar = document.createElement('div');
-  Object.assign(peekAvatar.style, {
-    position:     'absolute',
-    left:         '12px',
-    top:          '50%',
-    transform:    'translateY(-50%)',
-    width:        '26px',
-    height:       '26px',
-    borderRadius: '50%',
-    background:   '#ccc',
-    flexShrink:   '0',
+  /* Thin-line chat icon — never a filled blob */
+  var peekIcon = document.createElement('div');
+  Object.assign(peekIcon.style, {
+    position:  'absolute',
+    left:      '12px',
+    top:       '50%',
+    transform: 'translateY(-50%)',
+    width:     '20px',
+    height:    '20px',
+    opacity:   '0.8',
+    color:     _peekAccent,
+    lineHeight:'0',
   });
-  peekPanel.appendChild(peekAvatar);
+  peekIcon.innerHTML =
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"' +
+    ' stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+  peekPanel.appendChild(peekIcon);
+
+  /* Right-pointing arrow that bridges panel to FAB — direction flipped for left FABs */
+  var peekArrow = document.createElement('div');
+  Object.assign(peekArrow.style, {
+    position:      'absolute',
+    top:           '50%',
+    right:         '-7px',
+    transform:     'translateY(-50%)',
+    width:         '0',
+    height:        '0',
+    borderTop:     '6px solid transparent',
+    borderBottom:  '6px solid transparent',
+    borderLeft:    '7px solid ' + _peekBg,
+    pointerEvents: 'none',
+  });
+  peekPanel.appendChild(peekArrow);
 
   /* Typing indicator: 3 bouncing dots */
   var peekTyping = document.createElement('div');
@@ -533,7 +556,7 @@
     var _pdot = document.createElement('span');
     Object.assign(_pdot.style, {
       width: '5px', height: '5px', borderRadius: '50%',
-      background: 'rgba(0,0,0,0.22)', display: 'inline-block', flexShrink: '0',
+      background: 'rgba(255,255,255,0.3)', display: 'inline-block', flexShrink: '0',
       animation: 'ea-peek-dot 1.1s ease-in-out ' + (_pdi * 0.18) + 's infinite',
     });
     peekTyping.appendChild(_pdot);
@@ -542,26 +565,26 @@
 
   /* Message text */
   var peekText = document.createElement('div');
-  Object.assign(peekText.style, { display: 'none', color: '#1a1a1a', position: 'relative' });
+  Object.assign(peekText.style, { display: 'none', color: 'rgba(255,255,255,0.88)', position: 'relative' });
   peekPanel.appendChild(peekText);
 
   /* Blinking cursor — inserted into peekText during typing */
   var peekCursor = document.createElement('span');
   Object.assign(peekCursor.style, {
     display: 'inline-block', width: '1.5px', height: '1em',
-    background: '#1a1a1a', verticalAlign: 'middle', marginLeft: '1px',
+    background: 'rgba(255,255,255,0.6)', verticalAlign: 'middle', marginLeft: '1px',
     animation: 'ea-peek-blink 0.9s step-end infinite',
   });
 
-  /* Dismiss × — appears after typing finishes */
+  /* Dismiss × — very low contrast, appears only after typing finishes */
   var peekDismiss = document.createElement('button');
   Object.assign(peekDismiss.style, {
-    position: 'absolute', top: '8px', right: '10px',
-    background: 'none', border: 'none', color: 'rgba(0,0,0,0.2)',
-    fontSize: '16px', lineHeight: '1', cursor: 'pointer', padding: '0',
-    fontFamily: 'inherit', width: '20px', height: '20px',
+    position: 'absolute', top: '7px', right: '9px',
+    background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)',
+    fontSize: '14px', lineHeight: '1', cursor: 'pointer', padding: '2px',
+    fontFamily: 'inherit', width: '18px', height: '18px',
     display: 'none', alignItems: 'center', justifyContent: 'center',
-    opacity: '0', transition: 'opacity 0.35s ease',
+    opacity: '0', transition: 'opacity 0.4s ease',
   });
   peekDismiss.textContent = '×';
   peekDismiss.setAttribute('aria-label', 'Dismiss');
@@ -647,16 +670,32 @@
     try { sessionStorage.setItem('__vaughan_peek_' + clientId, '1'); } catch (_) {}
 
     var isLeft = _pos.indexOf('left') !== -1;
-    var fabW   = _isClassic ? 88 : 96;
+    /* Flush against the FAB edge — 80px classic, 88px V2 */
+    var fabEdge = _isClassic ? 80 : 88;
     if (isLeft) {
-      peekPanel.style.right = 'auto';
-      peekPanel.style.left  = fabW + 'px';
+      peekPanel.style.right         = 'auto';
+      peekPanel.style.left          = fabEdge + 'px';
+      peekPanel.style.borderRadius  = '2px 14px 14px 2px';
+      /* Arrow points left (toward the FAB which is to the left) */
+      Object.assign(peekArrow.style, {
+        right: 'auto', left: '-7px',
+        borderLeft: 'none', borderRight: '7px solid ' + _peekBg,
+      });
     } else {
-      peekPanel.style.left  = 'auto';
-      peekPanel.style.right = fabW + 'px';
+      peekPanel.style.left          = 'auto';
+      peekPanel.style.right         = fabEdge + 'px';
+      peekPanel.style.borderRadius  = '14px 2px 2px 14px';
+      /* Arrow points right (toward the FAB which is to the right) */
+      Object.assign(peekArrow.style, {
+        left: 'auto', right: '-7px',
+        borderRight: 'none', borderLeft: '7px solid ' + _peekBg,
+      });
     }
 
-    peekAvatar.style.background = _fabBrandColour || _brandColour || '#9e9e9e';
+    /* Brand accent on icon */
+    var accent = _fabBrandColour || _brandColour || '#c77c56';
+    peekIcon.style.color = accent;
+
     peekTyping.style.display    = 'flex';
     peekTyping.style.opacity    = '1';
     peekText.style.display      = 'none';
