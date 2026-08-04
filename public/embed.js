@@ -786,11 +786,10 @@
 
     /* Close icon: plain div (no button defaults), shown instead of logo when open */
     _fabCloseIcon = document.createElement('div');
-    var _closeX = _fabBrandColour || 'rgba(255,255,255,0.85)';
     _fabCloseIcon.innerHTML =
-      '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<line x1="3" y1="3" x2="17" y2="17" stroke="' + _closeX + '" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<line x1="17" y1="3" x2="3" y2="17" stroke="' + _closeX + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<line x1="3" y1="3" x2="17" y2="17" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="17" y1="3" x2="3" y2="17" stroke="#AAFF00" stroke-width="2.5" stroke-linecap="round"/>' +
       '</svg>';
     Object.assign(_fabCloseIcon.style, {
       display:         'none',
@@ -798,7 +797,8 @@
       top:             '0', left: '0',
       width:           '100%', height: '100%',
       borderRadius:    '50%',
-      background:      'transparent',
+      background:      '#151515',
+      boxShadow:       '0 4px 12px rgba(0,0,0,0.35)',
       alignItems:      'center',
       justifyContent:  'center',
       pointerEvents:   'auto',
