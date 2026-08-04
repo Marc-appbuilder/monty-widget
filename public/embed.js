@@ -437,6 +437,7 @@
   var _teaserShowCount  = 0;
   var _teaserArmsAngle  = 0;
   var _isHoveringFab    = false;
+  var _teaserTypeSeq    = 0;   /* incremented each show — cancels any in-progress typing */
 
   var _peekMessage      = '';
   var _peekDelay        = 6000;
@@ -478,6 +479,7 @@
 
   teaser.addEventListener('click', function () {
     _teaserDismissed = true;
+    _teaserTypeSeq++;
     clearTimeout(_teaserTimer);
     clearTimeout(_teaserAutoTimer);
     teaser.style.display = 'none';
@@ -597,26 +599,30 @@
     if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
     var prompt = _teaserPrompts[_teaserIndex % _teaserPrompts.length];
     _teaserIndex++;
-    /* V opens slightly, soft glow wakes up, bubble follows 150ms later */
     _teaserArmsAngle = 8;
     _setArmsResting();
-    if (!_isHoveringFab) _setGlow('prompt'); /* hover already set stronger glow */
+    if (!_isHoveringFab) _setGlow('prompt');
+    var seq = ++_teaserTypeSeq;
     setTimeout(function () {
-      if (_teaserDismissed || isOpen) return;
-      teaserText.innerHTML = _escHtml(prompt);
+      if (_teaserDismissed || isOpen || seq !== _teaserTypeSeq) return;
+      teaserText.textContent = '';
       teaser.style.display   = 'block';
       teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
-      if (_teaserPersist) {
-        /* After slide-in, swap to a gentle shadow-breathing pulse */
-        setTimeout(function () {
-          if (_teaserDismissed || isOpen || teaser.style.display === 'none') return;
-          teaser.style.animation = 'ea-teaser-persist 3.2s ease-in-out infinite';
-        }, 320);
-      }
+      /* Typewriter: each character appears in turn */
+      var chars = prompt.split('');
+      var ci = 0;
+      (function typeNext() {
+        if (seq !== _teaserTypeSeq || _teaserDismissed || isOpen) return;
+        if (ci < chars.length) {
+          teaserText.textContent += chars[ci++];
+          setTimeout(typeNext, 46);
+        }
+      })();
     }, 150);
   }
 
   function _hideTeaser(cb) {
+    _teaserTypeSeq++; /* cancel any in-progress typewriter */
     if (teaser.style.display === 'none') { if (cb) cb(); return; }
     teaser.style.animation = 'ea-teaser-out 0.2s ease-in both';
     setTimeout(function () {
@@ -630,8 +636,8 @@
   }
 
   function _scheduleCycle() {
-    var visibleMs = 4500;   /* bubble visible for 4.5 s */
-    var repeatMs  = 10000;  /* 10 s gap before next show */
+    var visibleMs = 5200;   /* visible long enough to read after typing completes */
+    var repeatMs  = 5500;   /* gap before next show — feels like a ticker */
 
     if (_teaserDismissed) return;
     _showTeaser();
