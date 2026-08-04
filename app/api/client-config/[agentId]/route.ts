@@ -23,7 +23,7 @@ export async function GET(
     widgetPosition: data?.widget_position  ?? staticConfig.widgetPosition  ?? 'bottom-right',
     widgetStyle:    data?.widget_style     ?? staticConfig.widgetStyle     ?? 'classic',
     widgetTheme:    data?.widget_theme     ?? staticConfig.widgetTheme     ?? 'dark',
-    teaserPersist:  data?.teaser_persist   ?? staticConfig.teaserPersist   ?? false,
+    teaserPersist:  staticConfig.teaserPersist ?? data?.teaser_persist ?? false,
     logoUrl:             staticConfig.logoUrl             ?? null,
     headerImageUrl:      staticConfig.headerImageUrl      ?? null,
     agentTitle:          staticConfig.agentTitle          ?? null,

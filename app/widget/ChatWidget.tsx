@@ -94,8 +94,10 @@ export default function ChatWidget({ clientId, config }: Props) {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const messagesRef = useRef(messages);
 
   useEffect(() => {
+    messagesRef.current = messages;
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -115,7 +117,7 @@ export default function ChatWidget({ clientId, config }: Props) {
     setStreamingId(assistantId);
 
     try {
-      const history: ChatMessage[] = [...messages, userMsg].map((m) => ({
+      const history: ChatMessage[] = [...messagesRef.current, userMsg].map((m) => ({
         role: m.role,
         content: m.content,
       }));
