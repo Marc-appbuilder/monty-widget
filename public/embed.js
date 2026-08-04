@@ -312,19 +312,20 @@
   function _setClassicIcon(open) {
     if (!_isClassic) return;
     if (open) {
-      /* × state — hide logo div so we can show the × on a dark fab */
+      /* × state — hide logo div, show a crisp brand-coloured × on transparent background */
       if (_fabLogoDiv) _fabLogoDiv.style.display = 'none';
-      fab.style.background         = '#151515';
+      fab.style.background         = 'transparent';
       fab.style.backgroundImage    = '';
-      fab.style.border             = '1px solid rgba(255,255,255,0.06)';
-      fab.style.boxShadow          = '0 6px 24px rgba(0,0,0,0.45)';
+      fab.style.border             = 'none';
+      fab.style.boxShadow          = 'none';
       fab.style.display            = 'flex';
       fab.style.alignItems         = 'center';
       fab.style.justifyContent     = 'center';
+      var closeColour = _fabBrandColour || 'rgba(255,255,255,0.75)';
       fab.innerHTML =
-        '<svg width="20" height="20" viewBox="0 0 20 20" fill="none">' +
-        '<line x1="3" y1="3" x2="17" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
-        '<line x1="17" y1="3" x2="3" y2="17" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round"/>' +
+        '<svg width="22" height="22" viewBox="0 0 20 20" fill="none">' +
+        '<line x1="3" y1="3" x2="17" y2="17" stroke="' + closeColour + '" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<line x1="17" y1="3" x2="3" y2="17" stroke="' + closeColour + '" stroke-width="2.5" stroke-linecap="round"/>' +
         '</svg>';
     } else if (_fabLogoDiv) {
       /* Logo mode — visual lives in _fabLogoDiv (overflow:hidden clips img cleanly, no artifacts) */
