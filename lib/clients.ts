@@ -214,7 +214,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
-    teaserText: 'Thinking of selling or letting?',
+    teaserText: 'Thinking of selling or letting?,Wondering what your property is worth?,Have a property question?',
     teaserPersist: false,
     teaserOnce: false,
     agentWhatsApp: '+447730569891',

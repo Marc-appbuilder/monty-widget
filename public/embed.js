@@ -437,6 +437,7 @@
   var _teaserShowCount  = 0;
   var _teaserArmsAngle  = 0;
   var _isHoveringFab    = false;
+  var _isHoveringTeaser = false;
   var _teaserTypeSeq    = 0;   /* incremented each show — cancels any in-progress typing */
 
   var _peekMessage      = '';
@@ -486,6 +487,8 @@
     _teaserArmsAngle = 0;
     openFab();
   });
+  teaser.addEventListener('mouseenter', function () { _isHoveringTeaser = true; });
+  teaser.addEventListener('mouseleave', function () { _isHoveringTeaser = false; });
 
   /* ── Peek panel ─────────────────────────────────────────────────────────── */
   var _peekBg     = '#0e1621'; /* dark navy — updated per client in _showPeek */
@@ -595,27 +598,30 @@
 
   fabWrap.appendChild(peekPanel);
 
-  function _showTeaser() {
+  function _showTeaser(onTyped) {
     if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
     var prompt = _teaserPrompts[_teaserIndex % _teaserPrompts.length];
     _teaserIndex++;
+    _teaserShowCount++;
     _teaserArmsAngle = 8;
     _setArmsResting();
     if (!_isHoveringFab) _setGlow('prompt');
-    var seq = ++_teaserTypeSeq;
+    var seq   = ++_teaserTypeSeq;
+    var typeMs = isMobile() ? 32 : 38;
     setTimeout(function () {
       if (_teaserDismissed || isOpen || seq !== _teaserTypeSeq) return;
       teaserText.textContent = '';
       teaser.style.display   = 'block';
-      teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
-      /* Typewriter: each character appears in turn */
+      teaser.style.animation = 'ea-teaser-in 0.35s ease-out both';
       var chars = prompt.split('');
       var ci = 0;
       (function typeNext() {
         if (seq !== _teaserTypeSeq || _teaserDismissed || isOpen) return;
         if (ci < chars.length) {
           teaserText.textContent += chars[ci++];
-          setTimeout(typeNext, 46);
+          setTimeout(typeNext, typeMs);
+        } else {
+          if (onTyped) onTyped();
         }
       })();
     }, 150);
@@ -623,58 +629,60 @@
 
   function _hideTeaser(cb) {
     _teaserTypeSeq++; /* cancel any in-progress typewriter */
+    _isHoveringTeaser = false;
     if (teaser.style.display === 'none') { if (cb) cb(); return; }
-    teaser.style.animation = 'ea-teaser-out 0.2s ease-in both';
+    teaser.style.animation = 'ea-teaser-out 0.28s ease-in both';
     setTimeout(function () {
       teaser.style.display   = 'none';
       teaser.style.animation = '';
       _teaserArmsAngle = 0;
       if (!isOpen) _setArmsResting();
-      _setGlow(_isHoveringFab ? 'hover' : 'none'); /* keep hover glow if still over V */
+      _setGlow(_isHoveringFab ? 'hover' : 'none');
       if (cb) cb();
-    }, 220);
+    }, 290);
   }
 
   function _scheduleCycle() {
-    var visibleMs = 5200;   /* visible long enough to read after typing completes */
-    var repeatMs  = 5500;   /* gap before next show — feels like a ticker */
+    /* ms to stay visible after typing finishes */
+    var pauseAfterTyping = 4500;
+    /* gap before 2nd appearance, gap before 3rd — desktop */
+    var gaps    = isMobile() ? [15000] : [15000, 20000];
+    var maxShow = isMobile() ? 2 : 3;
 
     if (_teaserDismissed) return;
-    _showTeaser();
+    /* Persist mode: show once, hold forever — no auto-hide, no cycling */
+    if (_teaserPersist && !isMobile()) { _showTeaser(null); return; }
+    if (_teaserShowCount >= maxShow) return;
 
-    /* Stay visible while hovering, then hide and reschedule */
-    function tryHide() {
-      if (_isHoveringFab && !isMobile()) {
-        _teaserAutoTimer = setTimeout(tryHide, 400);
-        return;
-      }
-      /* Persist mode on desktop: never auto-hide — just rotate text after gap */
-      if (_teaserPersist && !isMobile()) {
-        if (!_teaserDismissed) {
-          _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
+    _showTeaser(function () {
+      /* Fires when typing completes — start the post-type visible pause */
+      function tryHide() {
+        if (_isHoveringFab || _isHoveringTeaser) {
+          _teaserAutoTimer = setTimeout(tryHide, 300);
+          return;
         }
-        return;
+        /* _teaserShowCount already incremented inside _showTeaser */
+        var gapIdx  = _teaserShowCount - 1;
+        var nextGap = gaps[gapIdx] !== undefined ? gaps[gapIdx] : null;
+        _hideTeaser(function () {
+          if (_teaserOnce) { _teaserDismissed = true; return; }
+          if (!_teaserDismissed && nextGap !== null && _teaserShowCount < maxShow) {
+            _teaserTimer = setTimeout(_scheduleCycle, nextGap);
+          }
+        });
       }
-      _hideTeaser(function () {
-        if (_teaserOnce) {
-          _teaserDismissed = true; /* show once — never cycle again */
-        } else if (!_teaserDismissed) {
-          _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
-        }
-      });
-    }
-    _teaserAutoTimer = setTimeout(tryHide, visibleMs);
+      _teaserAutoTimer = setTimeout(tryHide, pauseAfterTyping);
+    });
   }
 
   function initTeaser(text, persist, once) {
     if (!text) return;
     _teaserPersist = !!(persist && !isMobile());
     _teaserOnce    = !!once;
-    /* Support comma-separated list for prompt rotation */
     _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
-    /* Persist: show quickly on desktop; otherwise standard delays */
-    var firstDelay = _teaserPersist ? 800 : (isMobile() ? 6000 : 2500);
+    /* Persist: show quickly. Otherwise give them 3.5 s to see the page (5 s on mobile). */
+    var firstDelay = _teaserPersist ? 800 : (isMobile() ? 5000 : 3500);
     _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
   }
 
