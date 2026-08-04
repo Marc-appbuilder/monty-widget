@@ -70,6 +70,7 @@
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
     '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
+    '@keyframes ea-teaser-persist{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,0.14)}50%{box-shadow:0 6px 22px rgba(0,0,0,0.24),0 0 0 3px rgba(0,0,0,0.05)}}' +
     '@keyframes ea-peek-in{from{opacity:0;transform:translateX(10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
     '@keyframes ea-peek-in-l{from{opacity:0;transform:translateX(-10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
     '@keyframes ea-peek-out{from{opacity:1;transform:translateX(0) translateY(-50%)}to{opacity:0;transform:translateX(10px) translateY(-50%)}}' +
@@ -605,6 +606,13 @@
       teaserText.innerHTML = _escHtml(prompt);
       teaser.style.display   = 'block';
       teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
+      if (_teaserPersist) {
+        /* After slide-in, swap to a gentle shadow-breathing pulse */
+        setTimeout(function () {
+          if (_teaserDismissed || isOpen || teaser.style.display === 'none') return;
+          teaser.style.animation = 'ea-teaser-persist 3.2s ease-in-out infinite';
+        }, 320);
+      }
     }, 150);
   }
 

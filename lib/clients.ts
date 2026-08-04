@@ -214,7 +214,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     widgetStyle: 'classic',
     widgetTheme: 'light',
     teaserText: 'Thinking of selling or letting?',
-    teaserPersist: false,
+    teaserPersist: true,
     teaserOnce: true,
     agentWhatsApp: '+447730569891',
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
