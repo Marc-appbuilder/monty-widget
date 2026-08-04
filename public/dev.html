@@ -418,9 +418,9 @@
   </footer>
 
   <script>
-    var agentId = new URLSearchParams(window.location.search).get('agentId') || 'vaughan-and-co';
+    var clientId = new URLSearchParams(window.location.search).get('clientId') || 'vaughan-and-co';
     var s = document.createElement('script');
-    s.src = window.location.origin + '/embed.js?agentId=' + agentId;
+    s.src = window.location.origin + '/embed.js?clientId=' + clientId;
     document.body.appendChild(s);
   </script>
 
