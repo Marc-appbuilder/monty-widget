@@ -33,6 +33,7 @@
   var _isChromeIOS   = /CriOS/i.test(navigator.userAgent);
   var _fabLogoUrl      = '';   // set when config provides a logoUrl for classic FAB
   var _fabBrandColour  = '';   // brand colour used for the logo FAB inset ring
+  var _brandColour     = '';   // brand colour from config — set for all widget styles
   var _fabLogoDiv      = null; // div wrapper used to cleanly clip the logo to a circle
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
   var _fabCloseIcon    = null; // plain div shown in place of logo when chat is open
@@ -75,6 +76,8 @@
     '@keyframes ea-peek-out-l{from{opacity:1;transform:translateX(0) translateY(-50%)}to{opacity:0;transform:translateX(-10px) translateY(-50%)}}' +
     '@media(prefers-reduced-motion:reduce){.ea-peek-panel{animation:ea-peek-fade 0.25s ease-out both!important}}' +
     '@keyframes ea-peek-fade{from{opacity:0}to{opacity:1}}' +
+    '@keyframes ea-peek-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}' +
+    '@keyframes ea-peek-blink{0%,100%{opacity:1}50%{opacity:0}}' +
     /* Classic FAB heartbeat — smooth lub-dub, generous spacing so easing has room to breathe */
     '@keyframes ea-heartbeat{' +
       '0%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
@@ -485,48 +488,80 @@
   var peekPanel = document.createElement('div');
   peekPanel.className = 'ea-peek-panel';
   Object.assign(peekPanel.style, {
-    position:      'absolute',
-    top:           '50%',
-    right:         '96px',    /* updated in initPeek once _pos and _isClassic are known */
-    display:       'none',
-    maxWidth:      '220px',
-    background:    'rgba(17,17,17,0.96)',
-    color:         '#F5F7F4',
-    borderRadius:  '12px',
-    boxShadow:     '0 4px 20px rgba(0,0,0,0.24)',
-    padding:       '13px 40px 13px 16px',
-    fontSize:      '13.5px',
-    fontFamily:    '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
-    fontWeight:    '500',
-    letterSpacing: '0.01em',
-    lineHeight:    '1.4',
-    cursor:        'pointer',
-    userSelect:    'none',
-    whiteSpace:    'normal',
-    zIndex:        '3',
+    position:     'absolute',
+    top:          '50%',
+    right:        '96px',
+    display:      'none',
+    width:        '220px',
+    background:   '#fafaf8',
+    color:        '#1a1a1a',
+    borderRadius: '16px',
+    border:       '1px solid rgba(0,0,0,0.06)',
+    boxShadow:    '0 2px 20px rgba(0,0,0,0.11)',
+    padding:      '14px 36px 14px 48px',
+    fontFamily:   '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:     '13.5px',
+    fontWeight:   '500',
+    letterSpacing:'0.005em',
+    lineHeight:   '1.45',
+    cursor:       'pointer',
+    userSelect:   'none',
+    zIndex:       '3',
+    boxSizing:    'border-box',
+    minHeight:    '48px',
   });
 
-  var peekText = document.createElement('span');
+  /* Brand-coloured avatar dot */
+  var peekAvatar = document.createElement('div');
+  Object.assign(peekAvatar.style, {
+    position:     'absolute',
+    left:         '12px',
+    top:          '50%',
+    transform:    'translateY(-50%)',
+    width:        '26px',
+    height:       '26px',
+    borderRadius: '50%',
+    background:   '#ccc',
+    flexShrink:   '0',
+  });
+  peekPanel.appendChild(peekAvatar);
+
+  /* Typing indicator: 3 bouncing dots */
+  var peekTyping = document.createElement('div');
+  Object.assign(peekTyping.style, { display: 'flex', gap: '4px', alignItems: 'center', height: '20px' });
+  for (var _pdi = 0; _pdi < 3; _pdi++) {
+    var _pdot = document.createElement('span');
+    Object.assign(_pdot.style, {
+      width: '5px', height: '5px', borderRadius: '50%',
+      background: 'rgba(0,0,0,0.22)', display: 'inline-block', flexShrink: '0',
+      animation: 'ea-peek-dot 1.1s ease-in-out ' + (_pdi * 0.18) + 's infinite',
+    });
+    peekTyping.appendChild(_pdot);
+  }
+  peekPanel.appendChild(peekTyping);
+
+  /* Message text */
+  var peekText = document.createElement('div');
+  Object.assign(peekText.style, { display: 'none', color: '#1a1a1a', position: 'relative' });
   peekPanel.appendChild(peekText);
 
+  /* Blinking cursor — inserted into peekText during typing */
+  var peekCursor = document.createElement('span');
+  Object.assign(peekCursor.style, {
+    display: 'inline-block', width: '1.5px', height: '1em',
+    background: '#1a1a1a', verticalAlign: 'middle', marginLeft: '1px',
+    animation: 'ea-peek-blink 0.9s step-end infinite',
+  });
+
+  /* Dismiss × — appears after typing finishes */
   var peekDismiss = document.createElement('button');
   Object.assign(peekDismiss.style, {
-    position:   'absolute',
-    top:        '8px',
-    right:      '10px',
-    background: 'none',
-    border:     'none',
-    color:      'rgba(245,247,244,0.45)',
-    fontSize:   '16px',
-    lineHeight: '1',
-    cursor:     'pointer',
-    padding:    '0',
-    fontFamily: 'inherit',
-    width:      '20px',
-    height:     '20px',
-    display:    'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute', top: '8px', right: '10px',
+    background: 'none', border: 'none', color: 'rgba(0,0,0,0.2)',
+    fontSize: '16px', lineHeight: '1', cursor: 'pointer', padding: '0',
+    fontFamily: 'inherit', width: '20px', height: '20px',
+    display: 'none', alignItems: 'center', justifyContent: 'center',
+    opacity: '0', transition: 'opacity 0.35s ease',
   });
   peekDismiss.textContent = '×';
   peekDismiss.setAttribute('aria-label', 'Dismiss');
@@ -610,9 +645,9 @@
     if (_peekDone || isOpen || !_peekMessage) return;
     _peekDone = true;
     try { sessionStorage.setItem('__vaughan_peek_' + clientId, '1'); } catch (_) {}
-    peekText.textContent = _peekMessage;
+
     var isLeft = _pos.indexOf('left') !== -1;
-    var fabW   = _isClassic ? 88 : 96; /* 80px or 88px + 8px gap */
+    var fabW   = _isClassic ? 88 : 96;
     if (isLeft) {
       peekPanel.style.right = 'auto';
       peekPanel.style.left  = fabW + 'px';
@@ -620,14 +655,72 @@
       peekPanel.style.left  = 'auto';
       peekPanel.style.right = fabW + 'px';
     }
-    if (_fabBrandColour) {
-      peekPanel.style.borderTop = '2px solid ' + _fabBrandColour;
-      peekPanel.style.borderRadius = '0 0 12px 12px';
-    }
+
+    peekAvatar.style.background = _fabBrandColour || _brandColour || '#9e9e9e';
+    peekTyping.style.display    = 'flex';
+    peekTyping.style.opacity    = '1';
+    peekText.style.display      = 'none';
+    peekText.textContent        = '';
+    peekDismiss.style.display   = 'none';
+    peekDismiss.style.opacity   = '0';
+
     peekPanel.style.display   = 'block';
     peekPanel.style.animation = (isLeft ? 'ea-peek-in-l' : 'ea-peek-in') + ' 0.32s ease-out both';
     _peekVisible = true;
-    _peekRetractTimer = setTimeout(_hidePeek, _peekRetract);
+
+    var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (reduced) {
+      peekTyping.style.display = 'none';
+      peekText.textContent     = _peekMessage;
+      peekText.style.display   = 'block';
+      peekDismiss.style.display = 'flex';
+      peekDismiss.style.opacity = '1';
+      _peekRetractTimer = setTimeout(_hidePeek, _peekRetract);
+      return;
+    }
+
+    /* Phase 1 — typing dots for ~820ms */
+    setTimeout(function () {
+      if (!_peekVisible) return;
+      peekTyping.style.transition = 'opacity 0.18s ease';
+      peekTyping.style.opacity    = '0';
+
+      /* Phase 2 — typewriter */
+      setTimeout(function () {
+        if (!_peekVisible) return;
+        peekTyping.style.display    = 'none';
+        peekTyping.style.transition = '';
+        peekText.textContent = '';
+        peekText.appendChild(peekCursor);
+        peekText.style.display = 'block';
+        peekCursor.style.animation = 'ea-peek-blink 0.9s step-end infinite';
+        peekCursor.style.opacity   = '1';
+        peekCursor.style.transition = '';
+
+        var chars = _peekMessage.split('');
+        var ci = 0;
+        (function typeNext() {
+          if (!_peekVisible) return;
+          if (ci >= chars.length) {
+            setTimeout(function () {
+              if (!_peekVisible) return;
+              peekCursor.style.animation  = 'none';
+              peekCursor.style.transition = 'opacity 0.35s ease';
+              peekCursor.style.opacity    = '0';
+              setTimeout(function () {
+                if (peekCursor.parentNode === peekText) peekText.removeChild(peekCursor);
+                peekDismiss.style.display = 'flex';
+                requestAnimationFrame(function () { peekDismiss.style.opacity = '1'; });
+              }, 380);
+            }, 600);
+            _peekRetractTimer = setTimeout(_hidePeek, _peekRetract);
+            return;
+          }
+          peekText.insertBefore(document.createTextNode(chars[ci++]), peekCursor);
+          setTimeout(typeNext, 38);
+        })();
+      }, 180);
+    }, 820);
   }
 
   function _hidePeek() {
@@ -1018,8 +1111,9 @@
     fetch(origin + '/api/client-config/' + encodeURIComponent(clientId))
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
-        _isClassic   = _widgetStyle === 'classic';
+        _widgetStyle  = widgetStyleArg || d.widgetStyle || 'classic';
+        _isClassic    = _widgetStyle === 'classic';
+        _brandColour  = d.brandColour || '';
         if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '', d.logoPadding || 0);
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
