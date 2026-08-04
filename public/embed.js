@@ -313,17 +313,15 @@
   function _setClassicIcon(open) {
     if (!_isClassic) return;
     if (open) {
-      if (_fabLogoDiv)    _fabLogoDiv.style.display    = 'none';
-      if (_fabCloseIcon)  { _fabCloseIcon.style.display = 'flex'; }
-      fab.style.background = 'transparent';
-      fab.style.border     = 'none';
-      fab.style.boxShadow  = 'none';
-      fab.innerHTML        = '';
+      if (_fabLogoDiv)   _fabLogoDiv.style.display   = 'none';
+      if (_fabCloseIcon) _fabCloseIcon.style.display  = 'flex';
+      fab.style.display  = 'none'; /* hide button entirely — _fabCloseIcon handles clicks */
     } else if (_fabLogoDiv) {
-      if (_fabCloseIcon)  _fabCloseIcon.style.display  = 'none';
-      _fabLogoDiv.style.display  = 'block';
+      if (_fabCloseIcon) _fabCloseIcon.style.display  = 'none';
+      _fabLogoDiv.style.display   = 'block';
       _fabLogoDiv.style.boxShadow = '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)';
-      if (_fabLogoPulse) _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
+      if (_fabLogoPulse) _fabLogoDiv.style.animation  = 'ea-logo-pulse 2.5s ease-in-out infinite';
+      fab.style.display    = '';
       fab.style.background = 'transparent';
       fab.style.border     = 'none';
       fab.style.boxShadow  = '';
@@ -803,8 +801,10 @@
       background:      'transparent',
       alignItems:      'center',
       justifyContent:  'center',
-      pointerEvents:   'none',
+      pointerEvents:   'auto',
+      cursor:          'pointer',
     });
+    _fabCloseIcon.addEventListener('click', function () { closeFab(); });
     fabWrap.insertBefore(_fabCloseIcon, fab);
 
     /* fab becomes the click target — absolute to sit on top of _fabLogoDiv */
