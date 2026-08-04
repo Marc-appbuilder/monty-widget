@@ -312,30 +312,37 @@
   function _setClassicIcon(open) {
     if (!_isClassic) return;
     if (open) {
-      /* × state — hide logo div, show a crisp brand-coloured × on transparent background */
-      if (_fabLogoDiv) _fabLogoDiv.style.display = 'none';
-      fab.style.background         = 'transparent';
-      fab.style.backgroundImage    = '';
-      fab.style.border             = 'none';
-      fab.style.boxShadow          = 'none';
-      fab.style.display            = 'flex';
-      fab.style.alignItems         = 'center';
-      fab.style.justifyContent     = 'center';
-      var closeColour = _fabBrandColour || 'rgba(255,255,255,0.75)';
-      fab.innerHTML =
-        '<svg width="22" height="22" viewBox="0 0 20 20" fill="none">' +
-        '<line x1="3" y1="3" x2="17" y2="17" stroke="' + closeColour + '" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<line x1="17" y1="3" x2="3" y2="17" stroke="' + closeColour + '" stroke-width="2.5" stroke-linecap="round"/>' +
-        '</svg>';
-    } else if (_fabLogoDiv) {
-      /* Logo mode — visual lives in _fabLogoDiv (overflow:hidden clips img cleanly, no artifacts) */
-      _fabLogoDiv.style.display = 'block';
-      fab.innerHTML              = '';
-      fab.style.background       = 'transparent';
-      fab.style.backgroundImage  = '';
-      fab.style.border           = 'none';
-      fab.style.boxShadow        = '';
-    } else {
+      if (_fabLogoDiv && _fabLogoImg) {
+        /* Repurpose the logo circle as the close button — swap content to a brand-coloured ×.
+           Keeps the circular shape without any white button background bleeding through. */
+        _fabLogoDiv.style.animation       = 'none';
+        _fabLogoDiv.style.backgroundColor = 'transparent';
+        _fabLogoDiv.style.boxShadow       = 'none';
+        if (_fabLogoImg.parentNode === _fabLogoDiv) _fabLogoDiv.removeChild(_fabLogoImg);
+        var _cx = _fabBrandColour || 'rgba(255,255,255,0.85)';
+        _fabLogoDiv.innerHTML =
+          '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" ' +
+          'style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">' +
+          '<line x1="3" y1="3" x2="17" y2="17" stroke="' + _cx + '" stroke-width="2.5" stroke-linecap="round"/>' +
+          '<line x1="17" y1="3" x2="3" y2="17" stroke="' + _cx + '" stroke-width="2.5" stroke-linecap="round"/>' +
+          '</svg>';
+      }
+      fab.style.background  = 'transparent';
+      fab.style.border      = 'none';
+      fab.style.boxShadow   = 'none';
+      fab.innerHTML         = '';
+    } else if (_fabLogoDiv && _fabLogoImg) {
+      /* Restore logo circle */
+      _fabLogoDiv.innerHTML         = '';
+      _fabLogoDiv.appendChild(_fabLogoImg);
+      _fabLogoDiv.style.backgroundColor = 'transparent';
+      _fabLogoDiv.style.boxShadow   = '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)';
+      if (_fabLogoPulse) _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
+      fab.innerHTML        = '';
+      fab.style.background = 'transparent';
+      fab.style.border     = 'none';
+      fab.style.boxShadow  = '';
+    } else if (!_fabLogoDiv) {
       /* Default: chat bubble icon */
       fab.style.backgroundImage    = '';
       fab.style.backgroundSize     = '';
