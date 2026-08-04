@@ -35,6 +35,7 @@
   var _fabBrandColour  = '';   // brand colour used for the logo FAB inset ring
   var _fabLogoDiv      = null; // div wrapper used to cleanly clip the logo to a circle
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
+  var _fabCloseIcon    = null; // plain div shown in place of logo when chat is open
   var _fabLogoPulse    = false;
   var _fabGlowColour   = '';
   var _fabLogoPadding  = 0;
@@ -312,37 +313,22 @@
   function _setClassicIcon(open) {
     if (!_isClassic) return;
     if (open) {
-      if (_fabLogoDiv && _fabLogoImg) {
-        /* Repurpose the logo circle as the close button — swap content to a brand-coloured ×.
-           Keeps the circular shape without any white button background bleeding through. */
-        _fabLogoDiv.style.animation       = 'none';
-        _fabLogoDiv.style.backgroundColor = 'transparent';
-        _fabLogoDiv.style.boxShadow       = 'none';
-        if (_fabLogoImg.parentNode === _fabLogoDiv) _fabLogoDiv.removeChild(_fabLogoImg);
-        var _cx = _fabBrandColour || 'rgba(255,255,255,0.85)';
-        _fabLogoDiv.innerHTML =
-          '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" ' +
-          'style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">' +
-          '<line x1="3" y1="3" x2="17" y2="17" stroke="' + _cx + '" stroke-width="2.5" stroke-linecap="round"/>' +
-          '<line x1="17" y1="3" x2="3" y2="17" stroke="' + _cx + '" stroke-width="2.5" stroke-linecap="round"/>' +
-          '</svg>';
-      }
-      fab.style.background  = 'transparent';
-      fab.style.border      = 'none';
-      fab.style.boxShadow   = 'none';
-      fab.innerHTML         = '';
-    } else if (_fabLogoDiv && _fabLogoImg) {
-      /* Restore logo circle */
-      _fabLogoDiv.innerHTML         = '';
-      _fabLogoDiv.appendChild(_fabLogoImg);
-      _fabLogoDiv.style.backgroundColor = 'transparent';
-      _fabLogoDiv.style.boxShadow   = '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)';
-      if (_fabLogoPulse) _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
+      if (_fabLogoDiv)    _fabLogoDiv.style.display    = 'none';
+      if (_fabCloseIcon)  { _fabCloseIcon.style.display = 'flex'; }
+      fab.style.background = 'transparent';
+      fab.style.border     = 'none';
+      fab.style.boxShadow  = 'none';
       fab.innerHTML        = '';
+    } else if (_fabLogoDiv) {
+      if (_fabCloseIcon)  _fabCloseIcon.style.display  = 'none';
+      _fabLogoDiv.style.display  = 'block';
+      _fabLogoDiv.style.boxShadow = '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)';
+      if (_fabLogoPulse) _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
       fab.style.background = 'transparent';
       fab.style.border     = 'none';
       fab.style.boxShadow  = '';
-    } else if (!_fabLogoDiv) {
+      fab.innerHTML        = '';
+    } else {
       /* Default: chat bubble icon */
       fab.style.backgroundImage    = '';
       fab.style.backgroundSize     = '';
@@ -799,6 +785,27 @@
         _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
       }
     }
+
+    /* Close icon: plain div (no button defaults), shown instead of logo when open */
+    _fabCloseIcon = document.createElement('div');
+    var _closeX = _fabBrandColour || 'rgba(255,255,255,0.85)';
+    _fabCloseIcon.innerHTML =
+      '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<line x1="3" y1="3" x2="17" y2="17" stroke="' + _closeX + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<line x1="17" y1="3" x2="3" y2="17" stroke="' + _closeX + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '</svg>';
+    Object.assign(_fabCloseIcon.style, {
+      display:         'none',
+      position:        'absolute',
+      top:             '0', left: '0',
+      width:           '100%', height: '100%',
+      borderRadius:    '50%',
+      background:      'transparent',
+      alignItems:      'center',
+      justifyContent:  'center',
+      pointerEvents:   'none',
+    });
+    fabWrap.insertBefore(_fabCloseIcon, fab);
 
     /* fab becomes the click target — absolute to sit on top of _fabLogoDiv */
     Object.assign(fab.style, {
