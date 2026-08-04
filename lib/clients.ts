@@ -19,6 +19,9 @@ export interface ClientConfig {
   logoGlowColour?: string;       // colour for the FAB pulse glow — defaults to brandColour
   teaserOnce?: boolean;          // show teaser once per session then never again
   logoPadding?: number;          // % padding around logo inside FAB circle — default 0 (fills edge to edge)
+  peekMessage?: string;          // message shown in the peek panel
+  peekDelay?: number;            // ms before peek appears (default 6000)
+  peekRetract?: number;          // ms before peek auto-retracts (default 7000)
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -342,6 +345,9 @@ Always try to collect name, email and phone number before closing. If the user d
     teaserText: 'Chat to us',
     widgetStyle: 'classic',
     agentWhatsApp: '+447880577770',
+    peekMessage: 'Thinking of selling in Poole or Dorset?',
+    peekDelay: 6000,
+    peekRetract: 7000,
   },
 
   'tailor-made': {
@@ -393,6 +399,9 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     headerImageUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/Tailor%20Made%20Main%20Logo-1.jpg',
     agentTitle: 'Property Consultant',
     showOnlineIndicator: false,
+    peekMessage: 'Free instant valuation for Sandbanks properties.',
+    peekDelay: 6000,
+    peekRetract: 7000,
   },
 
   'simon-co': {

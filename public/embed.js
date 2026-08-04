@@ -69,6 +69,12 @@
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
     '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
+    '@keyframes ea-peek-in{from{opacity:0;transform:translateX(10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
+    '@keyframes ea-peek-in-l{from{opacity:0;transform:translateX(-10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
+    '@keyframes ea-peek-out{from{opacity:1;transform:translateX(0) translateY(-50%)}to{opacity:0;transform:translateX(10px) translateY(-50%)}}' +
+    '@keyframes ea-peek-out-l{from{opacity:1;transform:translateX(0) translateY(-50%)}to{opacity:0;transform:translateX(-10px) translateY(-50%)}}' +
+    '@media(prefers-reduced-motion:reduce){.ea-peek-panel{animation:ea-peek-fade 0.25s ease-out both!important}}' +
+    '@keyframes ea-peek-fade{from{opacity:0}to{opacity:1}}' +
     /* Classic FAB heartbeat — smooth lub-dub, generous spacing so easing has room to breathe */
     '@keyframes ea-heartbeat{' +
       '0%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
@@ -428,6 +434,14 @@
   var _teaserArmsAngle  = 0;
   var _isHoveringFab    = false;
 
+  var _peekMessage      = '';
+  var _peekDelay        = 6000;
+  var _peekRetract      = 7000;
+  var _peekTimer        = null;
+  var _peekRetractTimer = null;
+  var _peekVisible      = false;
+  var _peekDone         = false; /* true once shown this session — never show again */
+
   function _escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
@@ -466,6 +480,59 @@
     _teaserArmsAngle = 0;
     openFab();
   });
+
+  /* ── Peek panel ─────────────────────────────────────────────────────────── */
+  var peekPanel = document.createElement('div');
+  peekPanel.className = 'ea-peek-panel';
+  Object.assign(peekPanel.style, {
+    position:      'absolute',
+    top:           '50%',
+    right:         '96px',    /* updated in initPeek once _pos and _isClassic are known */
+    display:       'none',
+    maxWidth:      '220px',
+    background:    'rgba(17,17,17,0.96)',
+    color:         '#F5F7F4',
+    borderRadius:  '12px',
+    boxShadow:     '0 4px 20px rgba(0,0,0,0.24)',
+    padding:       '13px 40px 13px 16px',
+    fontSize:      '13.5px',
+    fontFamily:    '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontWeight:    '500',
+    letterSpacing: '0.01em',
+    lineHeight:    '1.4',
+    cursor:        'pointer',
+    userSelect:    'none',
+    whiteSpace:    'normal',
+    zIndex:        '3',
+  });
+
+  var peekText = document.createElement('span');
+  peekPanel.appendChild(peekText);
+
+  var peekDismiss = document.createElement('button');
+  Object.assign(peekDismiss.style, {
+    position:   'absolute',
+    top:        '8px',
+    right:      '10px',
+    background: 'none',
+    border:     'none',
+    color:      'rgba(245,247,244,0.45)',
+    fontSize:   '16px',
+    lineHeight: '1',
+    cursor:     'pointer',
+    padding:    '0',
+    fontFamily: 'inherit',
+    width:      '20px',
+    height:     '20px',
+    display:    'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  });
+  peekDismiss.textContent = '×';
+  peekDismiss.setAttribute('aria-label', 'Dismiss');
+  peekPanel.appendChild(peekDismiss);
+
+  fabWrap.appendChild(peekPanel);
 
   function _showTeaser() {
     if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
@@ -537,6 +604,75 @@
     /* Persist: show quickly on desktop; otherwise standard delays */
     var firstDelay = _teaserPersist ? 800 : (isMobile() ? 6000 : 2500);
     _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
+  }
+
+  function _showPeek() {
+    if (_peekDone || isOpen || !_peekMessage) return;
+    _peekDone = true;
+    try { sessionStorage.setItem('__vaughan_peek_' + clientId, '1'); } catch (_) {}
+    peekText.textContent = _peekMessage;
+    var isLeft = _pos.indexOf('left') !== -1;
+    var fabW   = _isClassic ? 88 : 96; /* 80px or 88px + 8px gap */
+    if (isLeft) {
+      peekPanel.style.right = 'auto';
+      peekPanel.style.left  = fabW + 'px';
+    } else {
+      peekPanel.style.left  = 'auto';
+      peekPanel.style.right = fabW + 'px';
+    }
+    if (_fabBrandColour) {
+      peekPanel.style.borderTop = '2px solid ' + _fabBrandColour;
+      peekPanel.style.borderRadius = '0 0 12px 12px';
+    }
+    peekPanel.style.display   = 'block';
+    peekPanel.style.animation = (isLeft ? 'ea-peek-in-l' : 'ea-peek-in') + ' 0.32s ease-out both';
+    _peekVisible = true;
+    _peekRetractTimer = setTimeout(_hidePeek, _peekRetract);
+  }
+
+  function _hidePeek() {
+    if (!_peekVisible) return;
+    _peekVisible = false;
+    clearTimeout(_peekRetractTimer);
+    var isLeft = _pos.indexOf('left') !== -1;
+    peekPanel.style.animation = (isLeft ? 'ea-peek-out-l' : 'ea-peek-out') + ' 0.28s ease-out both';
+    setTimeout(function () { peekPanel.style.display = 'none'; peekPanel.style.animation = ''; }, 300);
+  }
+
+  peekPanel.addEventListener('click', function (e) {
+    if (e.target === peekDismiss) {
+      e.stopPropagation();
+      _hidePeek();
+      return;
+    }
+    _hidePeek();
+    openFab();
+  });
+  peekDismiss.addEventListener('click', function (e) {
+    e.stopPropagation();
+    _hidePeek();
+  });
+
+  function initPeek(msg, delay, retract) {
+    if (!msg) return;
+    try { if (sessionStorage.getItem('__vaughan_peek_' + clientId)) return; } catch (_) {}
+    _peekMessage = msg;
+    _peekDelay   = delay  || 6000;
+    _peekRetract = retract || 7000;
+
+    /* Delay trigger */
+    _peekTimer = setTimeout(_showPeek, _peekDelay);
+
+    /* Scroll trigger — whichever fires first */
+    var _scrollHandler = function () {
+      var pct = window.scrollY / (document.body.scrollHeight - window.innerHeight || 1);
+      if (pct >= 0.20) {
+        window.removeEventListener('scroll', _scrollHandler);
+        clearTimeout(_peekTimer);
+        _showPeek();
+      }
+    };
+    window.addEventListener('scroll', _scrollHandler, { passive: true });
   }
 
   /* ── 7. Widget container ─────────────────────────────────────────────────── */
@@ -651,6 +787,9 @@
     teaser.style.display = 'none';
     teaser.style.animation = '';
     _teaserArmsAngle = 0;
+    clearTimeout(_peekTimer);
+    clearTimeout(_peekRetractTimer);
+    if (_peekVisible) { _peekVisible = false; peekPanel.style.display = 'none'; peekPanel.style.animation = ''; }
     _setGlow('none'); /* FAB glow off — activity signals now live inside the chat */
     clearTimeout(_teaserTimer);
     clearTimeout(_teaserAutoTimer);
@@ -886,6 +1025,7 @@
         applyMobileScale();
         applyColor();
         initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false);
+        initPeek(d.peekMessage || null, d.peekDelay || 6000, d.peekRetract || 7000);
       })
       .catch(function () {
         applyFabPosition('bottom-right');
