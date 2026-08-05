@@ -23,7 +23,7 @@ export async function GET(
     widgetPosition: data?.widget_position  ?? staticConfig.widgetPosition  ?? 'bottom-right',
     widgetStyle:    data?.widget_style     ?? staticConfig.widgetStyle     ?? 'classic',
     widgetTheme:    data?.widget_theme     ?? staticConfig.widgetTheme     ?? 'dark',
-    teaserPersist:  data?.teaser_persist   ?? staticConfig.teaserPersist   ?? false,
+    teaserPersist:  staticConfig.teaserPersist ?? data?.teaser_persist ?? false,
     logoUrl:             staticConfig.logoUrl             ?? null,
     headerImageUrl:      staticConfig.headerImageUrl      ?? null,
     agentTitle:          staticConfig.agentTitle          ?? null,
@@ -32,5 +32,9 @@ export async function GET(
     logoGlowColour:      staticConfig.logoGlowColour      ?? null,
     teaserOnce:          staticConfig.teaserOnce          ?? false,
     logoPadding:         staticConfig.logoPadding          ?? 0,
+    peekMessage:         staticConfig.peekMessage          ?? null,
+    peekDelay:           staticConfig.peekDelay            ?? 6000,
+    peekRetract:         staticConfig.peekRetract          ?? 7000,
+    quickReplies:        staticConfig.quickReplies         ?? null,
   });
 }

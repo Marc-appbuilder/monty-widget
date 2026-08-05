@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaughan & Co — Estate Agents</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #0e0e0e;
+      color: #f0ece4;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 48px;
+      background: rgba(14,14,14,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo {
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f0ece4;
+      font-family: 'Georgia', serif;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(240,236,228,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #f0ece4; }
+
+    .nav-cta {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #f0ece4;
+      border: 1px solid rgba(240,236,228,0.3);
+      padding: 10px 24px;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .nav-cta:hover { border-color: #f0ece4; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 48px 80px;
+      position: relative;
+      background: linear-gradient(160deg, #1a1a2e 0%, #0e0e0e 60%);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%230e0e0e" width="800" height="600"/><rect fill="%23141420" x="0" y="0" width="800" height="600" opacity="0.6"/></svg>') center/cover;
+    }
+
+    .hero-tag {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(240,236,228,0.4);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 6vw, 88px);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: #f0ece4;
+      max-width: 700px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: rgba(240,236,228,0.5);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    .btn-primary {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #f0ece4;
+      color: #0e0e0e;
+      padding: 16px 36px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; }
+
+    .btn-secondary {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: #f0ece4;
+      border: 1px solid rgba(240,236,228,0.3);
+      padding: 16px 36px;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: #f0ece4; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .stat {
+      padding: 48px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-number {
+      font-size: 48px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #f0ece4;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(240,236,228,0.4);
+    }
+
+    /* PROPERTIES */
+    .section {
+      padding: 96px 48px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: #f0ece4;
+    }
+
+    .section-link {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(240,236,228,0.4);
+      text-decoration: none;
+    }
+
+    .properties {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .property {
+      background: #161616;
+      overflow: hidden;
+    }
+
+    .property-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #1e1e2e, #2a1a2a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .property-img::after {
+      content: attr(data-price);
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(14,14,14,0.85);
+      color: #f0ece4;
+      padding: 6px 12px;
+    }
+
+    .property-img-1 { background: linear-gradient(135deg, #1a2a1a, #0e1e0e); }
+    .property-img-2 { background: linear-gradient(135deg, #1a1a2e, #0e0e1e); }
+    .property-img-3 { background: linear-gradient(135deg, #2a1a1a, #1e0e0e); }
+
+    .property-info {
+      padding: 24px;
+    }
+
+    .property-address {
+      font-size: 16px;
+      font-weight: 400;
+      color: #f0ece4;
+      margin-bottom: 6px;
+    }
+
+    .property-detail {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      color: rgba(240,236,228,0.4);
+      letter-spacing: 0.04em;
+    }
+
+    /* ABOUT */
+    .about {
+      padding: 96px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 96px;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .about h2 {
+      font-size: 42px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      color: #f0ece4;
+      margin-bottom: 24px;
+    }
+
+    .about p {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(240,236,228,0.55);
+    }
+
+    .about-img {
+      aspect-ratio: 4/5;
+      background: linear-gradient(160deg, #1e2a1e, #0e1a1e);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-size: 15px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(240,236,228,0.4);
+    }
+
+    .footer-copy {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      color: rgba(240,236,228,0.25);
+    }
+
+    /* DEV BADGE */
+    .dev-badge {
+      position: fixed;
+      top: 80px;
+      left: 16px;
+      background: #AAFF00;
+      color: #0e0e0e;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      z-index: 9999;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dev-badge">DEV</div>
+
+  <nav>
+    <div class="nav-logo">Vaughan & Co</div>
+    <ul class="nav-links">
+      <li><a href="#">Properties</a></li>
+      <li><a href="#">Sell</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Journal</a></li>
+    </ul>
+    <a href="#" class="nav-cta">Book Valuation</a>
+  </nav>
+
+  <section class="hero">
+    <p class="hero-tag">Bournemouth · Poole · Sandbanks</p>
+    <h1>Property, <em>placed</em><br>with precision.</h1>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">View Properties</a>
+      <a href="#" class="btn-secondary">Book a Valuation</a>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-number">£2.4bn</div>
+      <div class="stat-label">Sold in the last 5 years</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">97%</div>
+      <div class="stat-label">Of asking price achieved</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">42 days</div>
+      <div class="stat-label">Average time to sale</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Featured properties</h2>
+      <a href="#" class="section-link">View all</a>
+    </div>
+    <div class="properties">
+      <div class="property">
+        <div class="property-img property-img-1" data-price="£1,450,000"></div>
+        <div class="property-info">
+          <div class="property-address">Sandbanks Road, Poole</div>
+          <div class="property-detail">5 bed · Detached · BH13</div>
+        </div>
+      </div>
+      <div class="property">
+        <div class="property-img property-img-2" data-price="£875,000"></div>
+        <div class="property-info">
+          <div class="property-address">East Overcliff Drive, Bournemouth</div>
+          <div class="property-detail">4 bed · Apartment · BH1</div>
+        </div>
+      </div>
+      <div class="property">
+        <div class="property-img property-img-3" data-price="£625,000"></div>
+        <div class="property-info">
+          <div class="property-address">Canford Cliffs, Poole</div>
+          <div class="property-detail">3 bed · Semi-detached · BH13</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="about">
+    <div>
+      <h2>Fewer properties.<br>More attention.</h2>
+      <p>We deliberately limit our portfolio so every instruction gets the time and focus it deserves. No chasing. No churn. Just thoughtful, considered estate agency — the way it should be.</p>
+    </div>
+    <div class="about-img"></div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">Vaughan & Co</div>
+    <div class="footer-copy">© 2026 Vaughan & Co Estate Agents. All rights reserved.</div>
+  </footer>
+
+  <script>
+    var clientId = new URLSearchParams(window.location.search).get('clientId') || 'vaughan-and-co';
+    var s = document.createElement('script');
+    s.src = window.location.origin + '/embed.js?clientId=' + clientId;
+    document.body.appendChild(s);
+  </script>
+
+</body>
+</html>

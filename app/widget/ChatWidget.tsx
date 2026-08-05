@@ -90,11 +90,14 @@ export default function ChatWidget({ clientId, config }: Props) {
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
+  const [quickRepliesUsed, setQuickRepliesUsed] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const messagesRef = useRef(messages);
 
   useEffect(() => {
+    messagesRef.current = messages;
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -102,21 +105,19 @@ export default function ChatWidget({ clientId, config }: Props) {
     inputRef.current?.focus();
   }, []);
 
-  async function handleSend() {
-    const text = input.trim();
-    if (!text || streaming) return;
+  async function sendMessage(text: string) {
+    if (streaming) return;
 
     const userMsg: Message = { id: uid(), role: 'user', content: text };
     const assistantId = uid();
     const assistantMsg: Message = { id: assistantId, role: 'assistant', content: '' };
 
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    setInput('');
     setStreaming(true);
     setStreamingId(assistantId);
 
     try {
-      const history: ChatMessage[] = [...messages, userMsg].map((m) => ({
+      const history: ChatMessage[] = [...messagesRef.current, userMsg].map((m) => ({
         role: m.role,
         content: m.content,
       }));
@@ -186,6 +187,18 @@ export default function ChatWidget({ clientId, config }: Props) {
     }
   }
 
+  async function handleSend() {
+    const text = input.trim();
+    if (!text) return;
+    setInput('');
+    await sendMessage(text);
+  }
+
+  async function handleQuickReply(text: string) {
+    setQuickRepliesUsed(true);
+    await sendMessage(text);
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -244,6 +257,33 @@ export default function ChatWidget({ clientId, config }: Props) {
         .vaughan-send { transition: transform 0.15s ease, box-shadow 0.2s ease; }
         .vaughan-send:not(:disabled):hover { transform: scale(1.1); }
         .vaughan-send:not(:disabled):active { transform: scale(0.93); }
+
+        /* Quick-reply chips */
+        .vaughan-chip {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.11);
+          color: rgba(255,255,255,0.62);
+          border-radius: 20px;
+          padding: 7px 15px;
+          font-size: 12.5px;
+          font-family: inherit;
+          cursor: pointer;
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, color 0.15s ease;
+          white-space: nowrap;
+          letter-spacing: 0.02em;
+          line-height: 1;
+        }
+        .vaughan-chip:hover {
+          background: rgba(255,255,255,0.10);
+          border-color: rgba(${rgb}, 0.55);
+          transform: translateY(-1px);
+          color: rgba(255,255,255,0.9);
+        }
+        .vaughan-chip:active {
+          transform: translateY(0);
+          background: rgba(255,255,255,0.13);
+        }
+        .vaughan-chip:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
@@ -413,45 +453,62 @@ export default function ChatWidget({ clientId, config }: Props) {
           ? 'linear-gradient(180deg, #0c1f2a 0%, #09141c 100%)' /* revert: '#0c1f2a 0%, #0d0f14 40%' */
           : 'linear-gradient(180deg, #0d0f14 0%, #0f1219 100%)',
       }}>
-        {messages.map((msg) => {
+        {messages.map((msg, index) => {
           const isUser = msg.role === 'user';
           const isStreamingThis = msg.id === streamingId;
+          const showChips = index === 0 && !isUser && !quickRepliesUsed && !!config.quickReplies?.length;
 
           return (
-            <div
-              key={msg.id}
-              className="vaughan-msg"
-              style={{
-                display: 'flex',
-                justifyContent: isUser ? 'flex-end' : 'flex-start',
-                alignItems: 'flex-end',
-                gap: '8px',
-              }}
-            >
-
-              {/* Bubble */}
-              <div style={{
-                maxWidth: '76%',
-                padding: '11px 15px',
-                borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                fontSize: '14px',
-                lineHeight: 1.6,
-                whiteSpace: 'pre-wrap',
-                ...(isUser ? {
-                  background: `linear-gradient(135deg, ${brand} 0%, ${brandLight} 100%)`,
-                  color: '#ffffff',
-                  boxShadow: `0 4px 24px rgba(${rgb}, 0.5), 0 0 0 1px rgba(${rgb}, 0.3)`,
-                } : {
-                  background: config.headerImageUrl ? '#0e2232' : '#1a1d26', /* revert: '#1a1d26' for all */
-                  color: '#e8eaf0',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)',
-                }),
-              }}>
-                {isStreamingThis && !msg.content
-                  ? <TypingDots colour={brand} />
-                  : renderWithLinks(msg.content)
-                }
+            <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div
+                className="vaughan-msg"
+                style={{
+                  display: 'flex',
+                  justifyContent: isUser ? 'flex-end' : 'flex-start',
+                  alignItems: 'flex-end',
+                  gap: '8px',
+                }}
+              >
+                {/* Bubble */}
+                <div style={{
+                  maxWidth: '76%',
+                  padding: '11px 15px',
+                  borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  whiteSpace: 'pre-wrap',
+                  ...(isUser ? {
+                    background: `linear-gradient(135deg, ${brand} 0%, ${brandLight} 100%)`,
+                    color: '#ffffff',
+                    boxShadow: `0 4px 24px rgba(${rgb}, 0.5), 0 0 0 1px rgba(${rgb}, 0.3)`,
+                  } : {
+                    background: config.headerImageUrl ? '#0e2232' : '#1a1d26',
+                    color: '#e8eaf0',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)',
+                  }),
+                }}>
+                  {isStreamingThis && !msg.content
+                    ? <TypingDots colour={brand} />
+                    : renderWithLinks(msg.content)
+                  }
+                </div>
               </div>
+
+              {/* Quick-reply chips — only beneath the opening message, gone once used */}
+              {showChips && (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingLeft: '2px' }}>
+                  {config.quickReplies!.map((reply) => (
+                    <button
+                      key={reply}
+                      className="vaughan-chip"
+                      disabled={streaming}
+                      onClick={() => handleQuickReply(reply)}
+                    >
+                      {reply}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}

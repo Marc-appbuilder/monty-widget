@@ -33,6 +33,7 @@
   var _isChromeIOS   = /CriOS/i.test(navigator.userAgent);
   var _fabLogoUrl      = '';   // set when config provides a logoUrl for classic FAB
   var _fabBrandColour  = '';   // brand colour used for the logo FAB inset ring
+  var _brandColour     = '';   // brand colour from config — set for all widget styles
   var _fabLogoDiv      = null; // div wrapper used to cleanly clip the logo to a circle
   var _fabLogoImg      = null; // img element inside _fabLogoDiv — brightness applied here directly
   var _fabCloseIcon    = null; // plain div shown in place of logo when chat is open
@@ -69,6 +70,15 @@
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
     '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
+    '@keyframes ea-teaser-persist{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,0.14)}50%{box-shadow:0 6px 22px rgba(0,0,0,0.24),0 0 0 3px rgba(0,0,0,0.05)}}' +
+    '@keyframes ea-peek-in{from{opacity:0;transform:translateX(10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
+    '@keyframes ea-peek-in-l{from{opacity:0;transform:translateX(-10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
+    '@keyframes ea-peek-out{from{opacity:1;transform:translateX(0) translateY(-50%)}to{opacity:0;transform:translateX(10px) translateY(-50%)}}' +
+    '@keyframes ea-peek-out-l{from{opacity:1;transform:translateX(0) translateY(-50%)}to{opacity:0;transform:translateX(-10px) translateY(-50%)}}' +
+    '@media(prefers-reduced-motion:reduce){.ea-peek-panel{animation:ea-peek-fade 0.25s ease-out both!important}}' +
+    '@keyframes ea-peek-fade{from{opacity:0}to{opacity:1}}' +
+    '@keyframes ea-peek-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}' +
+    '@keyframes ea-peek-blink{0%,100%{opacity:1}50%{opacity:0}}' +
     /* Classic FAB heartbeat — smooth lub-dub, generous spacing so easing has room to breathe */
     '@keyframes ea-heartbeat{' +
       '0%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,0.28)}' +
@@ -427,6 +437,16 @@
   var _teaserShowCount  = 0;
   var _teaserArmsAngle  = 0;
   var _isHoveringFab    = false;
+  var _isHoveringTeaser = false;
+  var _teaserTypeSeq    = 0;   /* incremented each show — cancels any in-progress typing */
+
+  var _peekMessage      = '';
+  var _peekDelay        = 6000;
+  var _peekRetract      = 7000;
+  var _peekTimer        = null;
+  var _peekRetractTimer = null;
+  var _peekVisible      = false;
+  var _peekDone         = false; /* true once shown this session — never show again */
 
   function _escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -460,83 +480,353 @@
 
   teaser.addEventListener('click', function () {
     _teaserDismissed = true;
+    _teaserTypeSeq++;
     clearTimeout(_teaserTimer);
     clearTimeout(_teaserAutoTimer);
     teaser.style.display = 'none';
     _teaserArmsAngle = 0;
     openFab();
   });
+  teaser.addEventListener('mouseenter', function () { _isHoveringTeaser = true; });
+  teaser.addEventListener('mouseleave', function () { _isHoveringTeaser = false; });
 
-  function _showTeaser() {
+  /* ── Peek panel ─────────────────────────────────────────────────────────── */
+  var _peekBg     = '#0e1621'; /* dark navy — updated per client in _showPeek */
+  var _peekAccent = '#c77c56'; /* brand accent — updated per client in _showPeek */
+
+  var peekPanel = document.createElement('div');
+  peekPanel.className = 'ea-peek-panel';
+  Object.assign(peekPanel.style, {
+    position:     'absolute',
+    top:          '50%',
+    right:        '80px',   /* flush with classic FAB edge — no gap, set precisely in _showPeek */
+    display:      'none',
+    width:        '210px',
+    background:   _peekBg,
+    borderRadius: '14px 2px 2px 14px',
+    border:       '1px solid rgba(255,255,255,0.07)',
+    boxShadow:    '0 8px 24px rgba(0,0,0,0.35)',
+    padding:      '13px 30px 13px 44px',
+    fontFamily:   '"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:     '13px',
+    fontWeight:   '400',
+    letterSpacing:'0.025em',
+    lineHeight:   '1.5',
+    cursor:       'pointer',
+    userSelect:   'none',
+    zIndex:       '3',
+    boxSizing:    'border-box',
+    minHeight:    '46px',
+  });
+
+  /* Thin-line chat icon — never a filled blob */
+  var peekIcon = document.createElement('div');
+  Object.assign(peekIcon.style, {
+    position:  'absolute',
+    left:      '12px',
+    top:       '50%',
+    transform: 'translateY(-50%)',
+    width:     '20px',
+    height:    '20px',
+    opacity:   '0.8',
+    color:     _peekAccent,
+    lineHeight:'0',
+  });
+  peekIcon.innerHTML =
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"' +
+    ' stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+  peekPanel.appendChild(peekIcon);
+
+  /* Right-pointing arrow that bridges panel to FAB — direction flipped for left FABs */
+  var peekArrow = document.createElement('div');
+  Object.assign(peekArrow.style, {
+    position:      'absolute',
+    top:           '50%',
+    right:         '-7px',
+    transform:     'translateY(-50%)',
+    width:         '0',
+    height:        '0',
+    borderTop:     '6px solid transparent',
+    borderBottom:  '6px solid transparent',
+    borderLeft:    '7px solid ' + _peekBg,
+    pointerEvents: 'none',
+  });
+  peekPanel.appendChild(peekArrow);
+
+  /* Typing indicator: 3 bouncing dots */
+  var peekTyping = document.createElement('div');
+  Object.assign(peekTyping.style, { display: 'flex', gap: '4px', alignItems: 'center', height: '20px' });
+  for (var _pdi = 0; _pdi < 3; _pdi++) {
+    var _pdot = document.createElement('span');
+    Object.assign(_pdot.style, {
+      width: '5px', height: '5px', borderRadius: '50%',
+      background: 'rgba(255,255,255,0.3)', display: 'inline-block', flexShrink: '0',
+      animation: 'ea-peek-dot 1.1s ease-in-out ' + (_pdi * 0.18) + 's infinite',
+    });
+    peekTyping.appendChild(_pdot);
+  }
+  peekPanel.appendChild(peekTyping);
+
+  /* Message text */
+  var peekText = document.createElement('div');
+  Object.assign(peekText.style, { display: 'none', color: 'rgba(255,255,255,0.88)', position: 'relative' });
+  peekPanel.appendChild(peekText);
+
+  /* Blinking cursor — inserted into peekText during typing */
+  var peekCursor = document.createElement('span');
+  Object.assign(peekCursor.style, {
+    display: 'inline-block', width: '1.5px', height: '1em',
+    background: 'rgba(255,255,255,0.6)', verticalAlign: 'middle', marginLeft: '1px',
+    animation: 'ea-peek-blink 0.9s step-end infinite',
+  });
+
+  /* Dismiss × — very low contrast, appears only after typing finishes */
+  var peekDismiss = document.createElement('button');
+  Object.assign(peekDismiss.style, {
+    position: 'absolute', top: '7px', right: '9px',
+    background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)',
+    fontSize: '14px', lineHeight: '1', cursor: 'pointer', padding: '2px',
+    fontFamily: 'inherit', width: '18px', height: '18px',
+    display: 'none', alignItems: 'center', justifyContent: 'center',
+    opacity: '0', transition: 'opacity 0.4s ease',
+  });
+  peekDismiss.textContent = '×';
+  peekDismiss.setAttribute('aria-label', 'Dismiss');
+  peekPanel.appendChild(peekDismiss);
+
+  fabWrap.appendChild(peekPanel);
+
+  function _showTeaser(onTyped) {
     if (_teaserDismissed || isOpen || !_teaserPrompts.length) return;
     var prompt = _teaserPrompts[_teaserIndex % _teaserPrompts.length];
     _teaserIndex++;
-    /* V opens slightly, soft glow wakes up, bubble follows 150ms later */
+    _teaserShowCount++;
     _teaserArmsAngle = 8;
     _setArmsResting();
-    if (!_isHoveringFab) _setGlow('prompt'); /* hover already set stronger glow */
+    if (!_isHoveringFab) _setGlow('prompt');
+    var seq   = ++_teaserTypeSeq;
+    var typeMs = isMobile() ? 32 : 38;
     setTimeout(function () {
-      if (_teaserDismissed || isOpen) return;
-      teaserText.innerHTML = _escHtml(prompt);
+      if (_teaserDismissed || isOpen || seq !== _teaserTypeSeq) return;
+      teaserText.textContent = '';
       teaser.style.display   = 'block';
-      teaser.style.animation = 'ea-teaser-in 0.3s ease-out both';
+      teaser.style.animation = 'ea-teaser-in 0.35s ease-out both';
+      var chars = prompt.split('');
+      var ci = 0;
+      (function typeNext() {
+        if (seq !== _teaserTypeSeq || _teaserDismissed || isOpen) return;
+        if (ci < chars.length) {
+          teaserText.textContent += chars[ci++];
+          setTimeout(typeNext, typeMs);
+        } else {
+          if (onTyped) onTyped();
+        }
+      })();
     }, 150);
   }
 
   function _hideTeaser(cb) {
+    _teaserTypeSeq++; /* cancel any in-progress typewriter */
+    _isHoveringTeaser = false;
     if (teaser.style.display === 'none') { if (cb) cb(); return; }
-    teaser.style.animation = 'ea-teaser-out 0.2s ease-in both';
+    teaser.style.animation = 'ea-teaser-out 0.28s ease-in both';
     setTimeout(function () {
       teaser.style.display   = 'none';
       teaser.style.animation = '';
       _teaserArmsAngle = 0;
       if (!isOpen) _setArmsResting();
-      _setGlow(_isHoveringFab ? 'hover' : 'none'); /* keep hover glow if still over V */
+      _setGlow(_isHoveringFab ? 'hover' : 'none');
       if (cb) cb();
-    }, 220);
+    }, 290);
   }
 
   function _scheduleCycle() {
-    var visibleMs = 4500;   /* bubble visible for 4.5 s */
-    var repeatMs  = 10000;  /* 10 s gap before next show */
+    /* ms to stay visible after typing finishes */
+    var pauseAfterTyping = 4500;
+    /* gap before 2nd appearance, gap before 3rd — desktop */
+    var gaps    = isMobile() ? [15000] : [15000, 20000];
+    var maxShow = isMobile() ? 2 : 3;
 
     if (_teaserDismissed) return;
-    _showTeaser();
+    /* Persist mode: show once, hold forever — no auto-hide, no cycling */
+    if (_teaserPersist && !isMobile()) { _showTeaser(null); return; }
+    if (_teaserShowCount >= maxShow) return;
 
-    /* Stay visible while hovering, then hide and reschedule */
-    function tryHide() {
-      if (_isHoveringFab && !isMobile()) {
-        _teaserAutoTimer = setTimeout(tryHide, 400);
-        return;
-      }
-      /* Persist mode on desktop: never auto-hide — just rotate text after gap */
-      if (_teaserPersist && !isMobile()) {
-        if (!_teaserDismissed) {
-          _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
+    _showTeaser(function () {
+      /* Fires when typing completes — start the post-type visible pause */
+      function tryHide() {
+        if (_isHoveringFab || _isHoveringTeaser) {
+          _teaserAutoTimer = setTimeout(tryHide, 300);
+          return;
         }
-        return;
+        /* _teaserShowCount already incremented inside _showTeaser */
+        var gapIdx  = _teaserShowCount - 1;
+        var nextGap = gaps[gapIdx] !== undefined ? gaps[gapIdx] : null;
+        _hideTeaser(function () {
+          if (_teaserOnce) { _teaserDismissed = true; return; }
+          if (!_teaserDismissed && nextGap !== null && _teaserShowCount < maxShow) {
+            _teaserTimer = setTimeout(_scheduleCycle, nextGap);
+          }
+        });
       }
-      _hideTeaser(function () {
-        if (_teaserOnce) {
-          _teaserDismissed = true; /* show once — never cycle again */
-        } else if (!_teaserDismissed) {
-          _teaserTimer = setTimeout(_scheduleCycle, repeatMs);
-        }
-      });
-    }
-    _teaserAutoTimer = setTimeout(tryHide, visibleMs);
+      _teaserAutoTimer = setTimeout(tryHide, pauseAfterTyping);
+    });
   }
 
   function initTeaser(text, persist, once) {
     if (!text) return;
     _teaserPersist = !!(persist && !isMobile());
     _teaserOnce    = !!once;
-    /* Support comma-separated list for prompt rotation */
     _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
-    /* Persist: show quickly on desktop; otherwise standard delays */
-    var firstDelay = _teaserPersist ? 800 : (isMobile() ? 6000 : 2500);
+    /* Persist: show quickly. Otherwise give them 3.5 s to see the page (5 s on mobile). */
+    var firstDelay = _teaserPersist ? 800 : (isMobile() ? 5000 : 3500);
     _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
+  }
+
+  function _showPeek() {
+    if (_peekDone || isOpen || !_peekMessage) return;
+    _peekDone = true;
+    try { sessionStorage.setItem('__vaughan_peek_' + clientId, '1'); } catch (_) {}
+
+    var isLeft = _pos.indexOf('left') !== -1;
+    /* Flush against the FAB edge — 80px classic, 88px V2 */
+    var fabEdge = _isClassic ? 80 : 88;
+    if (isLeft) {
+      peekPanel.style.right         = 'auto';
+      peekPanel.style.left          = fabEdge + 'px';
+      peekPanel.style.borderRadius  = '2px 14px 14px 2px';
+      /* Arrow points left (toward the FAB which is to the left) */
+      Object.assign(peekArrow.style, {
+        right: 'auto', left: '-7px',
+        borderLeft: 'none', borderRight: '7px solid ' + _peekBg,
+      });
+    } else {
+      peekPanel.style.left          = 'auto';
+      peekPanel.style.right         = fabEdge + 'px';
+      peekPanel.style.borderRadius  = '14px 2px 2px 14px';
+      /* Arrow points right (toward the FAB which is to the right) */
+      Object.assign(peekArrow.style, {
+        left: 'auto', right: '-7px',
+        borderRight: 'none', borderLeft: '7px solid ' + _peekBg,
+      });
+    }
+
+    /* Brand accent on icon */
+    var accent = _fabBrandColour || _brandColour || '#c77c56';
+    peekIcon.style.color = accent;
+
+    peekTyping.style.display    = 'flex';
+    peekTyping.style.opacity    = '1';
+    peekText.style.display      = 'none';
+    peekText.textContent        = '';
+    peekDismiss.style.display   = 'none';
+    peekDismiss.style.opacity   = '0';
+
+    peekPanel.style.display   = 'block';
+    peekPanel.style.animation = (isLeft ? 'ea-peek-in-l' : 'ea-peek-in') + ' 0.32s ease-out both';
+    _peekVisible = true;
+
+    var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (reduced) {
+      peekTyping.style.display = 'none';
+      peekText.textContent     = _peekMessage;
+      peekText.style.display   = 'block';
+      peekDismiss.style.display = 'flex';
+      peekDismiss.style.opacity = '1';
+      _peekRetractTimer = setTimeout(_hidePeek, _peekRetract);
+      return;
+    }
+
+    /* Phase 1 — typing dots for ~820ms */
+    setTimeout(function () {
+      if (!_peekVisible) return;
+      peekTyping.style.transition = 'opacity 0.18s ease';
+      peekTyping.style.opacity    = '0';
+
+      /* Phase 2 — typewriter */
+      setTimeout(function () {
+        if (!_peekVisible) return;
+        peekTyping.style.display    = 'none';
+        peekTyping.style.transition = '';
+        peekText.textContent = '';
+        peekText.appendChild(peekCursor);
+        peekText.style.display = 'block';
+        peekCursor.style.animation = 'ea-peek-blink 0.9s step-end infinite';
+        peekCursor.style.opacity   = '1';
+        peekCursor.style.transition = '';
+
+        var chars = _peekMessage.split('');
+        var ci = 0;
+        (function typeNext() {
+          if (!_peekVisible) return;
+          if (ci >= chars.length) {
+            setTimeout(function () {
+              if (!_peekVisible) return;
+              peekCursor.style.animation  = 'none';
+              peekCursor.style.transition = 'opacity 0.35s ease';
+              peekCursor.style.opacity    = '0';
+              setTimeout(function () {
+                if (peekCursor.parentNode === peekText) peekText.removeChild(peekCursor);
+                peekDismiss.style.display = 'flex';
+                requestAnimationFrame(function () { peekDismiss.style.opacity = '1'; });
+              }, 380);
+            }, 600);
+            _peekRetractTimer = setTimeout(_hidePeek, _peekRetract);
+            return;
+          }
+          peekText.insertBefore(document.createTextNode(chars[ci++]), peekCursor);
+          setTimeout(typeNext, 38);
+        })();
+      }, 180);
+    }, 820);
+  }
+
+  function _hidePeek() {
+    if (!_peekVisible) return;
+    _peekVisible = false;
+    clearTimeout(_peekRetractTimer);
+    var isLeft = _pos.indexOf('left') !== -1;
+    peekPanel.style.animation = (isLeft ? 'ea-peek-out-l' : 'ea-peek-out') + ' 0.28s ease-out both';
+    setTimeout(function () { peekPanel.style.display = 'none'; peekPanel.style.animation = ''; }, 300);
+  }
+
+  peekPanel.addEventListener('click', function (e) {
+    if (e.target === peekDismiss) {
+      e.stopPropagation();
+      _hidePeek();
+      return;
+    }
+    _hidePeek();
+    openFab();
+  });
+  peekDismiss.addEventListener('click', function (e) {
+    e.stopPropagation();
+    _hidePeek();
+  });
+
+  function initPeek(msg, delay, retract) {
+    if (!msg) return;
+    try { if (sessionStorage.getItem('__vaughan_peek_' + clientId)) return; } catch (_) {}
+    _peekMessage = msg;
+    _peekDelay   = delay  || 6000;
+    _peekRetract = retract || 7000;
+
+    /* Delay trigger */
+    _peekTimer = setTimeout(_showPeek, _peekDelay);
+
+    /* Scroll trigger — whichever fires first */
+    var _scrollHandler = function () {
+      var pct = window.scrollY / (document.body.scrollHeight - window.innerHeight || 1);
+      if (pct >= 0.20) {
+        window.removeEventListener('scroll', _scrollHandler);
+        clearTimeout(_peekTimer);
+        _showPeek();
+      }
+    };
+    window.addEventListener('scroll', _scrollHandler, { passive: true });
   }
 
   /* ── 7. Widget container ─────────────────────────────────────────────────── */
@@ -651,6 +941,9 @@
     teaser.style.display = 'none';
     teaser.style.animation = '';
     _teaserArmsAngle = 0;
+    clearTimeout(_peekTimer);
+    clearTimeout(_peekRetractTimer);
+    if (_peekVisible) { _peekVisible = false; peekPanel.style.display = 'none'; peekPanel.style.animation = ''; }
     _setGlow('none'); /* FAB glow off — activity signals now live inside the chat */
     clearTimeout(_teaserTimer);
     clearTimeout(_teaserAutoTimer);
@@ -879,13 +1172,15 @@
     fetch(origin + '/api/client-config/' + encodeURIComponent(clientId))
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        _widgetStyle = widgetStyleArg || d.widgetStyle || 'classic';
-        _isClassic   = _widgetStyle === 'classic';
+        _widgetStyle  = widgetStyleArg || d.widgetStyle || 'classic';
+        _isClassic    = _widgetStyle === 'classic';
+        _brandColour  = d.brandColour || '';
         if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '', d.logoPadding || 0);
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
         initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false);
+        initPeek(d.peekMessage || null, d.peekDelay || 6000, d.peekRetract || 7000);
       })
       .catch(function () {
         applyFabPosition('bottom-right');

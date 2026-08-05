@@ -19,6 +19,10 @@ export interface ClientConfig {
   logoGlowColour?: string;       // colour for the FAB pulse glow — defaults to brandColour
   teaserOnce?: boolean;          // show teaser once per session then never again
   logoPadding?: number;          // % padding around logo inside FAB circle — default 0 (fills edge to edge)
+  peekMessage?: string;          // message shown in the peek panel
+  peekDelay?: number;            // ms before peek appears (default 6000)
+  peekRetract?: number;          // ms before peek auto-retracts (default 7000)
+  quickReplies?: string[];       // chips shown beneath the opening message — disappear once used
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -168,7 +172,7 @@ Always try to collect name, email and phone. If the user declines one, move on a
 
   'avenue-estates': {
     name: 'Avenue Estates',
-    openingMessage: "Welcome to Avenue Estates. Are you looking to sell or let a property today?",
+    openingMessage: "Welcome to Avenue Estates. How can we help today?",
     systemPrompt: `You are Vaughan, a friendly and professional assistant for Avenue Estates — an estate and letting agent based at 485 Wimborne Road, Bournemouth BH9 2AW, covering Bournemouth, Poole and surrounding areas. Phone: 01202 512354.
 
 Never use emojis. Ever. No exceptions.
@@ -210,10 +214,11 @@ Always try to collect name, email and phone number. If the user declines one, mo
     brandColour: '#1c1c1c',
     widgetStyle: 'classic',
     widgetTheme: 'light',
-    teaserText: 'Thinking of selling or letting?',
+    teaserText: 'Thinking of selling or letting?,Wondering what your property is worth?,Have a property question?',
     teaserPersist: false,
-    teaserOnce: true,
+    teaserOnce: false,
     agentWhatsApp: '+447730569891',
+    quickReplies: ['Sell a property', 'Let a property', 'Something else'],
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: false,
     showOnlineIndicator: false,
