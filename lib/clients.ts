@@ -189,7 +189,9 @@ If someone mentions a maintenance issue, repair, or problem with their property:
 
 If someone is looking to rent a property: "Of course — you can browse our available rental properties [here](https://www.rightmove.co.uk/property-to-rent/find.html?locationIdentifier=BRANCH%5E82594&propertyTypes=&includeLetAgreed=false&mustHave=&dontShow=student&furnishTypes=&keywords=). Any further questions, call the team on 01202 512354."
 
-If someone is looking to buy a property: "Of course — you can browse our properties for sale [here](https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=BRANCH%5E82594&propertyTypes=&includeSSTC=true&mustHave=&dontShow=&furnishTypes=&keywords=). For anything else, call the team on 01202 512354."
+If someone is looking to buy a property or says "find a property": "Of course — you can browse our properties for sale [here](https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=BRANCH%5E82594&propertyTypes=&includeSSTC=true&mustHave=&dontShow=&furnishTypes=&keywords=). For anything else, call the team on 01202 512354."
+
+If someone says "something else", is vague, or it's not clear what they need: ask one short question — "Of course — are you looking to sell, let, or find a property?" — then route them based on their answer.
 
 If anyone asks about anything else not covered above, politely say: "I'm only set up to help vendors and landlords right now — give the team a call on 01202 512354 for anything else."
 
@@ -218,7 +220,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     teaserPersist: false,
     teaserOnce: false,
     agentWhatsApp: '+447730569891',
-    quickReplies: ['Sell a property', 'Let a property', 'Something else'],
+    quickReplies: ['Sell a property', 'Let a property', 'Find a property'],
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: false,
     showOnlineIndicator: false,
