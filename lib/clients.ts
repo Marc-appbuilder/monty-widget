@@ -347,9 +347,6 @@ Always try to collect name, email and phone number before closing. If the user d
     teaserText: 'Chat to us',
     widgetStyle: 'classic',
     agentWhatsApp: '+447880577770',
-    peekMessage: 'Thinking of selling in Poole or Dorset?',
-    peekDelay: 6000,
-    peekRetract: 7000,
   },
 
   'tailor-made': {
@@ -401,9 +398,6 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     headerImageUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/Tailor%20Made%20Main%20Logo-1.jpg',
     agentTitle: 'Property Consultant',
     showOnlineIndicator: false,
-    peekMessage: 'Free instant valuation for Sandbanks properties.',
-    peekDelay: 6000,
-    peekRetract: 7000,
   },
 
   'simon-co': {
