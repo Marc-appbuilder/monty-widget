@@ -36,9 +36,16 @@ export async function POST(req: NextRequest) {
       `Time: ${time}`;
 
     const client = twilio(sid, token);
-    await client.messages.create({ from: FROM, to: `whatsapp:${config.agentWhatsApp}`, body });
 
-    console.log('[whatsapp] sent to', config.agentWhatsApp);
+    try {
+      await client.messages.create({ from: FROM, to: `whatsapp:${config.agentWhatsApp}`, body });
+      console.log('[whatsapp] sent to', config.agentWhatsApp);
+    } catch (waErr) {
+      console.error('[whatsapp] WhatsApp failed, falling back to SMS:', waErr);
+      await client.messages.create({ from: FROM.replace('whatsapp:', ''), to: config.agentWhatsApp, body });
+      console.log('[whatsapp] SMS fallback sent to', config.agentWhatsApp);
+    }
+
     return NextResponse.json({ ok: true }, { status: 200 });
 
   } catch (err) {
