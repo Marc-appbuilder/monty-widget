@@ -241,8 +241,7 @@ export async function POST(req: NextRequest) {
           }
           if (!isDuplicate) {
             await sendLeadEmail(toolInput, clientId);
-            // WhatsApp fires separately — completely isolated, cannot affect email
-            fetch(new URL('/api/whatsapp', req.url).toString(), {
+            await fetch(new URL('/api/whatsapp', req.url).toString(), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
