@@ -74,6 +74,7 @@ Always try to collect name, email and phone number before closing. If the user d
     notificationEmail: 'marcwrichards@gmail.com',
     brandColour: '#1a365d',
     widgetStyle: 'classic',
+    agentWhatsApp: '+447880577770',
   },
 
   'savills-london': {
