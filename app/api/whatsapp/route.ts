@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { getClient } from '@/lib/clients';
 
-const FROM = 'whatsapp:+12365069129';
+const FROM = process.env.TWILIO_WHATSAPP_FROM
+  ? 'whatsapp:' + process.env.TWILIO_WHATSAPP_FROM.replace(/^whatsapp:/, '')
+  : 'whatsapp:+12365069129';
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,10 +35,30 @@ export async function POST(req: NextRequest) {
       `Enquiry: ${summary || 'Not provided'}\n` +
       `Time: ${time}`;
 
-    const client = twilio(sid, token);
-    await client.messages.create({ from: FROM, to: `whatsapp:${config.agentWhatsApp}`, body });
+    const client      = twilio(sid, token);
+    const templateSid = process.env.TWILIO_TEMPLATE_SID;
 
-    console.log('[whatsapp] sent to', config.agentWhatsApp);
+    console.log('[whatsapp] firing — to:', config.agentWhatsApp, 'templateSid:', templateSid || 'none');
+
+    if (templateSid) {
+      const msg = await client.messages.create({
+        from:             FROM,
+        to:               `whatsapp:${config.agentWhatsApp}`,
+        contentSid:       templateSid,
+        contentVariables: JSON.stringify({
+          '1': name    || 'Not provided',
+          '2': phone   || 'Not provided',
+          '3': email   || 'Not provided',
+          '4': summary || 'Not provided',
+          '5': time,
+        }),
+      });
+      console.log('[whatsapp] sent — sid:', msg.sid, 'status:', msg.status);
+    } else {
+      const msg = await client.messages.create({ from: FROM.replace('whatsapp:', ''), to: config.agentWhatsApp, body });
+      console.log('[sms] sent — sid:', msg.sid, 'status:', msg.status);
+    }
+
     return NextResponse.json({ ok: true }, { status: 200 });
 
   } catch (err) {

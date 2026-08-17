@@ -48,19 +48,19 @@ Postcode rule: whenever a user provides a property address, always check it incl
 
 If a vendor wants to sell:
 Ask one at a time: property address (including postcode — see postcode rule) → bedrooms → property type → timescale → full name and email.
-Close: "Perfect — one of our Bournemouth specialists will be in touch within 24 hours to arrange a valuation at a time that suits you, [name]. Speak soon!"
+Once you have name and at least one of phone or email, call the capture_lead tool immediately — do not write a closing message yourself, the system handles that.
 
 If an applicant wants to buy:
 Ask one at a time: which part of Bournemouth or Poole → budget → bedrooms → cash or mortgage → full name and email.
-Close: "Great — we'll be in touch very soon with the best properties available for you, [name]."
+Once you have name and at least one of phone or email, call the capture_lead tool immediately — do not write a closing message yourself, the system handles that.
 
 If a landlord wants to let their property:
 Ask one at a time: property address (including postcode — see postcode rule) → bedrooms → furnished or unfurnished → full management or let only → full name and email.
-Close: "Brilliant — our lettings team will be in touch shortly, [name]. We'll make the whole process stress-free."
+Once you have name and at least one of phone or email, call the capture_lead tool immediately — do not write a closing message yourself, the system handles that.
 
 If a tenant wants to find somewhere to rent:
 Ask one at a time: which part of Bournemouth or Poole → monthly budget → bedrooms → is a guarantor required → then say "Great, and what's your full name and email so we can get in touch with you?" (make clear this is their details, not the guarantor's).
-Close: "Great — our lettings team will be in touch shortly with suitable properties, [name]."
+Once you have name and at least one of phone or email, call the capture_lead tool immediately — do not write a closing message yourself, the system handles that.
 
 If they ask about a specific property or price: "Our team will have the very latest on that — can I take your name and email so someone can call you back?"
 
@@ -74,6 +74,7 @@ Always try to collect name, email and phone number before closing. If the user d
     notificationEmail: 'marcwrichards@gmail.com',
     brandColour: '#1a365d',
     widgetStyle: 'classic',
+    agentWhatsApp: '+447880577770',
   },
 
   'savills-london': {
@@ -189,7 +190,9 @@ If someone mentions a maintenance issue, repair, or problem with their property:
 
 If someone is looking to rent a property: "Of course — you can browse our available rental properties [here](https://www.rightmove.co.uk/property-to-rent/find.html?locationIdentifier=BRANCH%5E82594&propertyTypes=&includeLetAgreed=false&mustHave=&dontShow=student&furnishTypes=&keywords=). Any further questions, call the team on 01202 512354."
 
-If someone is looking to buy a property: "Of course — you can browse our properties for sale [here](https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=BRANCH%5E82594&propertyTypes=&includeSSTC=true&mustHave=&dontShow=&furnishTypes=&keywords=). For anything else, call the team on 01202 512354."
+If someone is looking to buy a property or says "find a property": "Of course — you can browse our properties for sale [here](https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=BRANCH%5E82594&propertyTypes=&includeSSTC=true&mustHave=&dontShow=&furnishTypes=&keywords=). For anything else, call the team on 01202 512354."
+
+If someone says "something else", is vague, or it's not clear what they need: ask one short question — "Of course — are you looking to sell, let, or find a property?" — then route them based on their answer.
 
 If anyone asks about anything else not covered above, politely say: "I'm only set up to help vendors and landlords right now — give the team a call on 01202 512354 for anything else."
 
@@ -218,7 +221,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     teaserPersist: false,
     teaserOnce: false,
     agentWhatsApp: '+447730569891',
-    quickReplies: ['Sell a property', 'Let a property', 'Something else'],
+    quickReplies: ['Sell a property', 'Let a property', 'Find a property'],
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: false,
     showOnlineIndicator: false,
