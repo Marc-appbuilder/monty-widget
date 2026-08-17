@@ -35,11 +35,13 @@ export async function POST(req: NextRequest) {
       `Enquiry: ${summary || 'Not provided'}\n` +
       `Time: ${time}`;
 
-    const client     = twilio(sid, token);
+    const client      = twilio(sid, token);
     const templateSid = process.env.TWILIO_TEMPLATE_SID;
 
+    console.log('[whatsapp] firing — to:', config.agentWhatsApp, 'templateSid:', templateSid || 'none');
+
     if (templateSid) {
-      await client.messages.create({
+      const msg = await client.messages.create({
         from:             FROM,
         to:               `whatsapp:${config.agentWhatsApp}`,
         contentSid:       templateSid,
@@ -51,10 +53,10 @@ export async function POST(req: NextRequest) {
           '5': time,
         }),
       });
-      console.log('[whatsapp] template sent to', config.agentWhatsApp);
+      console.log('[whatsapp] sent — sid:', msg.sid, 'status:', msg.status);
     } else {
-      await client.messages.create({ from: FROM.replace('whatsapp:', ''), to: config.agentWhatsApp, body });
-      console.log('[sms] fallback sent to', config.agentWhatsApp);
+      const msg = await client.messages.create({ from: FROM.replace('whatsapp:', ''), to: config.agentWhatsApp, body });
+      console.log('[sms] sent — sid:', msg.sid, 'status:', msg.status);
     }
 
     return NextResponse.json({ ok: true }, { status: 200 });
