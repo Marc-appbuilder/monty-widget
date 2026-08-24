@@ -39,6 +39,7 @@
   var _fabCloseIcon    = null; // plain div shown in place of logo when chat is open
   var _fabLogoPulse    = false;
   var _fabGlowColour   = '';
+  var _fabPulseGlow    = true;
   var _fabLogoPadding  = 0;
   var _teaserOnce      = false;
 
@@ -339,7 +340,7 @@
       if (_fabCloseIcon) _fabCloseIcon.style.display  = 'none';
       _fabLogoDiv.style.display   = 'block';
       _fabLogoDiv.style.boxShadow = '0 0 0 2px ' + _fabBrandColour + ', 0 8px 24px rgba(0,0,0,0.25)';
-      if (_fabLogoPulse) _fabLogoDiv.style.animation  = 'ea-logo-pulse 2.5s ease-in-out infinite';
+      if (_fabLogoPulse && !_hasOpenedBefore()) _fabLogoDiv.style.animation = 'ea-logo-pulse 2s ease-in-out infinite';
       fab.style.display    = '';
       fab.style.background = 'transparent';
       fab.style.border     = 'none';
@@ -1045,11 +1046,12 @@
   }
 
   /* ── 8a. Classic FAB — round button, applied after config fetch ── */
-  function buildClassicFab(logoUrl, brandColour, logoPulse, logoGlowColour, logoPadding) {
+  function buildClassicFab(logoUrl, brandColour, logoPulse, logoGlowColour, logoPadding, logoPulseGlow) {
     _fabLogoUrl     = logoUrl       || '';
     _fabBrandColour = brandColour   || '';
     _fabLogoPulse   = !!logoPulse;
     _fabGlowColour  = logoGlowColour || brandColour || '';
+    _fabPulseGlow   = logoPulseGlow !== false;
     _fabLogoPadding = logoPadding || 0;
     /* Remove V arms — they were appended before we knew the style */
     fabWrap.removeChild(fabArmLeft);
@@ -1096,10 +1098,13 @@
 
       if (_fabLogoPulse && !_hasOpenedBefore()) {
         var pulseStyle = document.createElement('style');
-        pulseStyle.textContent =
-          '@keyframes ea-logo-pulse{' +
-          '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabGlowColour + ';transform:scale(1)}' +
-          '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 16px 6px ' + _fabGlowColour + '55;transform:scale(1.035)}}';
+        pulseStyle.textContent = _fabPulseGlow
+          ? '@keyframes ea-logo-pulse{' +
+            '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabGlowColour + ';transform:scale(1)}' +
+            '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 16px 6px ' + _fabGlowColour + '55;transform:scale(1.035)}}'
+          : '@keyframes ea-logo-pulse{' +
+            '0%,100%{transform:scale(1)}' +
+            '50%{transform:scale(1.035)}}';
         document.head.appendChild(pulseStyle);
         _fabLogoDiv.style.animation = 'ea-logo-pulse 2s ease-in-out infinite';
       }
@@ -1203,7 +1208,7 @@
         _widgetStyle  = widgetStyleArg || d.widgetStyle || 'classic';
         _isClassic    = _widgetStyle === 'classic';
         _brandColour  = d.brandColour || '';
-        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '', d.logoPadding || 0);
+        if (_isClassic) buildClassicFab(d.logoUrl || '', d.brandColour || '', d.logoPulse || false, d.logoGlowColour || '', d.logoPadding || 0, d.logoPulseGlow !== false);
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();

@@ -30,6 +30,7 @@ export async function GET(
     showOnlineIndicator: staticConfig.showOnlineIndicator ?? true,
     logoPulse:           staticConfig.logoPulse           ?? false,
     logoGlowColour:      staticConfig.logoGlowColour      ?? null,
+    logoPulseGlow:       staticConfig.logoPulseGlow        ?? true,
     teaserOnce:          staticConfig.teaserOnce          ?? false,
     logoPadding:         staticConfig.logoPadding          ?? 0,
     peekMessage:         staticConfig.peekMessage          ?? null,
