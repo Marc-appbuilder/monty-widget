@@ -26,6 +26,7 @@ export interface ClientConfig {
   teaserFade?: boolean;          // true = pure crossfade transition (default: slide)
   teaserPauseMs?: number;        // ms visible after typing completes (default 4500)
   teaserGapMs?: number;          // ms gap between appearances (default 4000)
+  teaserFont?: string;           // custom font-family for teaser bubble
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -407,7 +408,8 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     teaserText: 'Have a property in mind?,Ready for your next chapter?,Curious what your home is worth?',
     teaserFade: true,
     teaserPauseMs: 4500,
-    teaserGapMs: 2000,
+    teaserGapMs: 4500,
+    teaserFont: 'Georgia,"Times New Roman",serif',
   },
 
   'simon-co': {
