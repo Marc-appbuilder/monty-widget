@@ -230,7 +230,7 @@ Always try to collect name, email and phone number. If the user declines one, mo
     quickReplies: ['Sell a property', 'Let a property', 'Find a property'],
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
     logoPulse: true,
-    logoGlowColour: '#9d1519',
+    logoPulseGlow: false,
     showOnlineIndicator: false,
   },
 
