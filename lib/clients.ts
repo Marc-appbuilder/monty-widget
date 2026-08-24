@@ -23,6 +23,10 @@ export interface ClientConfig {
   peekDelay?: number;            // ms before peek appears (default 6000)
   peekRetract?: number;          // ms before peek auto-retracts (default 7000)
   quickReplies?: string[];       // chips shown beneath the opening message — disappear once used
+  teaserFade?: boolean;          // true = pure crossfade transition (default: slide)
+  teaserPauseMs?: number;        // ms visible after typing completes (default 4500)
+  teaserGapMs?: number;          // ms gap between appearances (default 4000)
+  teaserFont?: string;           // custom font-family for teaser bubble
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -401,6 +405,11 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     headerImageUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/Tailor%20Made%20Main%20Logo-1.jpg',
     agentTitle: 'Property Consultant',
     showOnlineIndicator: false,
+    teaserText: 'Have a property in mind?,Ready for your next chapter?,Curious what your home is worth?',
+    teaserFade: true,
+    teaserPauseMs: 4500,
+    teaserGapMs: 4500,
+    teaserFont: 'Georgia,"Times New Roman",serif',
   },
 
   'simon-co': {
