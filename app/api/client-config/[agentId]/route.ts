@@ -36,5 +36,8 @@ export async function GET(
     peekDelay:           staticConfig.peekDelay            ?? 6000,
     peekRetract:         staticConfig.peekRetract          ?? 7000,
     quickReplies:        staticConfig.quickReplies         ?? null,
+    teaserFade:          staticConfig.teaserFade           ?? false,
+    teaserPauseMs:       staticConfig.teaserPauseMs        ?? 4500,
+    teaserGapMs:         staticConfig.teaserGapMs          ?? 4000,
   });
 }

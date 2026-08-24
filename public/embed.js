@@ -70,6 +70,8 @@
     '@keyframes ea-widget-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.04)}}' +
     '@keyframes ea-teaser-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}' +
     '@keyframes ea-teaser-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}' +
+    '@keyframes ea-teaser-fade-in{from{opacity:0}to{opacity:1}}' +
+    '@keyframes ea-teaser-fade-out{from{opacity:1}to{opacity:0}}' +
     '@keyframes ea-teaser-persist{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,0.14)}50%{box-shadow:0 6px 22px rgba(0,0,0,0.24),0 0 0 3px rgba(0,0,0,0.05)}}' +
     '@keyframes ea-peek-in{from{opacity:0;transform:translateX(10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
     '@keyframes ea-peek-in-l{from{opacity:0;transform:translateX(-10px) translateY(-50%)}to{opacity:1;transform:translateX(0) translateY(-50%)}}' +
@@ -439,6 +441,9 @@
   var _isHoveringFab    = false;
   var _isHoveringTeaser = false;
   var _teaserTypeSeq    = 0;   /* incremented each show — cancels any in-progress typing */
+  var _teaserFade       = false; /* true = pure crossfade, false = slide (default) */
+  var _teaserPauseMs    = 4500;  /* ms visible after typing completes */
+  var _teaserGapMs      = 4000;  /* ms between appearances */
 
   var _peekMessage      = '';
   var _peekDelay        = 6000;
@@ -612,7 +617,9 @@
       if (_teaserDismissed || isOpen || seq !== _teaserTypeSeq) return;
       teaserText.textContent = '';
       teaser.style.display   = 'block';
-      teaser.style.animation = 'ea-teaser-in 0.35s ease-out both';
+      teaser.style.animation = _teaserFade
+        ? 'ea-teaser-fade-in 0.5s ease both'
+        : 'ea-teaser-in 0.35s ease-out both';
       var chars = prompt.split('');
       var ci = 0;
       (function typeNext() {
@@ -631,7 +638,9 @@
     _teaserTypeSeq++; /* cancel any in-progress typewriter */
     _isHoveringTeaser = false;
     if (teaser.style.display === 'none') { if (cb) cb(); return; }
-    teaser.style.animation = 'ea-teaser-out 0.28s ease-in both';
+    var outAnim = _teaserFade ? 'ea-teaser-fade-out 0.5s ease both' : 'ea-teaser-out 0.28s ease-in both';
+    var outMs   = _teaserFade ? 510 : 290;
+    teaser.style.animation = outAnim;
     setTimeout(function () {
       teaser.style.display   = 'none';
       teaser.style.animation = '';
@@ -639,14 +648,14 @@
       if (!isOpen) _setArmsResting();
       _setGlow(_isHoveringFab ? 'hover' : 'none');
       if (cb) cb();
-    }, 290);
+    }, outMs);
   }
 
   function _scheduleCycle() {
     /* ms to stay visible after typing finishes */
-    var pauseAfterTyping = 4500;
+    var pauseAfterTyping = _teaserPauseMs;
     /* gap before 2nd appearance, gap before 3rd */
-    var gaps    = isMobile() ? [4000] : [4000, 4000];
+    var gaps    = isMobile() ? [_teaserGapMs] : [_teaserGapMs, _teaserGapMs];
     var maxShow = isMobile() ? 2 : 3;
 
     if (_teaserDismissed) return;
@@ -675,13 +684,15 @@
     });
   }
 
-  function initTeaser(text, persist, once) {
+  function initTeaser(text, persist, once, fade, pauseMs, gapMs) {
     if (!text) return;
-    _teaserPersist = !!(persist && !isMobile());
-    _teaserOnce    = !!once;
-    _teaserPrompts = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    _teaserPersist  = !!(persist && !isMobile());
+    _teaserOnce     = !!once;
+    _teaserFade     = !!fade;
+    _teaserPauseMs  = pauseMs || 4500;
+    _teaserGapMs    = gapMs   || 4000;
+    _teaserPrompts  = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
-    /* Persist: show quickly. Otherwise give them 3.5 s to see the page (5 s on mobile). */
     var firstDelay = _teaserPersist ? 800 : (isMobile() ? 5000 : 3500);
     _teaserTimer = setTimeout(_scheduleCycle, firstDelay);
   }
@@ -1179,7 +1190,7 @@
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
-        initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false);
+        initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false, d.teaserFade || false, d.teaserPauseMs || 4500, d.teaserGapMs || 4000);
         initPeek(d.peekMessage || null, d.peekDelay || 6000, d.peekRetract || 7000);
       })
       .catch(function () {
