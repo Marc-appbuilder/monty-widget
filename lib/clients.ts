@@ -27,6 +27,7 @@ export interface ClientConfig {
   teaserPauseMs?: number;        // ms visible after typing completes (default 4500)
   teaserGapMs?: number;          // ms gap between appearances (default 4000)
   teaserFont?: string;           // custom font-family for teaser bubble
+  teaserBg?: string;              // custom background colour for teaser bubble (default: rgba(17,17,17,0.93))
 }
 
 export const clients: Record<string, ClientConfig> = {
@@ -410,6 +411,7 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     teaserPauseMs: 4500,
     teaserGapMs: 4500,
     teaserFont: 'Georgia,"Times New Roman",serif',
+    teaserBg: '#0d3247',
   },
 
   'simon-co': {
