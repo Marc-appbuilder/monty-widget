@@ -645,8 +645,8 @@
   function _scheduleCycle() {
     /* ms to stay visible after typing finishes */
     var pauseAfterTyping = 4500;
-    /* gap before 2nd appearance, gap before 3rd — desktop */
-    var gaps    = isMobile() ? [15000] : [15000, 20000];
+    /* gap before 2nd appearance, gap before 3rd */
+    var gaps    = isMobile() ? [4000] : [4000, 4000];
     var maxShow = isMobile() ? 2 : 3;
 
     if (_teaserDismissed) return;
