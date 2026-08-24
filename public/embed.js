@@ -667,8 +667,8 @@
     /* ms to stay visible after typing finishes */
     var pauseAfterTyping = _teaserPauseMs;
     /* gap before 2nd appearance, gap before 3rd */
-    var gaps    = isMobile() ? [_teaserGapMs] : [_teaserGapMs, _teaserGapMs];
-    var maxShow = isMobile() ? 2 : 3;
+    var gaps    = [_teaserGapMs, _teaserGapMs];
+    var maxShow = 3;
 
     if (_teaserDismissed) return;
     /* Persist mode: show once, hold forever — no auto-hide, no cycling */
