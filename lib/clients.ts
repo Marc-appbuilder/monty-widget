@@ -228,7 +228,8 @@ Always try to collect name, email and phone number. If the user declines one, mo
     agentWhatsApp: '+447730569891',
     quickReplies: ['Sell a property', 'Let a property', 'Find a property'],
     logoUrl: 'https://beocrhhfqsvyrkdajjys.supabase.co/storage/v1/object/public/agent-assets/avenue-estates.jpeg',
-    logoPulse: false,
+    logoPulse: true,
+    logoGlowColour: '#9d1519',
     showOnlineIndicator: false,
   },
 
@@ -412,6 +413,8 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     teaserGapMs: 4500,
     teaserFont: 'Georgia,"Times New Roman",serif',
     teaserBg: '#0d3247',
+    logoPulse: true,
+    logoGlowColour: '#0d3247',
   },
 
   'simon-co': {
