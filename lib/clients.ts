@@ -17,6 +17,7 @@ export interface ClientConfig {
   showOnlineIndicator?: boolean; // show green dot + Online — defaults to true
   logoPulse?: boolean;           // pulsing glow animation on logo FAB
   logoGlowColour?: string;       // colour for the FAB pulse glow — defaults to brandColour
+  logoPulseGlow?: boolean;       // include the box-shadow glow in the pulse — default true (set false for scale-only)
   teaserOnce?: boolean;          // show teaser once per session then never again
   logoPadding?: number;          // % padding around logo inside FAB circle — default 0 (fills edge to edge)
   peekMessage?: string;          // message shown in the peek panel
@@ -415,6 +416,7 @@ Always respond in plain, natural English. No emojis, no markdown, no bullet poin
     teaserBg: '#0d3247',
     logoPulse: true,
     logoGlowColour: '#0d3247',
+    logoPulseGlow: false,
   },
 
   'simon-co': {
