@@ -55,6 +55,13 @@
 
   function isMobile() { return window.innerWidth <= 768; }
 
+  function _hasOpenedBefore() {
+    try { return !!localStorage.getItem('__vaughan_opened_' + clientId); } catch (_) { return false; }
+  }
+  function _markOpened() {
+    try { localStorage.setItem('__vaughan_opened_' + clientId, '1'); } catch (_) {}
+  }
+
   /* ── 4. Keyframes ───────────────────────────────────────────────────────── */
   var styleEl = document.createElement('style');
   styleEl.textContent =
@@ -953,6 +960,10 @@
 
   function openFab() {
     isOpen = true;
+    if (!_hasOpenedBefore()) {
+      _markOpened();
+      if (_fabLogoDiv) _fabLogoDiv.style.animation = '';
+    }
     if (_closeTimer) { clearTimeout(_closeTimer); _closeTimer = null; }
     _teaserDismissed = true;
     teaser.style.display = 'none';
@@ -1083,14 +1094,14 @@
       _fabLogoDiv.appendChild(_fabLogoImg);
       fabWrap.insertBefore(_fabLogoDiv, fab);
 
-      if (_fabLogoPulse) {
+      if (_fabLogoPulse && !_hasOpenedBefore()) {
         var pulseStyle = document.createElement('style');
         pulseStyle.textContent =
           '@keyframes ea-logo-pulse{' +
-          '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabGlowColour + '}' +
-          '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 18px 6px ' + _fabGlowColour + '66}}';
+          '0%,100%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 0 0 ' + _fabGlowColour + ';transform:scale(1)}' +
+          '50%{box-shadow:0 0 0 2px ' + _fabBrandColour + ',0 0 16px 6px ' + _fabGlowColour + '55;transform:scale(1.035)}}';
         document.head.appendChild(pulseStyle);
-        _fabLogoDiv.style.animation = 'ea-logo-pulse 2.5s ease-in-out infinite';
+        _fabLogoDiv.style.animation = 'ea-logo-pulse 2s ease-in-out infinite';
       }
     }
 
