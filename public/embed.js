@@ -444,6 +444,7 @@
   var _teaserFade       = false; /* true = pure crossfade, false = slide (default) */
   var _teaserPauseMs    = 4500;  /* ms visible after typing completes */
   var _teaserGapMs      = 4000;  /* ms between appearances */
+  var _teaserFont       = '';    /* custom font-family, applied with !important */
 
   var _peekMessage      = '';
   var _peekDelay        = 6000;
@@ -616,6 +617,7 @@
     setTimeout(function () {
       if (_teaserDismissed || isOpen || seq !== _teaserTypeSeq) return;
       teaserText.textContent = '';
+      if (_teaserFont) teaser.style.setProperty('font-family', _teaserFont, 'important');
       teaser.style.display   = 'block';
       teaser.style.animation = _teaserFade
         ? 'ea-teaser-fade-in 0.5s ease both'
@@ -691,7 +693,7 @@
     _teaserFade     = !!fade;
     _teaserPauseMs  = pauseMs || 4500;
     _teaserGapMs    = gapMs   || 4000;
-    if (font) teaser.style.fontFamily = font;
+    _teaserFont = font || '';
     _teaserPrompts  = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
     var firstDelay = _teaserPersist ? 800 : (isMobile() ? 5000 : 3500);
