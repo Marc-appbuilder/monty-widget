@@ -445,6 +445,7 @@
   var _teaserPauseMs    = 4500;  /* ms visible after typing completes */
   var _teaserGapMs      = 4000;  /* ms between appearances */
   var _teaserFont       = '';    /* custom font-family, applied with !important */
+  var _teaserBg         = '';    /* custom background colour, applied with !important */
 
   var _peekMessage      = '';
   var _peekDelay        = 6000;
@@ -618,6 +619,7 @@
       if (_teaserDismissed || isOpen || seq !== _teaserTypeSeq) return;
       teaserText.textContent = '';
       if (_teaserFont) teaser.style.setProperty('font-family', _teaserFont, 'important');
+      if (_teaserBg) teaser.style.setProperty('background', _teaserBg, 'important');
       teaser.style.display   = 'block';
       teaser.style.animation = _teaserFade
         ? 'ea-teaser-fade-in 0.5s ease both'
@@ -686,7 +688,7 @@
     });
   }
 
-  function initTeaser(text, persist, once, fade, pauseMs, gapMs, font) {
+  function initTeaser(text, persist, once, fade, pauseMs, gapMs, font, bg) {
     if (!text) return;
     _teaserPersist  = !!(persist && !isMobile());
     _teaserOnce     = !!once;
@@ -694,6 +696,7 @@
     _teaserPauseMs  = pauseMs || 4500;
     _teaserGapMs    = gapMs   || 4000;
     _teaserFont = font || '';
+    _teaserBg   = bg   || '';
     _teaserPrompts  = text.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     if (!_teaserPrompts.length) return;
     var firstDelay = _teaserPersist ? 800 : (isMobile() ? 5000 : 3500);
@@ -1193,7 +1196,7 @@
         applyFabPosition(d.widgetPosition || 'bottom-right');
         applyMobileScale();
         applyColor();
-        initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false, d.teaserFade || false, d.teaserPauseMs || 4500, d.teaserGapMs || 4000, d.teaserFont || null);
+        initTeaser(d.teaserText || teaserArg || null, d.teaserPersist, d.teaserOnce || false, d.teaserFade || false, d.teaserPauseMs || 4500, d.teaserGapMs || 4000, d.teaserFont || null, d.teaserBg || null);
         initPeek(d.peekMessage || null, d.peekDelay || 6000, d.peekRetract || 7000);
       })
       .catch(function () {

@@ -40,5 +40,6 @@ export async function GET(
     teaserPauseMs:       staticConfig.teaserPauseMs        ?? 4500,
     teaserGapMs:         staticConfig.teaserGapMs          ?? 4000,
     teaserFont:          staticConfig.teaserFont           ?? null,
+    teaserBg:            staticConfig.teaserBg             ?? null,
   });
 }
