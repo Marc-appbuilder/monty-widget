@@ -1158,6 +1158,10 @@
 
   function applyMobileScale() {
     if (!isMobile()) return;
+    /* Longer teaser messages don't fit on one line at mobile widths — allow
+       wrapping instead of bleeding past the bubble's rounded edges. */
+    teaser.style.whiteSpace = 'normal';
+    teaser.style.maxWidth   = 'calc(100vw - 32px)';
     if (_isClassic) {
       /* Classic button: 52px on mobile */
       fabWrap.style.width  = '68px';
