@@ -239,9 +239,10 @@ export async function POST(req: NextRequest) {
               .gte('created_at', cutoff).limit(1);
             if (data && data.length > 0) isDuplicate = true;
           }
+          let waDebug = 'skipped (duplicate)';
           if (!isDuplicate) {
             await sendLeadEmail(toolInput, clientId);
-            await fetch(new URL('/api/whatsapp', req.url).toString(), {
+            waDebug = await fetch(new URL('/api/whatsapp', req.url).toString(), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -251,7 +252,9 @@ export async function POST(req: NextRequest) {
                 email:   toolInput.email,
                 summary: toolInput.summary,
               }),
-            }).catch((e) => console.error('[whatsapp-fetch] error:', e));
+            })
+              .then(async (r) => `status ${r.status}: ${await r.text()}`)
+              .catch((e) => `fetch threw: ${e instanceof Error ? e.message : String(e)}`);
           }
           supabase.from('leads').insert({
             agent_id:         clientId,
@@ -259,7 +262,7 @@ export async function POST(req: NextRequest) {
             email:            toolInput.email ?? null,
             phone:            toolInput.phone ?? null,
             enquiry_type:     (toolInput as unknown as Record<string, unknown>).enquiry_type as string ?? null,
-            notes:            toolInput.summary ?? null,
+            notes:            `${toolInput.summary ?? ''} [wa-debug: ${waDebug}]`.trim(),
             raw_conversation: sanitisedMessages
               .map((m) => `${m.role}: ${m.content}`)
               .join('\n'),
