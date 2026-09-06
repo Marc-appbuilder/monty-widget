@@ -30,6 +30,7 @@ export interface ClientConfig {
   teaserFont?: string;           // custom font-family for teaser bubble
   teaserBg?: string;              // custom background colour for teaser bubble (default: rgba(17,17,17,0.93))
   assistantDisplayName?: string;  // shared platform-level name shown to end users (brand rule, notifications, widget footer) — defaults to 'Chatacus'
+  provisionedVia?: string;        // 'chatacus-v1' for Chatacus-provisioned clients — undefined for every hand-configured client
 }
 
 export const clients: Record<string, ClientConfig> = {

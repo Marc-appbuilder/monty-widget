@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/lib/clients';
 import { resolveClient } from '@/lib/chatacus/resolveClient';
+import { sendLeadWebhook } from '@/lib/chatacus/leadWebhook';
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
 import type { LeadPayload } from '@/app/api/lead/route';
@@ -270,20 +271,26 @@ export async function POST(req: NextRequest) {
           }
           let waDebug = 'skipped (duplicate)';
           if (!isDuplicate) {
-            await sendLeadEmail(toolInput, clientId);
-            waDebug = await fetch(new URL('/api/whatsapp', req.url).toString(), {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                clientId,
-                name:    toolInput.name,
-                phone:   toolInput.phone,
-                email:   toolInput.email,
-                summary: toolInput.summary,
-              }),
-            })
-              .then(async (r) => `status ${r.status}: ${await r.text()}`)
-              .catch((e) => `fetch threw: ${e instanceof Error ? e.message : String(e)}`);
+            if (config.provisionedVia === 'chatacus-v1') {
+              // Chatacus-provisioned client: notify Chatacus's own system
+              // instead of Vaughan's Resend/Twilio. Never both.
+              waDebug = await sendLeadWebhook(toolInput, clientId);
+            } else {
+              await sendLeadEmail(toolInput, clientId);
+              waDebug = await fetch(new URL('/api/whatsapp', req.url).toString(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  clientId,
+                  name:    toolInput.name,
+                  phone:   toolInput.phone,
+                  email:   toolInput.email,
+                  summary: toolInput.summary,
+                }),
+              })
+                .then(async (r) => `status ${r.status}: ${await r.text()}`)
+                .catch((e) => `fetch threw: ${e instanceof Error ? e.message : String(e)}`);
+            }
           }
           supabase.from('leads').insert({
             agent_id:         clientId,

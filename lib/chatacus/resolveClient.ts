@@ -36,6 +36,7 @@ export async function resolveClient(clientId: string): Promise<ClientConfig> {
       notificationEmail: data.notification_email ?? data.email ?? '',
       brandColour: data.brand_color ?? '#1a365d',
       assistantDisplayName: data.assistant_display_name ?? undefined,
+      provisionedVia: 'chatacus-v1',
     };
   }
 
