@@ -152,13 +152,39 @@ export async function POST(req: NextRequest) {
 
   const config = await resolveClient(clientId);
 
-  // Fetch language setting from Supabase
-  let languageInstruction = '';
+  // Fetch language + status/provisioning flags from Supabase (one query, reused below)
   const { data: clientRow } = await supabase
     .from('clients')
-    .select('language')
+    .select('language, status, provisioned_via')
     .eq('agent_id', clientId)
     .maybeSingle();
+
+  // Only a Chatacus-provisioned client can be deactivated this way — existing
+  // hand-configured clients have provisioned_via = null and are unaffected
+  // regardless of what their `status` column says. 'inactive' is the only
+  // value the clients_status_check constraint allows for this (there is no
+  // separate 'suspended' state).
+  if (clientRow?.provisioned_via === 'chatacus-v1' && clientRow?.status === 'inactive') {
+    const encoder = new TextEncoder();
+    const inactiveStream = new ReadableStream({
+      start(controller) {
+        const text = 'This assistant is currently unavailable. Please check back later.';
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+      },
+    });
+    return new Response(inactiveStream, {
+      headers: {
+        'Content-Type':      'text/event-stream',
+        'Cache-Control':     'no-cache, no-transform',
+        'Connection':         'keep-alive',
+        'X-Accel-Buffering':  'no',
+      },
+    });
+  }
+
+  let languageInstruction = '';
   const language = clientRow?.language ?? 'english';
   if (language === 'welsh') {
     languageInstruction = '\n\nAlways respond in Welsh (Cymraeg) only regardless of what language the user writes in.';
