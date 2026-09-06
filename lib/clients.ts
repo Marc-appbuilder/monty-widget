@@ -29,6 +29,7 @@ export interface ClientConfig {
   teaserGapMs?: number;          // ms gap between appearances (default 4000)
   teaserFont?: string;           // custom font-family for teaser bubble
   teaserBg?: string;              // custom background colour for teaser bubble (default: rgba(17,17,17,0.93))
+  assistantDisplayName?: string;  // shared platform-level name shown to end users (brand rule, notifications, widget footer) — defaults to 'Chatacus'
 }
 
 export const clients: Record<string, ClientConfig> = {

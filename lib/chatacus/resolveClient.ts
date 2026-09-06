@@ -22,7 +22,7 @@ export async function resolveClient(clientId: string): Promise<ClientConfig> {
 
   const { data } = await supabase
     .from('clients')
-    .select('name, email, notification_email, brand_color, system_prompt')
+    .select('name, email, notification_email, brand_color, system_prompt, assistant_display_name')
     .eq('agent_id', clientId)
     .eq('provisioned_via', 'chatacus-v1')
     .maybeSingle();
@@ -35,6 +35,7 @@ export async function resolveClient(clientId: string): Promise<ClientConfig> {
       agentEmail: data.notification_email ?? data.email ?? '',
       notificationEmail: data.notification_email ?? data.email ?? '',
       brandColour: data.brand_color ?? '#1a365d',
+      assistantDisplayName: data.assistant_display_name ?? undefined,
     };
   }
 
