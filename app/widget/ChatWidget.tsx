@@ -596,7 +596,7 @@ export default function ChatWidget({ clientId, config }: Props) {
         <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.01em' }}>
           Powered by{' '}
           <span style={{ fontWeight: 700 }}>
-            <span style={{ color: '#AAFF00' }}>V</span><span style={{ color: 'rgba(255,255,255,0.85)' }}>aughan</span>
+            <span style={{ color: '#AAFF00' }}>{(config.assistantDisplayName || 'Chatacus').slice(0, 1)}</span><span style={{ color: 'rgba(255,255,255,0.85)' }}>{(config.assistantDisplayName || 'Chatacus').slice(1)}</span>
           </span>
         </p>
       </div>

@@ -22,7 +22,7 @@ function escapeHtml(str: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): string {
+function buildHtml(lead: LeadPayload, clientName: string, brandColour: string, displayName: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,7 +44,7 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
 <body>
   <div class="wrapper">
     <div class="header">
-      <h1>New lead from Vaughan — ${escapeHtml(clientName)}</h1>
+      <h1>New lead from ${escapeHtml(displayName)} — ${escapeHtml(clientName)}</h1>
       <p>${new Date().toUTCString()}</p>
     </div>
     <div class="body">
@@ -54,7 +54,7 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
         <tr><td>Phone</td><td>${lead.phone ? `<a href="tel:${escapeHtml(lead.phone)}" style="color:${brandColour}">${escapeHtml(lead.phone)}</a>` : '<span style="color:#aaa">Not provided</span>'}</td></tr>
       </table>
       ${lead.summary ? `<div class="summary"><strong>What they were looking for:</strong>\n${escapeHtml(lead.summary)}</div>` : ''}
-      <div class="footer">Sent automatically by Vaughan</div>
+      <div class="footer">Sent automatically by ${escapeHtml(displayName)}</div>
     </div>
   </div>
 </body>
@@ -84,13 +84,14 @@ export async function POST(req: NextRequest) {
   }
 
   const config = getClient(clientId);
+  const displayName = config.assistantDisplayName || 'Chatacus';
 
   const { error } = await getResend().emails.send({
-    from: 'Vaughan <leads@notifications.vaughan.ai>',
+    from: `${displayName} <leads@notifications.vaughan.ai>`,
     to: config.notificationEmail,
     ...(email ? { replyTo: email } : {}),
-    subject: `New lead from Vaughan — ${config.name}`,
-    html: buildHtml({ clientId, name, email, phone, summary }, config.name, config.brandColour),
+    subject: `New lead from ${displayName} — ${config.name}`,
+    html: buildHtml({ clientId, name, email, phone, summary }, config.name, config.brandColour, displayName),
   });
 
   if (error) {

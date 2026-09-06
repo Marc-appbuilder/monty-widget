@@ -61,7 +61,7 @@ function escapeHtml(str: string): string {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): string {
+function buildHtml(lead: LeadPayload, clientName: string, brandColour: string, displayName: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"/>
@@ -92,7 +92,7 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
       <tr><td>Phone</td><td>${lead.phone ? `<a href="tel:${escapeHtml(lead.phone)}" style="color:${brandColour}">${escapeHtml(lead.phone)}</a>` : '<span style="color:#aaa">Not provided</span>'}</td></tr>
     </table>
     ${lead.summary ? `<div class="summary"><strong>What they were looking for:</strong>\n${escapeHtml(lead.summary)}</div>` : ''}
-    <div class="footer">Sent automatically by Vaughan</div>
+    <div class="footer">Sent automatically by ${escapeHtml(displayName)}</div>
   </div>
 </div>
 </body></html>`;
@@ -100,14 +100,15 @@ function buildHtml(lead: LeadPayload, clientName: string, brandColour: string): 
 
 async function sendLeadEmail(lead: LeadPayload, clientId: string) {
   const config = getClient(clientId);
+  const displayName = config.assistantDisplayName || 'Chatacus';
   let lastError: unknown;
   for (let attempt = 1; attempt <= 3; attempt++) {
     const { data, error } = await getResend().emails.send({
-      from: 'Vaughan <leads@vaughanai.co>',
+      from: `${displayName} <leads@vaughanai.co>`,
       to: config.notificationEmail,
       ...(lead.email ? { replyTo: lead.email } : {}),
       subject: `New lead — ${config.name}`,
-      html: buildHtml(lead, config.name, config.brandColour),
+      html: buildHtml(lead, config.name, config.brandColour, displayName),
     });
     if (!error) {
       console.log(`[lead] email sent (attempt ${attempt}):`, data?.id, '→', config.notificationEmail);
@@ -191,7 +192,8 @@ export async function POST(req: NextRequest) {
   } else if (language === 'bilingual') {
     languageInstruction = '\n\nYou support English and Welsh languages only. Detect whether the user is writing in English or Welsh and respond in the same language. If unsure, default to English.';
   }
-  const brandRule = '\n\nBrand rule: you are Vaughan — always introduce yourself as just "Vaughan", never as "Vaughan from [agency name]". The agency and Vaughan are separate. If asked who you are, say "I\'m Vaughan" only.';
+  const displayName = config.assistantDisplayName || 'Chatacus';
+  const brandRule = `\n\nBrand rule: you are ${displayName} — always introduce yourself as just "${displayName}", never as "${displayName} from [agency name]". The agency and ${displayName} are separate. If asked who you are, say "I'm ${displayName}" only.`;
   const systemPrompt = config.systemPrompt + brandRule + languageInstruction;
 
   const sanitisedMessages: Anthropic.MessageParam[] = messages

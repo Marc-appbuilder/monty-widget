@@ -27,8 +27,9 @@ export async function POST(req: NextRequest) {
       hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London',
     });
 
+    const displayName = config.assistantDisplayName || 'Chatacus';
     const body =
-      `🏡 New Vaughan lead\n` +
+      `🏡 New ${displayName} lead\n` +
       `Name: ${name || 'Not provided'}\n` +
       `Phone: ${phone || 'Not provided'}\n` +
       `Email: ${email || 'Not provided'}\n` +
