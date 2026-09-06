@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/lib/clients';
+import { resolveClient } from '@/lib/chatacus/resolveClient';
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
 import type { LeadPayload } from '@/app/api/lead/route';
@@ -149,7 +150,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'clientId and messages are required' }, { status: 400 });
   }
 
-  const config = getClient(clientId);
+  const config = await resolveClient(clientId);
 
   // Fetch language setting from Supabase
   let languageInstruction = '';
